@@ -11,12 +11,15 @@ import { useChangePassword } from "../hook/useChangePassword.ts";
 interface ChangePasswordFormProps {
   /** Hide the "Back to login" link when rendered inside a dialog. */
   showBackLink?: boolean;
+  /** Prefills username when already known (e.g. logged-in user's mobile). */
+  defaultUsername?: string;
 }
 
 export function ChangePasswordForm({
   showBackLink = true,
+  defaultUsername,
 }: ChangePasswordFormProps) {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(defaultUsername ?? "");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const changePassword = useChangePassword();

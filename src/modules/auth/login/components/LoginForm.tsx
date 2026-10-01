@@ -34,7 +34,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   return (
     <Card className="w-full max-w-sm">
-      <CardHeader>
+      <CardHeader className="flex flex-col items-center text-center">
+        <div className="mb-2 flex h-10 items-center rounded-lg bg-white px-3 py-1 border border-border/50 shadow-xs">
+          <img
+            src="/logo.png"
+            alt="KMR LIVE"
+            className="h-7 w-auto object-contain"
+          />
+        </div>
         <CardTitle>Login</CardTitle>
         <CardDescription>
           Sign in to your KMR CRM account to continue.

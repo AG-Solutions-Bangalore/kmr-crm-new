@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card.tsx";
 import { APP_NAME, APP_TAGLINE } from "@/constants/app.ts";
 import { PATHS } from "@/constants/paths.ts";
+import { CompanyStatusCard } from "../components/CompanyStatusCard.tsx";
 
 interface QuickLink {
   title: string;
@@ -55,17 +56,18 @@ export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6">
       <Card className="relative overflow-hidden border-border/80 bg-card shadow-sm">
-        <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-primary via-primary/70 to-primary/20" />
         <CardHeader>
           <CardTitle className="text-xl">{APP_NAME}</CardTitle>
           <CardDescription>{APP_TAGLINE}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground -mt-2.5">
             Welcome back. Pick a module below or use the sidebar to navigate.
           </p>
         </CardContent>
       </Card>
+
+      <CompanyStatusCard />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {QUICK_LINKS.map((link) => (

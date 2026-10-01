@@ -48,10 +48,16 @@ export interface CompanyDetails {
   company_email: string;
   company_short: string;
   company_mobile_no: string;
+  company_mobile_no2?: string | null;
   company_address: string;
   company_place: string;
   company_logo: string;
   company_status: string;
+}
+
+export interface StatusImageUrl {
+  image_for: string;
+  image_url: string;
 }
 
 export interface CheckStatusResponse {
@@ -60,6 +66,7 @@ export interface CheckStatusResponse {
   message: string;
   version: { version_panel: string };
   company_detils: CompanyDetails;
+  image_url: StatusImageUrl[];
 }
 
 export interface DotenvResponse {

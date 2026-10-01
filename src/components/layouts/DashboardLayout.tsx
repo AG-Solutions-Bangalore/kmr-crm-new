@@ -20,19 +20,27 @@ interface SidebarContentProps {
 function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
   return (
     <div className="flex h-full flex-col">
+      {/* Sidebar header */}
       <div className="flex h-14 items-center border-b border-sidebar-border px-4">
         <Link
           to={PATHS.overview}
           onClick={onNavigate}
           className="flex items-center gap-2.5 font-semibold tracking-tight text-sidebar-foreground"
         >
-          <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground shadow-sm shadow-primary/30">
-            KMR
+          <div className="flex h-8 items-center rounded-md bg-white px-2 py-0.5 shadow-xs border border-border/50">
+            <img
+              src="/logo.png"
+              alt={APP_NAME}
+              className="h-5 w-auto max-w-[125px] object-contain"
+            />
+          </div>
+          <span className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+            CRM
           </span>
-          <span className="text-sm font-semibold tracking-tight">{APP_NAME}</span>
         </Link>
       </div>
 
+      {/* Nav items */}
       <nav className="flex-1 overflow-y-auto p-2 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label} className="mb-4">
@@ -56,7 +64,7 @@ function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
                   }
                 >
                   <item.icon className="size-4 shrink-0" />
-                  {item.title}
+                  <span className="truncate">{item.title}</span>
                 </NavLink>
               ))}
             </div>
@@ -64,6 +72,7 @@ function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
         ))}
       </nav>
 
+      {/* Account section */}
       <AccountSection onOpenDialog={onOpenDialog} onNavigate={onNavigate} />
     </div>
   );
@@ -80,7 +89,7 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-muted/40 text-foreground">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:block">
         <SidebarContent onOpenDialog={setAccountDialog} />
@@ -96,13 +105,14 @@ export function DashboardLayout() {
             className="absolute inset-0 cursor-pointer bg-background/80 backdrop-blur-sm"
           />
           <aside className="absolute inset-y-0 left-0 w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 right-3 z-10">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarOpen(false)}
+                aria-label="Close menu"
               >
-                <X />
+                <X className="size-4" />
               </Button>
             </div>
             <SidebarContent
@@ -117,19 +127,32 @@ export function DashboardLayout() {
       ) : null}
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b bg-background px-4">
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-background/95 backdrop-blur px-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden"
+            aria-label="Open menu"
           >
-            <Menu />
+            <Menu className="size-4" />
           </Button>
-          <span className="font-semibold tracking-tight lg:hidden">
-            {APP_NAME}
-          </span>
-          <div className="ml-auto flex items-center gap-1">
+
+          {/* Mobile logo branding */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <div className="flex h-7 items-center rounded bg-white px-1.5 py-0.5 border border-border/40">
+              <img
+                src="/logo.png"
+                alt={APP_NAME}
+                className="h-4.5 w-auto object-contain"
+              />
+            </div>
+            <span className="text-[11px] font-bold text-muted-foreground uppercase">
+              CRM
+            </span>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />
             <AccountMenu onOpenDialog={setAccountDialog} />
           </div>
