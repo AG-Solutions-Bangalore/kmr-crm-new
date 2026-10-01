@@ -1,0 +1,302 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  /* ============================================================
+     KMR LIVE — Design System extracted from landing page design
+     Use semantic utilities, never hardcode hex:
+     e.g. bg-primary-600, text-navy-900, bg-mist-100, text-success-600
+     ============================================================ */
+
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Caveat", "Segoe Script", "Bradley Hand", cursive;
+
+  /* ---------- Primary / KMR Brand Blue ---------- */
+  /* Buttons, active nav pill, links, "Smarter Decisions" heading, Send Message */
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dbe7fe;
+  --color-primary-200: #bfd4fe;
+  --color-primary-300: #93b4fd;
+  --color-primary-400: #608afa;
+  --color-primary-500: #3b67f6;
+  --color-primary-600: #254eeb; /* main CTA */
+  --color-primary-700: #1d42d8; /* CTA hover */
+  --color-primary-800: #1e3aa8; /* Home pill */
+  --color-primary-900: #1e368a;
+  --color-primary-950: #172454;
+  --color-primary: var(--color-primary-600);
+  --color-primary-hover: var(--color-primary-700);
+  --color-primary-active: var(--color-primary-800);
+
+  /* ---------- Navy / Trust Ink ---------- */
+  /* Headings "Market Trends", footer bg, ticker bg, dark text */
+  --color-navy-50: #eef2ff;
+  --color-navy-100: #e0e7ff;
+  --color-navy-200: #c7d2fe;
+  --color-navy-600: #1a2f7a;
+  --color-navy-700: #14265e;
+  --color-navy-800: #0f2351; /* headings */
+  --color-navy-900: #0a2472; /* ticker + footer base */
+  --color-navy-950: #071a54; /* footer darkest */
+  --color-ink: var(--color-navy-800);
+  --color-ink-soft: #3d4d6f;
+
+  /* ---------- Mist / Page Backgrounds & Borders ---------- */
+  --color-mist-50: #f8faff; /* card alt bg */
+  --color-mist-100: #eff6ff; /* light section bg */
+  --color-mist-200: #eaf2ff; /* hero / app download bg */
+  --color-mist-300: #dce7ff; /* card border */
+  --color-mist-400: #c3d4f5;
+  --color-cloud: #ffffff;
+  --color-border: #e2e8f0;
+  --color-border-light: var(--color-mist-300);
+
+  /* ---------- Body / Muted Text ---------- */
+  --color-muted-400: #94a3b8;
+  --color-muted-500: #64748b;
+  --color-muted-600: #5b6c8d; /* body copy */
+  --color-muted-700: #475569;
+
+  /* ---------- Success / Growth Green ---------- */
+  /* Price up, "Real-time Market Data", OUR CATEGORIES eyebrow, View All */
+  --color-success-50: #e7f6ec;
+  --color-success-100: #d1f0da;
+  --color-success-200: #a7e1b9;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a; /* icon + text */
+  --color-success-700: #15803d;
+  --color-success-tint: var(--color-success-50);
+  --color-ticker-up: #4ade80; /* green on dark ticker */
+
+  /* ---------- Danger / Live Red ---------- */
+  /* LIVE badge, price down, YouTube icon */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #f87171; /* down on dark */
+  --color-danger-600: #e11d2e; /* LIVE pill */
+  --color-danger-700: #b91c1c;
+  --color-live: var(--color-danger-600);
+  --color-ticker-down: #ff5a5a;
+
+  /* ---------- Warning / Harvest Amber-Orange ---------- */
+  /* FAQ ?, Our Mission bulb, badges, spices image tones */
+  --color-warning-50: #fff7ed;
+  --color-warning-100: #ffedd5;
+  --color-warning-200: #fed7aa;
+  --color-warning-400: #fb923c; /* FAQ ? circle */
+  --color-warning-500: #f59e0b; /* bulb yellow-orange */
+  --color-warning-600: #ea580c; /* Expert Insights icon */
+  --color-warning-tint: var(--color-warning-50);
+
+  /* ---------- Info / Sky ---------- */
+  /* Market Trends icon, small info accents */
+  --color-info-50: #eaf1ff;
+  --color-info-100: #dbeafe;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #0284c7; /* Our Vision icon */
+  --color-info-tint: var(--color-info-50);
+
+  /* ---------- Accent Violet ---------- */
+  /* Instant Updates bell */
+  --color-accent-violet-50: #f0e9ff;
+  --color-accent-violet-100: #ede9fe;
+  --color-accent-violet-500: #8b5cf6;
+  --color-accent-violet-600: #7c3aed;
+  --color-accent-violet-tint: var(--color-accent-violet-50);
+
+  /* ---------- Accent Orange ---------- */
+  /* Expert Insights, values handshake tint */
+  --color-accent-orange-50: #fff0e5;
+  --color-accent-orange-500: #f97316;
+  --color-accent-orange-600: #ea580c;
+  --color-accent-orange-tint: var(--color-accent-orange-50);
+
+  /* ---------- Gold / Commodity ---------- */
+  /* Oil, grains, field highlights, "From Markets to Opportunities" script */
+  --color-gold-300: #e8c96a;
+  --color-gold-400: #d4af37;
+  --color-gold-500: #c9a227;
+  --color-gold-600: #a8841c;
+  --color-gold: var(--color-gold-500);
+
+  /* ---------- Leaf / Farm Green ---------- */
+  /* Decorative leaves, paddy, farm imagery */
+  --color-leaf-100: #dcfce7;
+  --color-leaf-400: #4caf50;
+  --color-leaf-500: #2e9e44;
+  --color-leaf-600: #2e7d32;
+  --color-leaf-700: #1b5e20;
+  --color-leaf: var(--color-leaf-500);
+
+  /* ---------- Footer ---------- */
+  --color-footer-start: var(--color-navy-900);
+  --color-footer-end: #1544b5;
+  --color-footer-text: #b9c4de;
+  --color-footer-muted: #8ea0c9;
+
+  /* ---------- Shadows / Radius ---------- */
+  --shadow-card: 0 8px 24px -8px rgb(10 36 114 / 0.12);
+  --shadow-card-hover: 0 16px 40px -12px rgb(10 36 114 / 0.2);
+  --shadow-float: 0 20px 50px -12px rgb(10 36 114 / 0.25);
+  --shadow-cta: 0 8px 20px -6px rgb(37 78 235 / 0.45);
+
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  /* ---------- Ticker animation ---------- */
+  --animate-ticker: ticker 28s linear infinite;
+
+  @keyframes ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-white text-[var(--color-ink)] antialiased;
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-primary-600);
+    color: #fff;
+  }
+  
+    * {
+    @apply border-border outline-ring/50;
+  }
+}
+
+@layer components {
+  /* Reusable layout + typography matching the design */
+  .container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-28;
+  }
+}
+
+
+:root {
+  --radius: 0.625rem;
+  --background: #ffffff;
+  --foreground: #0f2351;
+  --card: #ffffff;
+  --card-foreground: #0f2351;
+  --popover: #ffffff;
+  --popover-foreground: #0f2351;
+  --primary: #254eeb;
+  --primary-foreground: #ffffff;
+  --secondary: #eff6ff;
+  --secondary-foreground: #0f2351;
+  --muted: #eff6ff;
+  --muted-foreground: #5b6c8d;
+  --accent: #eaf2ff;
+  --accent-foreground: #0f2351;
+  --destructive: #e11d2e;
+  --border: #dce7ff;
+  --input: #dce7ff;
+  --ring: #3b67f6;
+  --chart-1: #254eeb;
+  --chart-2: #16a34a;
+  --chart-3: #f59e0b;
+  --chart-4: #7c3aed;
+  --chart-5: #0284c7;
+  --sidebar: #f8faff;
+  --sidebar-foreground: #0f2351;
+  --sidebar-primary: #254eeb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eaf2ff;
+  --sidebar-accent-foreground: #0f2351;
+  --sidebar-border: #dce7ff;
+  --sidebar-ring: #3b67f6;
+}
+
+.dark {
+  --background: #071a54;
+  --foreground: #eef2ff;
+  --card: #0a2472;
+  --card-foreground: #eef2ff;
+  --popover: #0a2472;
+  --popover-foreground: #eef2ff;
+  --primary: #93b4fd;
+  --primary-foreground: #0a2472;
+  --secondary: #14265e;
+  --secondary-foreground: #eef2ff;
+  --muted: #14265e;
+  --muted-foreground: #b9c4de;
+  --accent: #14265e;
+  --accent-foreground: #eef2ff;
+  --destructive: #f87171;
+  --border: #1e3aa8;
+  --input: #1e3aa8;
+  --ring: #608afa;
+  --chart-1: #608afa;
+  --chart-2: #4ade80;
+  --chart-3: #fb923c;
+  --chart-4: #8b5cf6;
+  --chart-5: #38bdf8;
+  --sidebar: #0a2472;
+  --sidebar-foreground: #eef2ff;
+  --sidebar-primary: #93b4fd;
+  --sidebar-primary-foreground: #0a2472;
+  --sidebar-accent: #14265e;
+  --sidebar-accent-foreground: #eef2ff;
+  --sidebar-border: #1e3aa8;
+  --sidebar-ring: #608afa;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+
