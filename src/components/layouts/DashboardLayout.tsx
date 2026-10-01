@@ -20,20 +20,23 @@ interface SidebarContentProps {
 function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 items-center border-b px-4">
+      <div className="flex h-14 items-center border-b border-sidebar-border px-4">
         <Link
           to={PATHS.overview}
           onClick={onNavigate}
-          className="font-semibold tracking-tight"
+          className="flex items-center gap-2.5 font-semibold tracking-tight text-sidebar-foreground"
         >
-          {APP_NAME}
+          <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground shadow-sm shadow-primary/30">
+            KMR
+          </span>
+          <span className="text-sm font-semibold tracking-tight">{APP_NAME}</span>
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-2">
+      <nav className="flex-1 overflow-y-auto p-2 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label} className="mb-4">
-            <p className="px-3 pb-1 text-xs font-medium text-muted-foreground">
+            <p className="px-3 pb-1 text-[11px] font-semibold tracking-wider uppercase text-sidebar-foreground/50">
               {section.label}
             </p>
             <div className="flex flex-col gap-1">
@@ -45,10 +48,10 @@ function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                       isActive
-                        ? "bg-secondary text-secondary-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                        ? "bg-primary text-primary-foreground font-semibold shadow-sm shadow-primary/25"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                     )
                   }
                 >
@@ -79,7 +82,7 @@ export function DashboardLayout() {
   return (
     <div className="min-h-screen bg-muted/40">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r bg-sidebar text-sidebar-foreground lg:block">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:block">
         <SidebarContent onOpenDialog={setAccountDialog} />
       </aside>
 
@@ -90,9 +93,9 @@ export function DashboardLayout() {
             type="button"
             aria-label="Close menu"
             onClick={() => setSidebarOpen(false)}
-            className="absolute inset-0 cursor-pointer bg-background/80"
+            className="absolute inset-0 cursor-pointer bg-background/80 backdrop-blur-sm"
           />
-          <aside className="absolute inset-y-0 left-0 w-64 border-r bg-sidebar text-sidebar-foreground">
+          <aside className="absolute inset-y-0 left-0 w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
             <div className="absolute top-3 right-3">
               <Button
                 variant="ghost"

@@ -45,8 +45,8 @@ export function AccountMenu({ onOpenDialog }: AccountMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="flex items-center gap-2 px-2">
-          <Avatar className="size-7">
-            <AvatarFallback className="text-[11px]">
+          <Avatar className="size-7 ring-1 ring-primary/40">
+            <AvatarFallback className="bg-primary/10 text-[11px] font-semibold text-primary">
               {getInitials(name)}
             </AvatarFallback>
           </Avatar>

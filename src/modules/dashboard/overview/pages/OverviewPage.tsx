@@ -54,9 +54,10 @@ const QUICK_LINKS: QuickLink[] = [
 export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6">
-      <Card>
+      <Card className="relative overflow-hidden border-border/80 bg-card shadow-sm">
+        <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-primary via-primary/70 to-primary/20" />
         <CardHeader>
-          <CardTitle>{APP_NAME}</CardTitle>
+          <CardTitle className="text-xl">{APP_NAME}</CardTitle>
           <CardDescription>{APP_TAGLINE}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -68,16 +69,25 @@ export function OverviewPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {QUICK_LINKS.map((link) => (
-          <Card key={link.path}>
+          <Card
+            key={link.path}
+            className="group transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+          >
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <link.icon className="size-4 shrink-0" />
+              <CardTitle className="flex items-center gap-2.5 text-base">
+                <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground shadow-sm">
+                  <link.icon className="size-4 shrink-0" />
+                </span>
                 {link.title}
               </CardTitle>
               <CardDescription>{link.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" asChild className="w-full">
+              <Button
+                variant="outline"
+                asChild
+                className="w-full transition-colors group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary"
+              >
                 <Link to={link.path}>Open {link.title}</Link>
               </Button>
             </CardContent>
