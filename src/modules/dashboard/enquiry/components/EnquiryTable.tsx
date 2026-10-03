@@ -1,14 +1,59 @@
 import { useState } from "react";
-import { Mail, MessageSquare, Phone, Search, Trash2 } from "lucide-react";
+import {
+  Eye,
+  Loader2,
+  Mail,
+  MessageSquare,
+  Phone,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { useDeleteEnquiry, useUpdateEnquiryStatus } from "../hook/useEnquiry.ts";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog.tsx";
+import {
+  useDeleteEnquiry,
+  useEnquiry,
+  useUpdateEnquiryStatus,
+} from "../hook/useEnquiry.ts";
 import type { EnquiryItem, EnquiryStatus } from "../types/enquiry.types.ts";
 
 interface EnquiryTableProps {
   enquiries: EnquiryItem[];
   isLoading: boolean;
+}
+
+function getName(e: EnquiryItem): string {
+  return e.enquiryFullName || e.name || "Anonymous Prospect";
+}
+function getEmail(e: EnquiryItem): string {
+  return e.enquiryEmail || e.email || "";
+}
+function getMobile(e: EnquiryItem): string {
+  return e.enquiryMobile || e.mobile || "";
+}
+function getService(e: EnquiryItem): string {
+  return e.enquiryService || e.subject || "";
+}
+function getMessage(e: EnquiryItem): string {
+  return e.enquiryMessage || e.message || "";
 }
 
 export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
@@ -17,15 +62,18 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
   const updateStatusMutation = useUpdateEnquiryStatus();
   const deleteMutation = useDeleteEnquiry();
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<EnquiryItem | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [viewId, setViewId] = useState<number | null>(null);
 
   const filtered = enquiries.filter((item) => {
     const s = search.toLowerCase();
     const matchesSearch =
-      item.name?.toLowerCase().includes(s) ||
-      item.email?.toLowerCase().includes(s) ||
-      item.mobile?.toLowerCase().includes(s) ||
-      item.message?.toLowerCase().includes(s) ||
-      item.subject?.toLowerCase().includes(s);
+      getName(item).toLowerCase().includes(s) ||
+      getEmail(item).toLowerCase().includes(s) ||
+      getMobile(item).toLowerCase().includes(s) ||
+      getMessage(item).toLowerCase().includes(s) ||
+      getService(item).toLowerCase().includes(s);
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -46,9 +94,15 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this enquiry?")) {
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
+    setDeletingId(id);
+    try {
       await deleteMutation.mutateAsync(id);
+      setDeleteTarget(null);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -84,7 +138,7 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search enquiries by name, email, or message..."
+            placeholder="Search by name, email, mobile, service..."
             className="pl-8"
           />
         </div>
@@ -112,10 +166,10 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
               <tr>
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Subject & Message</th>
+                <th className="px-4 py-3">Service & Message</th>
                 <th className="px-4 py-3">Current Status</th>
                 <th className="px-4 py-3">Change Status</th>
-                <th className="px-4 py-3 text-right">Delete</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
@@ -145,6 +199,10 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
               ) : (
                 filtered.map((item) => {
                   const isUpdating = updatingId === item.id;
+                  const mobile = getMobile(item);
+                  const email = getEmail(item);
+                  const service = getService(item);
+                  const message = getMessage(item);
 
                   return (
                     <tr
@@ -158,7 +216,7 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
                           </div>
                           <div>
                             <p className="font-medium text-foreground">
-                              {item.name || "Anonymous Prospect"}
+                              {getName(item)}
                             </p>
                             <span className="text-[11px] text-muted-foreground">
                               ID: #{item.id}
@@ -169,29 +227,32 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
 
                       <td className="px-4 py-3.5 text-xs">
                         <div className="flex flex-col gap-0.5">
-                          {item.mobile && (
+                          {mobile && (
                             <span className="flex items-center gap-1 font-medium text-foreground">
                               <Phone className="size-3 text-muted-foreground" />
-                              {item.mobile}
+                              {mobile}
                             </span>
                           )}
-                          {item.email && (
-                            <span className="flex items-center gap-1 text-muted-foreground truncate max-w-[160px]">
+                          {email && (
+                            <span className="flex items-center gap-1 text-muted-foreground truncate max-w-[180px]">
                               <Mail className="size-3 text-muted-foreground" />
-                              {item.email}
+                              {email}
                             </span>
+                          )}
+                          {!mobile && !email && (
+                            <span className="text-muted-foreground">—</span>
                           )}
                         </div>
                       </td>
 
                       <td className="px-4 py-3.5 max-w-xs text-xs">
-                        {item.subject && (
+                        {service && (
                           <p className="font-medium text-foreground line-clamp-1">
-                            {item.subject}
+                            {service}
                           </p>
                         )}
                         <p className="text-muted-foreground line-clamp-2 mt-0.5">
-                          {item.message || "—"}
+                          {message || "—"}
                         </p>
                       </td>
 
@@ -218,16 +279,29 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
                       </td>
 
                       <td className="px-4 py-3.5 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(item.id)}
-                          className="size-8 p-0 text-destructive hover:bg-destructive/10"
-                          title="Delete Enquiry"
-                        >
-                          <Trash2 className="size-3.5" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setViewId(item.id)}
+                            className="size-8 p-0"
+                            title="View details"
+                          >
+                            <Eye className="size-3.5" />
+                            <span className="sr-only">View</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteTarget(item)}
+                            disabled={deletingId === item.id}
+                            className="size-8 p-0 text-destructive hover:bg-destructive/10"
+                            title="Delete Enquiry"
+                          >
+                            <Trash2 className="size-3.5" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -236,6 +310,107 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* View details — GET /enquiry/:id */}
+      <Dialog open={viewId !== null} onOpenChange={(o) => !o && setViewId(null)}>
+        <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
+          {viewId !== null && <EnquiryDetailContent enquiryId={viewId} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open && deletingId === null) setDeleteTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete enquiry?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete enquiry{" "}
+              <span className="font-mono font-semibold text-foreground">
+                #{deleteTarget?.id} ({deleteTarget ? getName(deleteTarget) : ""})
+              </span>
+              . This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingId !== null}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDelete();
+              }}
+              disabled={deletingId !== null}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingId !== null ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+function EnquiryDetailContent({ enquiryId }: { enquiryId: number }) {
+  const { data, isLoading, error } = useEnquiry(enquiryId);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <span>Loading enquiry details from server...</span>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+        Could not load enquiry #{enquiryId} details.
+      </div>
+    );
+  }
+
+  const rows: Array<[string, string]> = [
+    ["Full Name", getName(data)],
+    ["Mobile", getMobile(data) || "—"],
+    ["Email", getEmail(data) || "—"],
+    ["Service", getService(data) || "—"],
+    ["From", data.enquiryFrom || "—"],
+    ["Message", getMessage(data) || "—"],
+    ["Status", data.enquiryStatus || "Pending"],
+    ["UTM Source", data.utm_source || "—"],
+    ["UTM Medium", data.utm_medium || "—"],
+    ["UTM Campaign", data.utm_campaign || "—"],
+  ];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <DialogHeader>
+        <DialogTitle>Enquiry #{data.id}</DialogTitle>
+        <DialogDescription>
+          Full details fetched via GET /enquiry/{data.id}.
+        </DialogDescription>
+      </DialogHeader>
+      <div className="grid gap-2">
+        {rows.map(([label, value]) => (
+          <div
+            key={label}
+            className="flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-xs"
+          >
+            <span className="shrink-0 font-semibold uppercase tracking-wider text-muted-foreground">
+              {label}
+            </span>
+            <span className="break-all text-right text-foreground">{value}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
