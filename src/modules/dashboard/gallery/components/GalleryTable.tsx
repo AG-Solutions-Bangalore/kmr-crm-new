@@ -3,8 +3,46 @@ import { Edit2, Images, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateGalleryStatus } from "../hook/useGallery.ts";
 import type { GalleryItem, GalleryStatus } from "../types/gallery.types.ts";
+
+function GalleryThumb({
+  filename,
+  baseUrl,
+}: {
+  filename?: string;
+  baseUrl?: string | null;
+}) {
+  const [failed, setFailed] = useState(false);
+  // Prefer server-provided base (e.g. .../gallerys_images/) — actual folder
+  // is `gallerys_images`, not `gallery_images`.
+  const url = baseUrl
+    ? `${baseUrl.replace(/\/?$/, "/")}${(filename || "").replace(/^\/+/, "")}`
+    : resolveAssetImageUrl(filename, "gallerys_images");
+  if (!url || failed) {
+    return (
+      <div
+        className="flex h-full w-full flex-col items-center justify-center gap-1 p-1 text-center"
+        title={filename || "No file"}
+      >
+        <Images className="size-5 text-muted-foreground" />
+        <span className="text-[9px] leading-tight text-muted-foreground">
+          {filename ? "No preview" : "No file"}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt="Gallery"
+      loading="lazy"
+      className="h-full w-full object-cover"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 interface GalleryTableProps {
   galleryItems: GalleryItem[];
@@ -63,14 +101,13 @@ export function GalleryTable({ galleryItems, isLoading, onEdit }: GalleryTablePr
                 <th className="px-4 py-3">Image Preview</th>
                 <th className="px-4 py-3">Image Filename</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Created At</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading gallery images...</span>
@@ -79,7 +116,7 @@ export function GalleryTable({ galleryItems, isLoading, onEdit }: GalleryTablePr
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Images className="size-8 opacity-40" />
                       <p className="font-medium">No gallery images found</p>
@@ -103,18 +140,10 @@ export function GalleryTable({ galleryItems, isLoading, onEdit }: GalleryTablePr
                     >
                       <td className="px-4 py-3.5">
                         <div className="flex size-14 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/30 font-mono text-xs overflow-hidden">
-                          {item.gallery_image ? (
-                            <img
-                              src={`https://kmrlive.in/crmapi/public/assets/images/gallery_images/${item.gallery_image}`}
-                              alt="Gallery"
-                              className="h-full w-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = "none";
-                              }}
-                            />
-                          ) : (
-                            <Images className="size-5 text-muted-foreground" />
-                          )}
+                          <GalleryThumb
+                            filename={item.gallery_image}
+                            baseUrl={item.gallery_url}
+                          />
                         </div>
                       </td>
 
@@ -138,10 +167,6 @@ export function GalleryTable({ galleryItems, isLoading, onEdit }: GalleryTablePr
                         >
                           {item.gallery_status || "Active"}
                         </Badge>
-                      </td>
-
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {item.created_at ? new Date(item.created_at).toLocaleDateString() : "—"}
                       </td>
 
                       <td className="px-4 py-3.5 text-right">

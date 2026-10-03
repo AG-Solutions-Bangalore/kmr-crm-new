@@ -3,6 +3,7 @@ export type GalleryStatus = "Active" | "Inactive";
 export interface GalleryItem {
   id: number;
   gallery_image: string;
+  gallery_url?: string | null;
   gallery_status?: GalleryStatus | string;
   created_at?: string | null;
   updated_at?: string | null;
