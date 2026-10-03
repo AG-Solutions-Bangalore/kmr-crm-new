@@ -12,7 +12,7 @@ export interface FaqSubItem {
   faq_heading?: string;
   faq_que: string;
   faq_ans: string;
-  faq_status?: FaqStatus | string;
+  faq_status?: number | FaqStatus | string;
   created_at?: string | null;
   updated_at?: string | null;
 }
@@ -57,6 +57,6 @@ export interface FaqUpdatePayload {
     faq_heading?: string;
     faq_que: string;
     faq_ans: string;
-    faq_status?: FaqStatus | string;
+    faq_status?: number | FaqStatus | string;
   }>;
 }

@@ -11,6 +11,7 @@ import {
   fetchVendors,
   fetchVendorSpots,
   updateVendor,
+  updateVendorSpotStatus,
   updateVendorStatus,
 } from "../api/vendor.api.ts";
 import type {
@@ -128,6 +129,18 @@ export function useCreateVendorSpot() {
 
   return useMutation({
     mutationFn: (payload: VendorSpotPayload) => createVendorSpot(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.spots() });
+    },
+  });
+}
+
+export function useUpdateVendorSpotStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: number | string; status: string }) =>
+      updateVendorSpotStatus(id, status),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: vendorKeys.spots() });
     },

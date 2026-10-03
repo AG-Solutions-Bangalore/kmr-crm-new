@@ -21,14 +21,11 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
 
   const filtered = faqs.filter((f) => {
     const q = search.toLowerCase();
-    const matchesPage = f.faq_for?.toLowerCase().includes(q) || String(f.id).includes(q);
-    const matchesQuestions = f.subs?.some(
-      (s) =>
-        s.faq_que.toLowerCase().includes(q) ||
-        s.faq_ans.toLowerCase().includes(q) ||
-        s.faq_heading?.toLowerCase().includes(q),
+    return (
+      f.faq_for?.toLowerCase().includes(q) ||
+      f.faq_status?.toLowerCase().includes(q) ||
+      String(f.id).includes(q)
     );
-    return matchesPage || matchesQuestions;
   });
 
   const handleToggleStatus = async (item: FaqItem) => {
@@ -65,30 +62,28 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search FAQs by question, page, or answer..."
+            placeholder="Search FAQs by page or status..."
             className="pl-8"
           />
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table - strictly renders what the API returns: id, faq_for, faq_status */}
       <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Page Placement</th>
-                <th className="px-4 py-3">Questions Count</th>
-                <th className="px-4 py-3">Questions Sample</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Created At</th>
+                <th className="px-4 py-3">ID</th>
+                <th className="px-4 py-3">Page Placement (faq_for)</th>
+                <th className="px-4 py-3">Status (faq_status)</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading FAQs...</span>
@@ -97,7 +92,7 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <HelpCircle className="size-8 opacity-40" />
                       <p className="font-medium">No FAQs found</p>
@@ -114,50 +109,20 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
                   const isActive = item.faq_status === "Active";
                   const isToggling = togglingId === item.id;
                   const isDeleting = deletingId === item.id;
-                  const subCount = item.subs?.length ?? 0;
 
                   return (
                     <tr
                       key={item.id}
                       className="transition-colors hover:bg-muted/30"
                     >
+                      <td className="px-4 py-3.5 font-mono text-xs font-semibold text-foreground">
+                        #{item.id}
+                      </td>
+
                       <td className="px-4 py-3.5">
-                        <Badge variant="outline" className="font-mono text-xs">
+                        <Badge variant="outline" className="font-mono text-xs font-medium">
                           {item.faq_for}
                         </Badge>
-                        <p className="text-[11px] text-muted-foreground font-mono mt-0.5">
-                          ID: #{item.id}
-                        </p>
-                      </td>
-
-                      <td className="px-4 py-3.5">
-                        <Badge variant="secondary" className="text-xs">
-                          {subCount} {subCount === 1 ? "Question" : "Questions"}
-                        </Badge>
-                      </td>
-
-                      <td className="px-4 py-3.5 max-w-[320px]">
-                        <div className="flex flex-col gap-1">
-                          {item.subs && item.subs.length > 0 ? (
-                            item.subs.slice(0, 2).map((s, idx) => (
-                              <p
-                                key={idx}
-                                className="line-clamp-1 text-xs text-muted-foreground"
-                              >
-                                <span className="font-medium text-foreground">
-                                  Q: {s.faq_que}
-                                </span>
-                              </p>
-                            ))
-                          ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
-                          {subCount > 2 && (
-                            <span className="text-[11px] text-primary">
-                              +{subCount - 2} more...
-                            </span>
-                          )}
-                        </div>
                       </td>
 
                       <td className="px-4 py-3.5">
@@ -173,10 +138,6 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
                         </Badge>
                       </td>
 
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {item.created_at ? new Date(item.created_at).toLocaleDateString() : "—"}
-                      </td>
-
                       <td className="px-4 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
@@ -189,7 +150,7 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
                           >
                             <Power
                               className={`size-3.5 ${
-                                isActive ? "text-emerald-600" : "text-muted-foreground"
+                                isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
                               }`}
                             />
                             <span className="sr-only">Toggle</span>
@@ -200,7 +161,7 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
                             size="sm"
                             onClick={() => onEdit(item)}
                             className="size-8 p-0"
-                            title="Edit FAQ Group"
+                            title="Edit FAQ & Questions"
                           >
                             <Edit2 className="size-3.5" />
                             <span className="sr-only">Edit</span>
@@ -211,8 +172,8 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
                             size="sm"
                             onClick={() => handleDelete(item.id)}
                             disabled={isDeleting}
+                            title="Delete FAQ"
                             className="size-8 p-0 text-destructive hover:bg-destructive/10"
-                            title="Delete FAQ Group"
                           >
                             <Trash2 className="size-3.5" />
                             <span className="sr-only">Delete</span>

@@ -29,13 +29,10 @@ export function FaqPage() {
     setDialogOpen(true);
   };
 
-  const totalGroups = faqs.length;
-  const totalQuestions = faqs.reduce(
-    (acc, f) => acc + (f.subs ? f.subs.length : 0),
-    0,
-  );
-  const activeGroups = faqs.filter((f) => f.faq_status === "Active").length;
-  const inactiveGroups = faqs.filter((f) => f.faq_status === "Inactive").length;
+  const totalFaqs = faqs.length;
+  const activeFaqs = faqs.filter((f) => f.faq_status === "Active").length;
+  const inactiveFaqs = faqs.filter((f) => f.faq_status === "Inactive").length;
+  const uniquePlacements = new Set(faqs.map((f) => f.faq_for).filter(Boolean)).size;
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,32 +91,18 @@ export function FaqPage() {
         </div>
       )}
 
-      {/* Metric Cards */}
+      {/* Metric Cards - strictly computed from API response */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              FAQ Groups
+              Total FAQs
             </CardTitle>
             <HelpCircle className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : totalGroups}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-primary">
-              Total Questions
-            </CardTitle>
-            <HelpCircle className="size-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : totalQuestions}
+              {isLoading ? "—" : totalFaqs}
             </div>
           </CardContent>
         </Card>
@@ -127,27 +110,41 @@ export function FaqPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              Active Groups
+              Active FAQs
             </CardTitle>
             <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : activeGroups}
+              {isLoading ? "—" : activeFaqs}
             </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">
-              Inactive Groups
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Inactive FAQs
             </CardTitle>
-            <XCircle className="size-4 text-amber-600 dark:text-amber-400" />
+            <XCircle className="size-4 text-muted-foreground opacity-60" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : inactiveGroups}
+              {isLoading ? "—" : inactiveFaqs}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-primary">
+              Page Placements
+            </CardTitle>
+            <HelpCircle className="size-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">
+              {isLoading ? "—" : uniquePlacements}
             </div>
           </CardContent>
         </Card>

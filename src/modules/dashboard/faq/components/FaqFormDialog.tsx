@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   useCreateFaq,
+  useFaq,
   usePageTwoOptions,
   useUpdateFaq,
 } from "../hook/useFaq.ts";
@@ -109,11 +110,14 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
             faq_status: status,
             subs: subs.map((s, idx) => ({
               id: s.id,
-              faq_sort: s.faq_sort ?? idx + 1,
+              faq_sort: Number(s.faq_sort) || idx + 1,
               faq_heading: s.faq_heading || "General",
               faq_que: s.faq_que.trim(),
               faq_ans: s.faq_ans.trim(),
-              faq_status: s.faq_status || "Active",
+              faq_status:
+                s.faq_status === "Inactive" || s.faq_status === 0 || s.faq_status === "0"
+                  ? 0
+                  : 1,
             })),
           },
         });
@@ -287,14 +291,44 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   );
 }
 
+function FaqFormContainer({
+  faqId,
+  initialFaq,
+  onClose,
+}: {
+  faqId?: number;
+  initialFaq?: FaqItem | null;
+  onClose: () => void;
+}) {
+  const { data: detailedFaq, isLoading } = useFaq(faqId);
+
+  if (faqId && isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <span>Loading FAQ questions from server...</span>
+      </div>
+    );
+  }
+
+  const effectiveFaq = detailedFaq || initialFaq;
+  return (
+    <FaqFormContent
+      key={effectiveFaq?.id ? `${effectiveFaq.id}-${effectiveFaq.subs?.length ?? 0}` : "new"}
+      faq={effectiveFaq}
+      onClose={onClose}
+    />
+  );
+}
+
 export function FaqFormDialog({ open, onOpenChange, faq }: FaqFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         {open && (
-          <FaqFormContent
-            key={faq?.id ?? "new-faq"}
-            faq={faq}
+          <FaqFormContainer
+            faqId={faq?.id}
+            initialFaq={faq}
             onClose={() => onOpenChange(false)}
           />
         )}
