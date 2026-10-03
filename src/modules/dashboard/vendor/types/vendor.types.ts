@@ -67,3 +67,27 @@ export interface VendorSpotItem {
   created_at?: string | null;
   updated_at?: string | null;
 }
+
+export type VendorRateProduct = VendorLiveProduct;
+
+export interface VendorSpotPayload {
+  products: Array<{
+    vendor_id: number | string;
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_spot_heading: string;
+    vendor_spot_details: string;
+  }>;
+}
+
+export interface VendorRatePayload {
+  products: Array<{
+    vendor_id: number | string;
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_product: string;
+    vendor_product_size: string;
+    vendor_product_rate: string | number;
+  }>;
+}
+

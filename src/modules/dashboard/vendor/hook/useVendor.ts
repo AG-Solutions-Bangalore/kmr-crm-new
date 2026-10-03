@@ -1,15 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createVendor,
+  createVendorLive,
+  createVendorRate,
+  createVendorSpot,
   fetchActiveVendors,
   fetchVendorById,
   fetchVendorLives,
+  fetchVendorRates,
   fetchVendors,
   fetchVendorSpots,
   updateVendor,
   updateVendorStatus,
 } from "../api/vendor.api.ts";
-import type { VendorMutationPayload, VendorStatus } from "../types/vendor.types.ts";
+import type {
+  VendorMutationPayload,
+  VendorRatePayload,
+  VendorSpotPayload,
+  VendorStatus,
+} from "../types/vendor.types.ts";
 
 export const vendorKeys = {
   all: ["vendors"] as const,
@@ -18,6 +27,7 @@ export const vendorKeys = {
   detail: (id: number | string) => [...vendorKeys.all, "detail", id] as const,
   spots: () => [...vendorKeys.all, "spots"] as const,
   lives: () => [...vendorKeys.all, "lives"] as const,
+  rates: () => [...vendorKeys.all, "rates"] as const,
 };
 
 export function useVendors() {
@@ -104,3 +114,45 @@ export function useUpdateVendorStatus() {
     },
   });
 }
+
+export function useVendorRates() {
+  return useQuery({
+    queryKey: vendorKeys.rates(),
+    queryFn: fetchVendorRates,
+    retry: 1,
+  });
+}
+
+export function useCreateVendorSpot() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: VendorSpotPayload) => createVendorSpot(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.spots() });
+    },
+  });
+}
+
+export function useCreateVendorRate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: VendorRatePayload) => createVendorRate(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.rates() });
+    },
+  });
+}
+
+export function useCreateVendorLive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: VendorRatePayload) => createVendorLive(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.lives() });
+    },
+  });
+}
+

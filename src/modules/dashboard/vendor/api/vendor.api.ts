@@ -108,6 +108,32 @@ export async function fetchVendorSpots(): Promise<VendorSpotItem[]> {
   return [];
 }
 
+/** POST /vendor-spot — Create vendor spot. */
+export async function createVendorSpot(payload: {
+  products: Array<{
+    vendor_id: number | string;
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_spot_heading: string;
+    vendor_spot_details: string;
+  }>;
+}): Promise<unknown> {
+  const { data } = await api.post("/vendor-spot", payload);
+  throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor spot.");
+  return data;
+}
+
+/** PATCH /vendor-spots/:id/status — Toggle vendor spot status. */
+export async function updateVendorSpotStatus(
+  id: number | string,
+  status: string,
+): Promise<unknown> {
+  const formData = toFormData({ _method: "PATCH", vendor_spot_status: status });
+  const { data } = await api.post(`/vendor-spots/${id}/status`, formData);
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update spot status.");
+  return data;
+}
+
 /** GET /vendor-live — Fetch vendor live products. */
 export async function fetchVendorLives(): Promise<VendorLiveProduct[]> {
   const { data } = await api.get<{ data?: VendorLiveProduct[] } | VendorLiveProduct[]>("/vendor-live");
@@ -117,3 +143,68 @@ export async function fetchVendorLives(): Promise<VendorLiveProduct[]> {
   }
   return [];
 }
+
+/** POST /vendor-live — Create vendor live product rates. */
+export async function createVendorLive(payload: {
+  products: Array<{
+    vendor_id: number | string;
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_product: string;
+    vendor_product_size: string;
+    vendor_product_rate: string | number;
+  }>;
+}): Promise<unknown> {
+  const { data } = await api.post("/vendor-live", payload);
+  throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor live product.");
+  return data;
+}
+
+/** PATCH /vendor-lives/:id/status — Toggle vendor live status. */
+export async function updateVendorLiveStatus(
+  id: number | string,
+  status: string,
+): Promise<unknown> {
+  const formData = toFormData({ _method: "PATCH", vendor_product_status: status });
+  const { data } = await api.post(`/vendor-lives/${id}/status`, formData);
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update vendor live status.");
+  return data;
+}
+
+/** GET /vendor-rate — Fetch vendor rates. */
+export async function fetchVendorRates(): Promise<VendorLiveProduct[]> {
+  const { data } = await api.get<{ data?: VendorLiveProduct[] } | VendorLiveProduct[]>("/vendor-rate");
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object" && Array.isArray(data.data)) {
+    return data.data;
+  }
+  return [];
+}
+
+/** POST /vendor-rate — Create vendor rates. */
+export async function createVendorRate(payload: {
+  products: Array<{
+    vendor_id: number | string;
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_product: string;
+    vendor_product_size: string;
+    vendor_product_rate: string | number;
+  }>;
+}): Promise<unknown> {
+  const { data } = await api.post("/vendor-rate", payload);
+  throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor rate.");
+  return data;
+}
+
+/** PATCH /vendor-rates/:id/status — Toggle vendor rate status. */
+export async function updateVendorRateStatus(
+  id: number | string,
+  status: string,
+): Promise<unknown> {
+  const formData = toFormData({ _method: "PATCH", vendor_product_status: status });
+  const { data } = await api.post(`/vendor-rates/${id}/status`, formData);
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update vendor rate status.");
+  return data;
+}
+

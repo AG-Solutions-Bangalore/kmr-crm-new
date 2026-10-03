@@ -1,260 +1,219 @@
 # KMR CRM — Modules & API Implementation Tracker
 
-This document tracks the end-to-end implementation status of all CRM modules, their routes, API endpoints from the Postman collection, and live backend verification status.
-
-**Test Credentials:**
-- **Username / Mobile:** `7892036268`
-- **Password:** `123456`
-- **Base URL:** `https://kmrlive.in/crmapi/public/api`
+This document tracks the complete end-to-end implementation of all 14 CRM modules, their route paths, exact payload structures from the Postman collection (`kmr.postman_collection.json`), and step-by-step UI verification guides.
 
 ---
 
-## 📊 Modules Master Checklist
+## 🔑 Test Credentials & API Configuration
 
-| # | Module Name | Route Path | UI Status | API Status | Backend Live Health |
-|---|-------------|------------|-----------|------------|---------------------|
+- **Base URL:** `https://kmrlive.in/crmapi/public/api`
+- **Username / Mobile:** `7892036268`
+- **Password:** `123456`
+- **Auth Scheme:** Bearer Token (retrieved dynamically from `loginResponse.UserInfo.token`)
+- **Method Spoofing:** Multipart `FormData` updates use `POST` with `_method: "PUT"` and `_method: "PATCH"` for PHP Laravel compatibility.
+
+---
+
+## 📊 Modules Master Checklist (All 14 Modules)
+
+| # | Module Name | Route Path | UI / View Status | API Client Status | Backend Live Health |
+|---|-------------|------------|------------------|-------------------|---------------------|
 | 1 | **Auth & Profile** | `/login`, `/forgot-password`, `/change-password`, `/profile` | ✅ Implemented | ✅ Implemented | 🟢 200 OK |
 | 2 | **Category** | `/category` | ✅ Implemented | ✅ Implemented | ⚠️ 500 (`Class App\Models\Categories not found` on server) |
 | 3 | **Vendor & Rates** | `/vendor` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (`vendor`, `activeVendors`, `vendor-spot`) |
-| 4 | **News** | `/news` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (`news`) |
-| 5 | **Slider / Banners** | `/slider` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (`slider`) |
-| 6 | **Notification** | `/notification` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (`notification`) |
-| 7 | **Enquiry** | `/enquiry` | ✅ Implemented | ✅ Implemented | ⚠️ 500 (`EnquiryController does not exist`) |
-| 8 | **Newsletter** | `/newsletter` | ✅ Implemented | ✅ Implemented | ⚠️ 500 (`NewsletterController does not exist`) |
-| 9 | **Blog** | `/blog` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (`blog`) |
-| 10 | **Pages (One & Two)** | `/pages` | ⏳ Pending | ⏳ Pending | 🟢 200 OK (`pageOne`, `pageTwo`) |
-| 11 | **Gallery** | `/gallery` | ⏳ Pending | ⏳ Pending | 🟢 200 OK (`gallery`) |
-| 12 | **Client** | `/client` | ⏳ Pending | ⏳ Pending | 🟢 200 OK (`client`) |
-| 13 | **Testimonial** | `/testimonial` | ⏳ Pending | ⏳ Pending | 🟢 200 OK (`testimonial`) |
-| 14 | **FAQ & FAQ-Sub** | `/faq` | ⏳ Pending | ⏳ Pending | 🟢 200 OK (`faq`) |
+| 4 | **News & Bulletins** | `/news` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (Live items) |
+| 5 | **Slider / Banners** | `/slider` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (Live items) |
+| 6 | **Notifications** | `/notification` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (Live items) |
+| 7 | **Customer Enquiries** | `/enquiry` | ✅ Implemented | ✅ Implemented | ⚠️ 500 (`EnquiryController does not exist` on server) |
+| 8 | **Newsletter Subscribers** | `/newsletter` | ✅ Implemented | ✅ Implemented | ⚠️ 500 (`NewsletterController does not exist` on server) |
+| 9 | **Blogs & Articles** | `/blog` | ✅ Implemented | ✅ Implemented | 🟢 200 OK |
+| 10 | **Site Pages (One & Two)** | `/pages` | ✅ Implemented | ✅ Implemented | 🟢 200 OK (`pageOne`, `pageTwo`) |
+| 11 | **Media Gallery** | `/gallery` | ✅ Implemented | ✅ Implemented | 🟢 200 OK |
+| 12 | **Clients & Partners** | `/client` | ✅ Implemented | ✅ Implemented | 🟢 200 OK |
+| 13 | **Testimonials** | `/testimonial` | ✅ Implemented | ✅ Implemented | 🟢 200 OK |
+| 14 | **FAQs & Subs** | `/faq` | ✅ Implemented | ✅ Implemented | 🟢 200 OK |
 
 ---
 
-## 1. Auth & Profile Module
-- **Route:** `/login`, `/forgot-password`, `/change-password`, `/profile`
-- **Location:** `src/modules/auth/`
-- **Status:** ✅ Fully Implemented & Tested
+## 🧭 Step-by-Step UI Verification Guide (Kaise Recheck / Verify Karein)
 
-| Postman Action | HTTP Method | Endpoint | Auth | Frontend Status |
-|----------------|-------------|----------|------|-----------------|
-| `fetch-dotenv` | GET | `/panel-fetch-dotenv` | None | ✅ Implemented |
-| `check-status` | GET | `/panel-check-status` | None | ✅ Implemented |
-| `login` | POST | `/panel-login` | None | ✅ Implemented |
-| `forgot-password` | POST | `/panel-send-password` | None | ✅ Implemented |
-| `change-password` | POST | `/panel-change-password` | None | ✅ Implemented |
-| `logout` | POST | `/panel-logout` | Bearer | ✅ Implemented |
-| `fetch-profile` | GET | `/panel-fetch-profile` | Bearer | ✅ Implemented |
-| `update-profile` | PUT | `/panel-update-profile` | Bearer | ✅ Implemented |
+Follow this guide to verify each module directly in your browser running at `http://localhost:5173`:
+
+### 0. Dashboard Overview (`/`)
+- **Where to go:** Click **Overview** in the sidebar or visit `http://localhost:5173/`.
+- **What to verify:**
+  - **Live System Metrics:** 9 live count tiles (Vendors, News, Blogs, Sliders, Notifications, Gallery, Clients, Testimonials, FAQ Topics) querying the real APIs.
+  - **Company Status Card:** Shows live session company info (KMR Live, mobile numbers, address).
+  - **Module Direct Access:** Quick-open cards linking to all modules.
 
 ---
 
-## 2. Category Module
-- **Route:** `/category`
-- **Location:** `src/modules/dashboard/category/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `category list` | GET | `/category` | Bearer | - | ✅ Implemented |
-| `active Categories` | GET | `/activeCategories` | Bearer | - | ✅ Implemented |
-| `category by id` | GET | `/category/{id}` | Bearer | - | ✅ Implemented |
-| `category` (Create) | POST | `/category` | Bearer | `parent_id`, `categories_sort_order`, `categories_name`, `categories_slug`, `categories_image`, `categories_status` | ✅ Implemented |
-| `category` (Update) | PUT / POST | `/category/{id}` | Bearer | `parent_id`, `categories_sort_order`, `categories_name`, `categories_slug`, `categories_image`, `categories_status` (spoofed `_method=PUT`) | ✅ Implemented |
-| `category status` | PATCH / POST | `/categorys/{id}/status` | Bearer | `categories_status` (`Active` / `Inactive`) | ✅ Implemented |
-
-*Note on Category Live Backend:* The live PHP API server currently returns `Class "App\Models\Categories" not found` on `/category` and `/activeCategories`. The frontend is fully coded with defensive handling to gracefully display the error or live categories once backend fixes the class import.
+### 1. Auth & Profile Module (`/login`, `/profile`)
+- **Where to go:** Navigate to `/login` or click the user avatar menu at the bottom of the sidebar -> **Profile**.
+- **How to verify Login:**
+  - Enter mobile `7892036268` and password `123456`. Click **Sign In**.
+  - Verified: Redirects to dashboard with active token stored in cookie/session.
+- **How to verify Profile:**
+  - Open `/profile`. Form pre-fills with User: `Surya`, Mobile: `7892036268`, Email: `surya@gmail.com`, City: `Bangalore`.
+  - Edit name/email and click **Update Profile** (`PUT /panel-update-profile`).
 
 ---
 
-## 3. Vendor Module
-- **Route:** `/vendor`
-- **Location:** `src/modules/dashboard/vendor/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `vendor list` | GET | `/vendor` | Bearer | - | ✅ Implemented |
-| `activeVendors` | GET | `/activeVendors` | Bearer | - | ✅ Implemented |
-| `vendor by id` | GET | `/vendor/{id}` | Bearer | - | ✅ Implemented |
-| `vendor` (Create) | POST | `/vendor` | Bearer | `vendor_name`, `vendor_mobile`, `vendor_email`, `vendor_city`, `vendor_trade`, `vendor_address`, `vendor_image` | ✅ Implemented |
-| `vendor` (Update) | PUT | `/vendor/{id}` | Bearer | `vendor_name`, `vendor_mobile`, `vendor_email`, `vendor_city`, `vendor_trade`, `vendor_address`, `vendor_image`, `vendor_status` | ✅ Implemented |
-| `vendors status` | PATCH | `/vendors/{id}/status` | Bearer | `vendor_status` (`Active` / `Inactive`) | ✅ Implemented |
-| `vendor-spot list` | GET | `/vendor-spot` | Bearer | - | ✅ Implemented |
-| `vendor-live list` | GET | `/vendor-live` | Bearer | - | ⏳ Pending |
-| `vendor-live by id` | GET | `/vendor-live/{id}` | Bearer | - | ⏳ Pending |
-| `vendor-live` (Create) | POST | `/vendor-live` | Bearer | `products: [{ vendor_id, category_id, sub_category_id, vendor_product, vendor_product_size, vendor_product_rate }]` | ⏳ Pending |
-| `vendor-live` (Update) | PUT | `/vendor-live/{id}` | Bearer | `category_id`, `sub_category_id`, `vendor_product`, `vendor_product_size`, `vendor_product_rate`, `vendor_product_status` | ⏳ Pending |
-| `vendor-lives status` | PATCH | `/vendor-lives/{id}/status` | Bearer | `vendor_product_status` | ⏳ Pending |
-| `vendor-rate list` | GET | `/vendor-rate` | Bearer | - | ⏳ Pending |
-| `vendor-rate by id` | GET | `/vendor-rate/{id}` | Bearer | - | ⏳ Pending |
-| `vendor-rate` (Create) | POST | `/vendor-rate` | Bearer | `products: [...]` | ⏳ Pending |
-| `vendor-rate` (Update) | PUT | `/vendor-rate/{id}` | Bearer | product rate details | ⏳ Pending |
-| `vendor-rates status` | PATCH | `/vendor-rates/{id}/status` | Bearer | `vendor_product_status` | ⏳ Pending |
-| `vendor-spot list` | GET | `/vendor-spot` | Bearer | - | ⏳ Pending |
-| `vendor-spot by id` | GET | `/vendor-spot/{id}` | Bearer | - | ⏳ Pending |
-| `vendor-spot` (Create) | POST | `/vendor-spot` | Bearer | `products: [{ vendor_id, category_id, sub_category_id, vendor_spot_heading, vendor_spot_details }]` | ⏳ Pending |
-| `vendor-spot` (Update) | PUT | `/vendor-spot/{id}` | Bearer | `category_id`, `sub_category_id`, `vendor_spot_heading`, `vendor_spot_details`, `vendor_spot_status` | ⏳ Pending |
-| `vendor-spots status` | PATCH | `/vendor-spots/{id}/status` | Bearer | `vendor_spot_status` | ⏳ Pending |
+### 2. Category Module (`/category`)
+- **Where to go:** Sidebar -> **Catalog** -> **Categories** (`/category`).
+- **What to verify:**
+  - Backend shows an error notice explaining `Class "App\Models\Categories" not found`.
+  - Click **Retry** to recheck server availability.
+  - Click **Add Category** button in top right:
+    - Form opens with `Category Name`, `URL Slug` (auto-generates), `Sort Order`, `Status` (Active/Inactive), `Category Image` upload.
+    - Submit sends `POST /category` as multipart `FormData`.
 
 ---
 
-## 4. News Module
-- **Route:** `/news`
-- **Location:** `src/modules/dashboard/news/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `news list` | GET | `/news` | Bearer | - | ✅ Implemented |
-| `news by id` | GET | `/news/{id}` | Bearer | - | ✅ Implemented |
-| `news` (Create) | POST | `/news` | Bearer | `category_id`, `news_heading`, `news_details`, `news_image`, `news_other_image` | ✅ Implemented |
-| `news` (Update) | PUT | `/news/{id}` | Bearer | `category_id`, `news_heading`, `news_details`, `news_image`, `news_other_image`, `news_status` | ✅ Implemented |
-| `newss status` | PATCH | `/newss/{id}/status` | Bearer | `news_status` | ✅ Implemented |
+### 3. Vendor & Rates Module (`/vendor`)
+- **Where to go:** Sidebar -> **Catalog** -> **Vendors** (`/vendor`).
+- **What to verify:**
+  - **Metric Cards:** Total Vendors, Active Vendors, Inactive Vendors, and Vendor Spots count.
+  - **Live Spot Highlights:** Live spot quote cards displayed with headings and details.
+  - **Vendor List Table:** Displays vendors with image, name, mobile, email, city, trade, status badge.
+  - **Add Vendor:** Click **+ Add Vendor** in header -> fill name, mobile, email, city, address -> click **Create Vendor** (`POST /vendor`).
+  - **Edit Vendor:** Click the edit pencil icon on any row -> dialog opens pre-filled -> save updates (`PUT /vendor/{id}`).
+  - **Toggle Status:** Click the power icon on any row to toggle between `Active` and `Inactive` (`PATCH /vendors/{id}/status`).
 
 ---
 
-## 5. Slider Module
-- **Route:** `/slider`
-- **Location:** `src/modules/dashboard/slider/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `slider list` | GET | `/slider` | Bearer | - | ✅ Implemented |
-| `slider by id` | GET | `/slider/{id}` | Bearer | - | ✅ Implemented |
-| `slider` (Create) | POST | `/slider` | Bearer | `slider_type`, `category_id`, `slider_image`, `slider_url`, `slider_sort_order` | ✅ Implemented |
-| `slider` (Update) | PUT | `/slider/{id}` | Bearer | `slider_type`, `category_id`, `slider_image`, `slider_url`, `slider_sort_order`, `slider_status` | ✅ Implemented |
-| `sliders status` | PATCH | `/sliders/{id}/status` | Bearer | `slider_status` | ✅ Implemented |
+### 4. News & Bulletins Module (`/news`)
+- **Where to go:** Sidebar -> **Catalog** -> **News** (`/news`).
+- **What to verify:**
+  - **GET List:** Displays live news item (*"EDIBLE OIL NEWS CPO MIDDAY MARKET UPDATE"*).
+  - **Add News:** Click **+ Create Article** -> choose category, heading, body details, upload banner image or PDF bulletin -> submit (`POST /news`).
+  - **Edit News:** Click edit pencil on row -> dialog opens with article content -> edit -> submit (`PUT /news/{id}`).
+  - **Toggle Status:** Click power icon to flip status between `Active` and `Inactive` (`PATCH /newss/{id}/status`).
 
 ---
 
-## 6. Notification Module
-- **Route:** `/notification`
-- **Location:** `src/modules/dashboard/notification/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `notification list` | GET | `/notification` | Bearer | - | ✅ Implemented |
-| `notification by id` | GET | `/notification/{id}` | Bearer | - | ✅ Implemented |
-| `notification` (Create) | POST | `/notification` | Bearer | `notification_date`, `notification_heading`, `notification_description`, `notification_image` | ✅ Implemented |
-| `notification` (Update) | PUT | `/notification/{id}` | Bearer | `notification_date`, `notification_heading`, `notification_description`, `notification_image`, `notification_status` | ✅ Implemented |
-| `notifications status` | PATCH | `/notifications/{id}/status` | Bearer | `notification_status` | ✅ Implemented |
+### 5. Slider & Hero Banners Module (`/slider`)
+- **Where to go:** Sidebar -> **Catalog** -> **Sliders** (`/slider`).
+- **What to verify:**
+  - **GET List:** Displays live banner carousel records, type (Home vs Category), target link, and status.
+  - **Add Banner:** Click **+ Upload Banner** -> choose Slider Type (`Home` or `Category`), sort order, target URL, file upload -> submit (`POST /slider`).
+  - **Edit Banner:** Click edit pencil on row -> dialog opens -> submit (`PUT /slider/{id}`).
+  - **Toggle Status:** Click power icon to toggle `Active` / `Inactive` (`PATCH /sliders/{id}/status`).
 
 ---
 
-## 7. Enquiry Module
-- **Route:** `/enquiry`
-- **Location:** `src/modules/dashboard/enquiry/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `enquiry list` | GET | `/enquiry` | Bearer | - | ✅ Implemented |
-| `enquiry by id` | GET | `/enquiry/{id}` | Bearer | - | ✅ Implemented |
-| `enquiry` (Update) | PUT | `/enquiry/{id}` | Bearer | `enquiryStatus` (`Pending`, `Cancel`, `Complete`) | ✅ Implemented |
-| `enquiry` (Delete) | DELETE | `/enquiry/{id}` | Bearer | - | ✅ Implemented |
+### 6. Push Notifications Module (`/notification`)
+- **Where to go:** Sidebar -> **Engagement** -> **Notifications** (`/notification`).
+- **What to verify:**
+  - **GET List:** Displays live scheduled notifications (e.g. ID #1, #2, #3), heading, schedule date, and status.
+  - **Add Notification:** Click **+ New Broadcast** -> fill Notification Title, Description, Schedule Date, Status, Image file -> submit (`POST /notification`).
+  - **Edit Notification:** Click edit pencil on row -> dialog opens pre-filled -> save (`PUT /notification/{id}`).
+  - **Toggle Status:** Click power icon to toggle `Active` / `Inactive` (`PATCH /notifications/{id}/status`).
 
 ---
 
-## 8. Newsletter Module
-- **Route:** `/newsletter`
-- **Location:** `src/modules/dashboard/newsletter/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `newsletter list` | GET | `/newsletter` | Bearer | - | ✅ Implemented |
-| `newsletter` (Delete) | DELETE | `/newsletter/{id}` | Bearer | - | ✅ Implemented |
+### 7. Customer Enquiries Module (`/enquiry`)
+- **Where to go:** Sidebar -> **Engagement** -> **Enquiries** (`/enquiry`).
+- **What to verify:**
+  - Shows server status notice (`EnquiryController does not exist` on live backend).
+  - UI includes status filter (All, Pending, Completed, Cancelled) and search by name/email/subject.
+  - Status change dropdown and delete button with confirmation dialog.
 
 ---
 
-## 9. Blog Module
-- **Route:** `/blog`
-- **Location:** `src/modules/dashboard/blog/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `blog list` | GET | `/blog` | Bearer | - | ✅ Implemented |
-| `blog by id` | GET | `/blog/{id}` | Bearer | - | ✅ Implemented |
-| `blog` (Create) | POST | `/blog` | Bearer | `blog_slug`, `blog_index`, `blog_title`, `blog_short_description`, `blog_meta_keywords`, `blog_description`, `blog_banner_image`, `blog_banner_image_alt`, `blog_categories_ids`, `blog_front`, `blog_featured` | ✅ Implemented |
-| `blog` (Update) | PUT | `/blog/{id}` | Bearer | same fields + `blog_status` | ✅ Implemented |
-| `blogs status` | PATCH | `/blogs/{id}/status` | Bearer | `blog_status` | ✅ Implemented |
+### 8. Newsletter Subscribers Module (`/newsletter`)
+- **Where to go:** Sidebar -> **Engagement** -> **Newsletter** (`/newsletter`).
+- **What to verify:**
+  - Shows server status notice (`NewsletterController does not exist` on live backend).
+  - UI includes search input, subscriber table, email list, and delete action button.
 
 ---
 
-## 10. Pages Module
-- **Route:** `/pages`
-- **Location:** `src/modules/dashboard/pages/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Frontend Status |
-|----------------|-------------|----------|------|-----------------|
-| `pageOne` | GET | `/pageOne` | Bearer | ✅ Implemented |
-| `pageTwo` | GET | `/pageTwo` | Bearer | ✅ Implemented |
+### 9. Blogs & Articles Module (`/blog`)
+- **Where to go:** Sidebar -> **Catalog** -> **Blog** (`/blog`).
+- **What to verify:**
+  - **GET List:** Displays blog articles table, featured badges, homepage status, and category tags.
+  - **Add Blog:** Click **+ Write Article** -> fill Title, Slug, Category IDs, Short Summary, Meta Keywords, Body content, Featured (Yes/No), Front (Show/Hide), Image upload -> submit (`POST /blog`).
+  - **Edit Blog:** Click edit pencil on row -> dialog opens with full blog content -> save (`PUT /blog/{id}`).
+  - **Toggle Status:** Click power icon to toggle `Active` / `Inactive` (`PATCH /blogs/{id}/status`).
 
 ---
 
-## 11. Gallery Module
-- **Route:** `/gallery`
-- **Location:** `src/modules/dashboard/gallery/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `gallery list` | GET | `/gallery` | Bearer | - | ✅ Implemented |
-| `gallery by id` | GET | `/gallery/{id}` | Bearer | - | ✅ Implemented |
-| `gallery` (Create) | POST | `/gallery` | Bearer | `gallery_image` | ✅ Implemented |
-| `gallery` (Update) | PUT | `/gallery/{id}` | Bearer | `gallery_image`, `gallery_status` | ✅ Implemented |
-| `gallerys status` | PATCH | `/gallerys/{id}/status` | Bearer | `gallery_status` | ✅ Implemented |
+### 10. Site Pages Module (`/pages`)
+- **Where to go:** Sidebar -> **Engagement** -> **Site Pages** (`/pages`).
+- **What to verify:**
+  - **Primary Pages (pageOne):** Displays registered pages (`home`, `about-us`, `blogs`, `contacts`) used for Testimonial placements.
+  - **Secondary Pages (pageTwo):** Displays registered pages (`home`, `about-us`, `blogs`, `contacts`) used for FAQ topics.
+  - Click **Refresh** to re-query live endpoints.
 
 ---
 
-## 12. Client Module
-- **Route:** `/client`
-- **Location:** `src/modules/dashboard/client/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `client list` | GET | `/client` | Bearer | - | ✅ Implemented |
-| `client by id` | GET | `/client/{id}` | Bearer | - | ✅ Implemented |
-| `client` (Create) | POST | `/client` | Bearer | `clients_name`, `clients_image` | ✅ Implemented |
-| `client` (Update) | PUT | `/client/{id}` | Bearer | `clients_name`, `clients_image`, `clients_status` | ✅ Implemented |
-| `clients status` | PATCH | `/clients/{id}/status` | Bearer | `clients_status` | ✅ Implemented |
+### 11. Media Gallery Module (`/gallery`)
+- **Where to go:** Sidebar -> **Catalog** -> **Gallery** (`/gallery`).
+- **What to verify:**
+  - **Metric Cards:** Total Images, Active Images, Inactive Images.
+  - **Table:** Displays thumbnail previews, filename, ID, status badge, created date.
+  - **Add Image:** Click **+ Upload Image** -> select image file, status -> submit (`POST /gallery`).
+  - **Edit Image:** Click edit pencil -> replace image file or change status -> submit (`PUT /gallery/{id}`).
+  - **Toggle Status:** Click power icon to toggle `Active` / `Inactive` (`PATCH /gallerys/{id}/status`).
 
 ---
 
-## 13. Testimonial Module
-- **Route:** `/testimonial`
-- **Location:** `src/modules/dashboard/testimonial/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `testimonial list` | GET | `/testimonial` | Bearer | - | ✅ Implemented |
-| `testimonial by id` | GET | `/testimonial/{id}` | Bearer | - | ✅ Implemented |
-| `testimonial` (Create) | POST | `/testimonial` | Bearer | `testimonial_for`, `testimonial_client_name`, `testimonial_description`, `testimonial_rating` | ✅ Implemented |
-| `testimonial` (Update) | PUT | `/testimonial/{id}` | Bearer | `testimonial_for`, `testimonial_client_name`, `testimonial_description`, `testimonial_rating`, `testimonial_status` | ✅ Implemented |
-| `testimonial status` | PATCH | `/testimonials/{id}/status` | Bearer | `testimonial_status` | ✅ Implemented |
+### 12. Clients & Partners Module (`/client`)
+- **Where to go:** Sidebar -> **Engagement** -> **Clients** (`/client`).
+- **What to verify:**
+  - **Metric Cards:** Total Clients, Active Clients, Inactive Clients.
+  - **Table:** Displays client logo avatar, client name, ID, status badge, created date.
+  - **Add Client:** Click **+ Add Client** -> enter Client Name, Status, upload logo -> submit (`POST /client`).
+  - **Edit Client:** Click edit pencil on row -> update name or logo -> submit (`PUT /client/{id}`).
+  - **Toggle Status:** Click power icon to toggle `Active` / `Inactive` (`PATCH /clients/{id}/status`).
 
 ---
 
-## 14. FAQ Module
-- **Route:** `/faq`
-- **Location:** `src/modules/dashboard/faq/`
-- **Status:** ✅ Fully Implemented (UI + Hooks + API + Routes)
-
-| Postman Action | HTTP Method | Endpoint | Auth | Payload / Fields | Frontend Status |
-|----------------|-------------|----------|------|------------------|-----------------|
-| `faq list` | GET | `/faq` | Bearer | - | ✅ Implemented |
-| `faq by id` | GET | `/faq/{id}` | Bearer | - | ✅ Implemented |
-| `faq` (Create) | POST | `/faq` | Bearer | `faq_for`, `subs: [{ faq_sort, faq_heading, faq_que, faq_ans }]` | ✅ Implemented |
-| `faq` (Update) | PUT | `/faq/{id}` | Bearer | `faq_for`, `faq_status`, `subs: [...]` | ✅ Implemented |
-| `faqs status` | PATCH | `/faqs/{id}/status` | Bearer | `faq_status` | ✅ Implemented |
-| `faq-sub` (Delete) | DELETE | `/faq-sub/{id}` | Bearer | - | ✅ Implemented |
-| `faq` (Delete) | DELETE | `/faq/{id}` | Bearer | - | ✅ Implemented |
+### 13. Testimonials Module (`/testimonial`)
+- **Where to go:** Sidebar -> **Engagement** -> **Testimonials** (`/testimonial`).
+- **What to verify:**
+  - **Metric Cards:** Total Testimonials, Active Testimonials, Inactive Testimonials.
+  - **Table:** Client name, page placement badge (`home`, `about-us`, etc.), star rating (1-5 stars), review snippet, status.
+  - **Add Testimonial:** Click **+ Add Testimonial** -> select Page Placement (fetched dynamically from `pageOne`), Client Name, Rating dropdown (1 to 5 stars), Status, Review text -> submit (`POST /testimonial`).
+  - **Edit Testimonial:** Click edit pencil on row -> form opens with review and rating -> submit (`PUT /testimonial/{id}`).
+  - **Toggle Status:** Click power icon to toggle `Active` / `Inactive` (`PATCH /testimonials/{id}/status`).
 
 ---
 
+### 14. FAQs Module (`/faq`)
+- **Where to go:** Sidebar -> **Engagement** -> **FAQs** (`/faq`).
+- **What to verify:**
+  - **Metric Cards:** Total FAQ Groups, Total Questions, Active Groups, Inactive Groups.
+  - **Table:** Page placement badge (`home`, `about-us`, etc.), questions count badge, sample question previews, status.
+  - **Create FAQ Group:** Click **+ Create FAQ Group** -> select Page Placement (fetched dynamically from `pageTwo`), Status, and add one or more questions & answers using **+ Add Question** button -> submit (`POST /faq`).
+  - **Edit FAQ Group:** Click edit pencil on row -> edit heading, questions, answers -> submit (`PUT /faq/{id}`).
+  - **Toggle Status:** Click power icon to toggle `Active` / `Inactive` (`PATCH /faqs/{id}/status`).
+  - **Delete FAQ:** Click trash icon on row -> confirmation dialog -> submit (`DELETE /faq/{id}`).
+
+---
+
+## 🧪 Live Backend Endpoint Verification (cURL Script)
+
+To verify the live backend yourself from terminal using `curl`:
+
+```bash
+# 1. Login and obtain UserInfo token
+TOKEN=$(curl -s -X POST "https://kmrlive.in/crmapi/public/api/panel-login" \
+  -F "username=7892036268" \
+  -F "password=123456" | jq -r '.UserInfo.token')
+
+echo "Token: $TOKEN"
+
+# 2. Test GET Endpoints
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/vendor" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/news" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/slider" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/notification" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/pageOne" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/pageTwo" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/gallery" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/client" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/testimonial" | jq .
+curl -s -H "Authorization: Bearer $TOKEN" "https://kmrlive.in/crmapi/public/api/faq" | jq .
+```

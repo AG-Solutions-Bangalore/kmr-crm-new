@@ -25,18 +25,20 @@ interface InnerFormProps {
   onClose: () => void;
 }
 
+const todayStr = new Date().toISOString().split("T")[0];
+
 function NotificationFormContent({ notification, onClose }: InnerFormProps) {
   const isEditing = Boolean(notification);
   const createMutation = useCreateNotification();
   const updateMutation = useUpdateNotification();
 
-  const todayStr = new Date().toISOString().split("T")[0];
-
   const [heading, setHeading] = useState(notification?.notification_heading || "");
   const [description, setDescription] = useState(
     notification?.notification_description || "",
   );
-  const [date, setDate] = useState(notification?.notification_date || todayStr);
+  const [date, setDate] = useState(
+    () => notification?.notification_date || new Date().toISOString().split("T")[0],
+  );
   const [status, setStatus] = useState<NotificationStatus>(
     (notification?.notification_status as NotificationStatus) || "Active",
   );
