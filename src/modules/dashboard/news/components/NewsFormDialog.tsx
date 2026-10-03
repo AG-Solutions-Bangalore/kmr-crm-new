@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FileText, Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,12 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { useCreateNews, useUpdateNews } from "../hook/useNews.ts";
+import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { useCreateNews, useNewsItem, useUpdateNews } from "../hook/useNews.ts";
+import {
+  useActiveCategories,
+  useCategories,
+} from "../../category/hook/useCategory.ts";
 import type { NewsItem, NewsStatus } from "../types/news.types.ts";
 
 interface NewsFormDialogProps {
@@ -32,15 +38,40 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
 
   const [heading, setHeading] = useState(news?.news_heading || "");
   const [details, setDetails] = useState(news?.news_details || "");
-  const [categoryId, setCategoryId] = useState(String(news?.category_id ?? "1"));
+  const { data: activeCategories = [] } = useActiveCategories();
+  const { data: allCategories = [] } = useCategories();
+  const categories =
+    activeCategories.length > 0 ? activeCategories : allCategories;
+  const [categoryId, setCategoryId] = useState(String(news?.category_id ?? ""));
+
+  useEffect(() => {
+    if (!categoryId && categories.length > 0) {
+      setCategoryId(String(categories[0].id));
+    }
+  }, [categories, categoryId]);
+
   const [status, setStatus] = useState<NewsStatus>(
     (news?.news_status as NewsStatus) || "Active",
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [otherImageFile, setOtherImageFile] = useState<File | null>(null);
+  const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
+  const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
+
+  useEffect(() => {
+    if (!imageFile) {
+      setNewPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(imageFile);
+    setNewPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
+
+  const existingImageUrl = resolveAssetImageUrl(news?.news_image, "news_images");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +83,10 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
     }
     if (!details.trim()) {
       setErrorMessage("News details are required.");
+      return;
+    }
+    if (!categoryId) {
+      setErrorMessage("Please select a category.");
       return;
     }
 
@@ -119,14 +154,28 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="n-cat">Category ID</Label>
-            <Input
+            <Label htmlFor="n-cat">Category</Label>
+            <select
               id="n-cat"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              placeholder="1"
+              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               required
-            />
+            >
+              <option value="" disabled>
+                Select category
+              </option>
+              {categories.map((c) => (
+                <option key={c.id} value={String(c.id)}>
+                  {c.categories_name} (ID: {c.id})
+                </option>
+              ))}
+            </select>
+            {news?.categories_name && (
+              <p className="text-xs text-muted-foreground">
+                Current: {news.categories_name} (ID: {news.category_id})
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -158,7 +207,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="n-image">Featured Image</Label>
             <Input
@@ -170,6 +219,68 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
                 setImageFile(file);
               }}
             />
+            {newPreviewUrl ? (
+              <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+                <img
+                  src={newPreviewUrl}
+                  alt="New image preview"
+                  className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground">
+                    New image preview
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {imageFile?.name}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setImageFile(null)}
+                  className="size-7 shrink-0 p-0"
+                  title="Remove selected image"
+                >
+                  <X className="size-3.5" />
+                </Button>
+              </div>
+            ) : (
+              existingImageUrl && (
+                <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+                  {existingImgError ? (
+                    <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 p-1 text-center">
+                      <span className="text-[10px] font-medium leading-tight text-destructive">
+                        Preview not available
+                      </span>
+                    </div>
+                  ) : (
+                    <img
+                      src={existingImageUrl}
+                      alt={heading || "Currently uploaded"}
+                      className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                      onError={() => setExistingImgError(true)}
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-foreground">
+                      Currently uploaded
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {news?.news_image}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground/80">
+                      Upload a new file to replace it.
+                    </p>
+                  </div>
+                </div>
+              )
+            )}
+            {!existingImageUrl && !newPreviewUrl && (
+              <p className="text-xs text-muted-foreground">
+                No image uploaded yet.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -182,6 +293,30 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
                 setOtherImageFile(file);
               }}
             />
+            {otherImageFile ? (
+              <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+                <FileText className="size-5 shrink-0 text-muted-foreground" />
+                <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+                  {otherImageFile.name}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOtherImageFile(null)}
+                  className="size-7 shrink-0 p-0"
+                  title="Remove selected file"
+                >
+                  <X className="size-3.5" />
+                </Button>
+              </div>
+            ) : (
+              news?.news_other_image && (
+                <p className="truncate text-xs text-muted-foreground">
+                  Current: {news.news_other_image}
+                </p>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -214,15 +349,50 @@ export function NewsFormDialog({
 }: NewsFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         {open && (
-          <NewsFormContent
-            key={news?.id ?? "new-news"}
-            news={news}
+          <NewsFormContainer
+            newsId={news?.id}
+            initialNews={news}
             onClose={() => onOpenChange(false)}
           />
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function NewsFormContainer({
+  newsId,
+  initialNews,
+  onClose,
+}: {
+  newsId?: number;
+  initialNews?: NewsItem | null;
+  onClose: () => void;
+}) {
+  // GET /news/:id — fetch fresh details for edit.
+  const { data: detailedNews, isLoading } = useNewsItem(newsId);
+
+  if (newsId && isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <span>Loading news details from server...</span>
+      </div>
+    );
+  }
+
+  const effectiveNews = detailedNews || initialNews;
+  return (
+    <NewsFormContent
+      key={
+        effectiveNews?.id
+          ? `${effectiveNews.id}-${effectiveNews.updated_at ?? ""}-${effectiveNews.news_image?.length ?? 0}`
+          : "new-news"
+      }
+      news={effectiveNews}
+      onClose={onClose}
+    />
   );
 }

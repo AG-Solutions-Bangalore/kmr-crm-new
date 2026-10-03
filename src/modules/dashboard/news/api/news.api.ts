@@ -49,13 +49,18 @@ export async function updateNews(
   id: number | string,
   payload: NewsMutationPayload,
 ): Promise<unknown> {
+  // Omit files when unchanged — sending "" trips backend required validation.
   const formData = toFormData({
     _method: "PUT",
     category_id: payload.category_id,
     news_heading: payload.news_heading,
     news_details: payload.news_details,
-    news_image: payload.news_image ?? "",
-    news_other_image: payload.news_other_image ?? "",
+    ...(payload.news_image instanceof File
+      ? { news_image: payload.news_image }
+      : {}),
+    ...(payload.news_other_image instanceof File
+      ? { news_other_image: payload.news_other_image }
+      : {}),
     news_status: payload.news_status ?? "Active",
   });
 
