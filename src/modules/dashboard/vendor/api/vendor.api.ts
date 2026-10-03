@@ -87,7 +87,7 @@ export async function updateVendor(
     vendor_city: payload.vendor_city,
     vendor_trade: payload.vendor_trade,
     vendor_address: payload.vendor_address,
-    vendor_image: payload.vendor_image ?? "",
+    ...(payload.vendor_image instanceof File ? { vendor_image: payload.vendor_image } : {}),
     vendor_status: payload.vendor_status ?? "Active",
   });
 
@@ -113,12 +113,8 @@ export async function updateVendorStatus(
 
 /** GET /vendor-spot — Fetch vendor spots. */
 export async function fetchVendorSpots(): Promise<VendorSpotItem[]> {
-  const { data } = await api.get<{ data?: VendorSpotItem[] } | VendorSpotItem[]>("/vendor-spot");
-  if (Array.isArray(data)) return data;
-  if (data && typeof data === "object" && Array.isArray(data.data)) {
-    return data.data;
-  }
-  return [];
+  const { data } = await api.get("/vendor-spot");
+  return parsePaginatedResponse<VendorSpotItem>(data, 1, 10).items;
 }
 
 /** POST /vendor-spot — Create vendor spot. */
@@ -149,12 +145,8 @@ export async function updateVendorSpotStatus(
 
 /** GET /vendor-live — Fetch vendor live products. */
 export async function fetchVendorLives(): Promise<VendorLiveProduct[]> {
-  const { data } = await api.get<{ data?: VendorLiveProduct[] } | VendorLiveProduct[]>("/vendor-live");
-  if (Array.isArray(data)) return data;
-  if (data && typeof data === "object" && Array.isArray(data.data)) {
-    return data.data;
-  }
-  return [];
+  const { data } = await api.get("/vendor-live");
+  return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
 }
 
 /** POST /vendor-live — Create vendor live product rates. */
@@ -186,12 +178,8 @@ export async function updateVendorLiveStatus(
 
 /** GET /vendor-rate — Fetch vendor rates. */
 export async function fetchVendorRates(): Promise<VendorLiveProduct[]> {
-  const { data } = await api.get<{ data?: VendorLiveProduct[] } | VendorLiveProduct[]>("/vendor-rate");
-  if (Array.isArray(data)) return data;
-  if (data && typeof data === "object" && Array.isArray(data.data)) {
-    return data.data;
-  }
-  return [];
+  const { data } = await api.get("/vendor-rate");
+  return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
 }
 
 /** POST /vendor-rate — Create vendor rates. */

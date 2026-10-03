@@ -7,6 +7,8 @@ export interface Vendor {
   vendor_email: string;
   vendor_city: string;
   vendor_trade?: string | null;
+  vendor_trade_name?: string | null;
+  vendor_register_date?: string | null;
   vendor_address?: string | null;
   vendor_image?: string | null;
   vendor_status?: VendorStatus | string;
@@ -59,10 +61,17 @@ export interface VendorLiveProduct {
 export interface VendorSpotItem {
   id: number;
   vendor_id: number | string;
+  vendor_name?: string | null;
+  vendor_image?: string | null;
+  vendor_mobile?: string | null;
   category_id: number | string;
+  categories_name?: string | null;
   sub_category_id?: number | string | null;
+  sub_categories_name?: string | null;
   vendor_spot_heading: string;
   vendor_spot_details: string;
+  vendor_spot_created_date?: string | null;
+  vendor_spot_created_time?: string | null;
   vendor_spot_status?: string;
   created_at?: string | null;
   updated_at?: string | null;

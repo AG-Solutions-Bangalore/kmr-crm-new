@@ -17,11 +17,15 @@ export function VendorSpotTable({ spots, isLoading }: VendorSpotTableProps) {
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
   const filtered = spots.filter((spot) => {
-    const q = search.toLowerCase();
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
     return (
       spot.vendor_spot_heading?.toLowerCase().includes(q) ||
       spot.vendor_spot_details?.toLowerCase().includes(q) ||
-      (spot as { vendor_name?: string }).vendor_name?.toLowerCase().includes(q) ||
+      spot.vendor_name?.toLowerCase().includes(q) ||
+      spot.vendor_mobile?.toLowerCase().includes(q) ||
+      spot.categories_name?.toLowerCase().includes(q) ||
+      spot.sub_categories_name?.toLowerCase().includes(q) ||
       String(spot.id).includes(q)
     );
   });
@@ -60,10 +64,10 @@ export function VendorSpotTable({ spots, isLoading }: VendorSpotTableProps) {
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Spot Heading</th>
                 <th className="px-4 py-3">Vendor</th>
                 <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Details / Note</th>
+                <th className="px-4 py-3">Spot</th>
+                <th className="px-4 py-3">Created</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -96,11 +100,6 @@ export function VendorSpotTable({ spots, isLoading }: VendorSpotTableProps) {
                 filtered.map((item) => {
                   const isActive = item.vendor_spot_status === "Active";
                   const isToggling = togglingId === item.id;
-                  const itemWithExtra = item as {
-                    vendor_name?: string;
-                    categories_name?: string;
-                    sub_categories_name?: string;
-                  };
 
                   return (
                     <tr
@@ -108,35 +107,54 @@ export function VendorSpotTable({ spots, isLoading }: VendorSpotTableProps) {
                       className="transition-colors hover:bg-muted/30"
                     >
                       <td className="px-4 py-3.5">
+                        <div className="flex flex-col gap-0.5">
+                          <p className="font-medium text-foreground">
+                            {item.vendor_name || `Vendor #${item.vendor_id}`}
+                          </p>
+                          <span className="text-[11px] text-muted-foreground">
+                            {item.vendor_mobile || `#${item.vendor_id}`}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-3.5">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-xs font-medium text-foreground">
+                            {item.categories_name || `Category #${item.category_id}`}
+                          </span>
+                          {item.sub_categories_name ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              {item.sub_categories_name}
+                            </span>
+                          ) : item.sub_category_id ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              Sub #{item.sub_category_id}
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-3.5 max-w-[260px]">
                         <p className="font-medium text-foreground">
                           {item.vendor_spot_heading}
                         </p>
                         <span className="text-[11px] text-muted-foreground font-mono">
                           ID: #{item.id}
                         </span>
-                      </td>
-
-                      <td className="px-4 py-3.5 text-xs text-foreground">
-                        {itemWithExtra.vendor_name || `Vendor #${item.vendor_id}`}
-                      </td>
-
-                      <td className="px-4 py-3.5">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-medium text-foreground">
-                            {itemWithExtra.categories_name || `Category #${item.category_id}`}
-                          </span>
-                          {itemWithExtra.sub_categories_name && (
-                            <span className="text-[11px] text-muted-foreground">
-                              {itemWithExtra.sub_categories_name}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-3.5 max-w-[260px]">
                         <p className="line-clamp-2 text-xs text-muted-foreground">
                           {item.vendor_spot_details}
                         </p>
+                      </td>
+
+                      <td className="px-4 py-3.5 text-xs">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-foreground">
+                            {item.vendor_spot_created_date || "—"}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {item.vendor_spot_created_time || "—"}
+                          </span>
+                        </div>
                       </td>
 
                       <td className="px-4 py-3.5">

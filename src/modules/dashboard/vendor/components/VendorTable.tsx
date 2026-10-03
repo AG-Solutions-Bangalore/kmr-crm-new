@@ -4,8 +4,30 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateVendorStatus } from "../hook/useVendor.ts";
 import type { Vendor } from "../types/vendor.types.ts";
+
+function VendorThumb({ filename, name }: { filename?: string | null; name?: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = resolveAssetImageUrl(filename, "vendor_images");
+  if (!url || failed) {
+    return (
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Store className="size-4" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt={name || "Vendor"}
+      loading="lazy"
+      className="size-9 shrink-0 rounded-lg border border-border/60 object-cover"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 interface VendorTableProps {
   vendors: Vendor[];
@@ -96,9 +118,9 @@ export function VendorTable({
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Vendor</th>
+                <th className="px-4 py-3">Trade</th>
                 <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">City & Address</th>
-                <th className="px-4 py-3">Trade IDs</th>
+                <th className="px-4 py-3">City & Registered</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -139,9 +161,7 @@ export function VendorTable({
                     >
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <Store className="size-4" />
-                          </div>
+                          <VendorThumb filename={vendor.vendor_image} name={vendor.vendor_name} />
                           <div>
                             <p className="font-medium text-foreground">
                               {vendor.vendor_name}
@@ -154,10 +174,25 @@ export function VendorTable({
                       </td>
 
                       <td className="px-4 py-3.5 text-xs">
+                        <div className="flex flex-col gap-1">
+                          {vendor.vendor_trade_name ? (
+                            <Badge variant="secondary" className="w-fit font-medium">
+                              {vendor.vendor_trade_name}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                          <span className="font-mono text-muted-foreground">
+                            {vendor.vendor_trade || "—"}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-3.5 text-xs">
                         <div className="flex flex-col gap-0.5">
                           <span className="flex items-center gap-1 font-medium text-foreground">
                             <Phone className="size-3 text-muted-foreground" />
-                            {vendor.vendor_mobile}
+                            {vendor.vendor_mobile || "—"}
                           </span>
                           <span className="text-muted-foreground truncate max-w-[160px]">
                             {vendor.vendor_email || "—"}
@@ -171,14 +206,10 @@ export function VendorTable({
                             <MapPin className="size-3 text-muted-foreground" />
                             {vendor.vendor_city || "—"}
                           </span>
-                          <span className="text-muted-foreground truncate max-w-[200px]">
-                            {vendor.vendor_address || "—"}
+                          <span className="text-muted-foreground">
+                            {vendor.vendor_register_date || "—"}
                           </span>
                         </div>
-                      </td>
-
-                      <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                        {vendor.vendor_trade || "—"}
                       </td>
 
                       <td className="px-4 py-3.5">
