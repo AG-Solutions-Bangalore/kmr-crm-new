@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createVendor,
   createVendorLive,
@@ -87,7 +89,11 @@ export function useCreateVendor() {
   return useMutation({
     mutationFn: (payload: VendorMutationPayload) => createVendor(payload),
     onSuccess: () => {
+      toast.success("Vendor created");
       void queryClient.invalidateQueries({ queryKey: vendorKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to create vendor."));
     },
   });
 }
@@ -104,7 +110,11 @@ export function useUpdateVendor() {
       payload: VendorMutationPayload;
     }) => updateVendor(id, payload),
     onSuccess: () => {
+      toast.success("Vendor updated");
       void queryClient.invalidateQueries({ queryKey: vendorKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update vendor."));
     },
   });
 }
@@ -121,7 +131,11 @@ export function useUpdateVendorStatus() {
       status: VendorStatus;
     }) => updateVendorStatus(id, status),
     onSuccess: () => {
+      toast.success("Vendor status updated");
       void queryClient.invalidateQueries({ queryKey: vendorKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update vendor status."));
     },
   });
 }
@@ -140,7 +154,11 @@ export function useCreateVendorSpot() {
   return useMutation({
     mutationFn: (payload: VendorSpotPayload) => createVendorSpot(payload),
     onSuccess: () => {
+      toast.success("Vendor spot created");
       void queryClient.invalidateQueries({ queryKey: vendorKeys.spots() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to create vendor spot."));
     },
   });
 }
@@ -152,7 +170,11 @@ export function useUpdateVendorSpotStatus() {
     mutationFn: ({ id, status }: { id: number | string; status: string }) =>
       updateVendorSpotStatus(id, status),
     onSuccess: () => {
+      toast.success("Vendor spot status updated");
       void queryClient.invalidateQueries({ queryKey: vendorKeys.spots() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update vendor spot status."));
     },
   });
 }
@@ -163,7 +185,11 @@ export function useCreateVendorRate() {
   return useMutation({
     mutationFn: (payload: VendorRatePayload) => createVendorRate(payload),
     onSuccess: () => {
+      toast.success("Vendor rate created");
       void queryClient.invalidateQueries({ queryKey: vendorKeys.rates() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to create vendor rate."));
     },
   });
 }
@@ -174,7 +200,11 @@ export function useCreateVendorLive() {
   return useMutation({
     mutationFn: (payload: VendorRatePayload) => createVendorLive(payload),
     onSuccess: () => {
+      toast.success("Vendor live rate created");
       void queryClient.invalidateQueries({ queryKey: vendorKeys.lives() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to create vendor live rate."));
     },
   });
 }

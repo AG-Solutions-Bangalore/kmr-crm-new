@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createTestimonial,
   fetchPageOne,
@@ -59,7 +61,11 @@ export function useCreateTestimonial() {
   return useMutation({
     mutationFn: (payload: TestimonialMutationPayload) => createTestimonial(payload),
     onSuccess: () => {
+      toast.success("Testimonial created successfully.");
       void queryClient.invalidateQueries({ queryKey: testimonialKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save testimonial."));
     },
   });
 }
@@ -76,7 +82,11 @@ export function useUpdateTestimonial() {
       payload: TestimonialMutationPayload;
     }) => updateTestimonial(id, payload),
     onSuccess: () => {
+      toast.success("Testimonial updated successfully.");
       void queryClient.invalidateQueries({ queryKey: testimonialKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save testimonial."));
     },
   });
 }
@@ -93,7 +103,11 @@ export function useUpdateTestimonialStatus() {
       status: TestimonialStatus;
     }) => updateTestimonialStatus(id, status),
     onSuccess: () => {
+      toast.success("Testimonial status updated.");
       void queryClient.invalidateQueries({ queryKey: testimonialKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save testimonial."));
     },
   });
 }

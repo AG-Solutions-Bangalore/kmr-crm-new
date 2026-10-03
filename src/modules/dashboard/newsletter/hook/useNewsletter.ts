@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   deleteNewsletterSubscriber,
   fetchNewsletterSubscribers,
@@ -33,7 +35,11 @@ export function useDeleteNewsletterSubscriber() {
   return useMutation({
     mutationFn: (id: number | string) => deleteNewsletterSubscriber(id),
     onSuccess: () => {
+      toast.success("Subscriber removed");
       void queryClient.invalidateQueries({ queryKey: newsletterKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to remove subscriber."));
     },
   });
 }

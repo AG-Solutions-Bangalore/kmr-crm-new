@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createClient,
   fetchClientById,
@@ -46,7 +48,11 @@ export function useCreateClient() {
   return useMutation({
     mutationFn: (payload: ClientMutationPayload) => createClient(payload),
     onSuccess: () => {
+      toast.success("Client created successfully.");
       void queryClient.invalidateQueries({ queryKey: clientKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save client."));
     },
   });
 }
@@ -63,7 +69,11 @@ export function useUpdateClient() {
       payload: ClientMutationPayload;
     }) => updateClient(id, payload),
     onSuccess: () => {
+      toast.success("Client updated successfully.");
       void queryClient.invalidateQueries({ queryKey: clientKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save client."));
     },
   });
 }
@@ -80,7 +90,11 @@ export function useUpdateClientStatus() {
       status: ClientStatus;
     }) => updateClientStatus(id, status),
     onSuccess: () => {
+      toast.success("Client status updated.");
       void queryClient.invalidateQueries({ queryKey: clientKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save client."));
     },
   });
 }

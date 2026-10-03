@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   deleteEnquiry,
   fetchEnquiries,
@@ -51,7 +53,11 @@ export function useUpdateEnquiryStatus() {
       status: EnquiryStatus;
     }) => updateEnquiryStatus(id, status),
     onSuccess: () => {
+      toast.success("Enquiry status updated");
       void queryClient.invalidateQueries({ queryKey: enquiryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update enquiry status."));
     },
   });
 }
@@ -62,7 +68,11 @@ export function useDeleteEnquiry() {
   return useMutation({
     mutationFn: (id: number | string) => deleteEnquiry(id),
     onSuccess: () => {
+      toast.success("Enquiry deleted");
       void queryClient.invalidateQueries({ queryKey: enquiryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to delete enquiry."));
     },
   });
 }

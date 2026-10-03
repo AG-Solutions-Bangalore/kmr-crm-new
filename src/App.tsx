@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { ProtectedRoute } from "./components/layouts/ProtectedRoute.tsx";
 import { DashboardLayout } from "./components/layouts/DashboardLayout.tsx";
 import { PATHS } from "./constants/paths.ts";
@@ -6,7 +7,9 @@ import { dashboardRoutes, publicRoutes } from "./routes.tsx";
 
 function App() {
   return (
-    <Routes>
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
+      <Routes>
       {publicRoutes.map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}
@@ -24,7 +27,8 @@ function App() {
       </Route>
 
       <Route path="*" element={<Navigate to={PATHS.overview} replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 

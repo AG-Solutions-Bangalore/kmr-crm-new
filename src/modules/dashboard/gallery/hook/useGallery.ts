@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createGallery,
   fetchGallery,
@@ -46,7 +48,11 @@ export function useCreateGallery() {
   return useMutation({
     mutationFn: (payload: GalleryMutationPayload) => createGallery(payload),
     onSuccess: () => {
+      toast.success("Gallery image created successfully.");
       void queryClient.invalidateQueries({ queryKey: galleryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save gallery image."));
     },
   });
 }
@@ -63,7 +69,11 @@ export function useUpdateGallery() {
       payload: GalleryMutationPayload;
     }) => updateGallery(id, payload),
     onSuccess: () => {
+      toast.success("Gallery image updated successfully.");
       void queryClient.invalidateQueries({ queryKey: galleryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save gallery image."));
     },
   });
 }
@@ -80,7 +90,11 @@ export function useUpdateGalleryStatus() {
       status: GalleryStatus;
     }) => updateGalleryStatus(id, status),
     onSuccess: () => {
+      toast.success("Gallery image status updated.");
       void queryClient.invalidateQueries({ queryKey: galleryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save gallery image."));
     },
   });
 }

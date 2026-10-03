@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createCategory,
   fetchActiveCategories,
@@ -56,7 +58,11 @@ export function useCreateCategory() {
   return useMutation({
     mutationFn: (payload: CategoryMutationPayload) => createCategory(payload),
     onSuccess: () => {
+      toast.success("Category created successfully.");
       void queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save category."));
     },
   });
 }
@@ -73,7 +79,11 @@ export function useUpdateCategory() {
       payload: CategoryMutationPayload;
     }) => updateCategory(id, payload),
     onSuccess: () => {
+      toast.success("Category updated successfully.");
       void queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save category."));
     },
   });
 }
@@ -90,7 +100,11 @@ export function useUpdateCategoryStatus() {
       status: CategoryStatus;
     }) => updateCategoryStatus(id, status),
     onSuccess: () => {
+      toast.success("Category status updated.");
       void queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save category."));
     },
   });
 }

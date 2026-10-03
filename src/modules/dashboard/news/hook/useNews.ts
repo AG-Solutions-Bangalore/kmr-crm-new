@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createNews,
   fetchNews,
@@ -46,7 +48,11 @@ export function useCreateNews() {
   return useMutation({
     mutationFn: (payload: NewsMutationPayload) => createNews(payload),
     onSuccess: () => {
+      toast.success("News article created successfully.");
       void queryClient.invalidateQueries({ queryKey: newsKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save news article."));
     },
   });
 }
@@ -63,7 +69,11 @@ export function useUpdateNews() {
       payload: NewsMutationPayload;
     }) => updateNews(id, payload),
     onSuccess: () => {
+      toast.success("News article updated successfully.");
       void queryClient.invalidateQueries({ queryKey: newsKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save news article."));
     },
   });
 }
@@ -80,7 +90,11 @@ export function useUpdateNewsStatus() {
       status: NewsStatus;
     }) => updateNewsStatus(id, status),
     onSuccess: () => {
+      toast.success("News article status updated.");
       void queryClient.invalidateQueries({ queryKey: newsKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save news article."));
     },
   });
 }

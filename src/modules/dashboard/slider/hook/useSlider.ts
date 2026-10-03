@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createSlider,
   fetchSliderById,
@@ -46,7 +48,11 @@ export function useCreateSlider() {
   return useMutation({
     mutationFn: (payload: SliderMutationPayload) => createSlider(payload),
     onSuccess: () => {
+      toast.success("Slider banner created successfully.");
       void queryClient.invalidateQueries({ queryKey: sliderKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save slider banner."));
     },
   });
 }
@@ -63,7 +69,11 @@ export function useUpdateSlider() {
       payload: SliderMutationPayload;
     }) => updateSlider(id, payload),
     onSuccess: () => {
+      toast.success("Slider banner updated successfully.");
       void queryClient.invalidateQueries({ queryKey: sliderKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save slider banner."));
     },
   });
 }
@@ -80,7 +90,11 @@ export function useUpdateSliderStatus() {
       status: SliderStatus;
     }) => updateSliderStatus(id, status),
     onSuccess: () => {
+      toast.success("Slider banner status updated.");
       void queryClient.invalidateQueries({ queryKey: sliderKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save slider banner."));
     },
   });
 }

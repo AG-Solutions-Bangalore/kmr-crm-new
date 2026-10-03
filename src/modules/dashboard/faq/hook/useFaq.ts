@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createFaq,
   deleteFaq,
@@ -62,7 +64,11 @@ export function useCreateFaq() {
   return useMutation({
     mutationFn: (payload: FaqCreatePayload) => createFaq(payload),
     onSuccess: () => {
+      toast.success("FAQ group created");
       void queryClient.invalidateQueries({ queryKey: faqKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to create FAQ group."));
     },
   });
 }
@@ -79,7 +85,11 @@ export function useUpdateFaq() {
       payload: FaqUpdatePayload;
     }) => updateFaq(id, payload),
     onSuccess: () => {
+      toast.success("FAQ group updated");
       void queryClient.invalidateQueries({ queryKey: faqKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update FAQ group."));
     },
   });
 }
@@ -96,7 +106,11 @@ export function useUpdateFaqStatus() {
       status: FaqStatus;
     }) => updateFaqStatus(id, status),
     onSuccess: () => {
+      toast.success("FAQ status updated");
       void queryClient.invalidateQueries({ queryKey: faqKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update FAQ status."));
     },
   });
 }
@@ -107,7 +121,11 @@ export function useDeleteFaq() {
   return useMutation({
     mutationFn: (id: number | string) => deleteFaq(id),
     onSuccess: () => {
+      toast.success("FAQ group deleted");
       void queryClient.invalidateQueries({ queryKey: faqKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to delete FAQ group."));
     },
   });
 }
@@ -118,7 +136,11 @@ export function useDeleteFaqSub() {
   return useMutation({
     mutationFn: (id: number | string) => deleteFaqSub(id),
     onSuccess: () => {
+      toast.success("FAQ question deleted");
       void queryClient.invalidateQueries({ queryKey: faqKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to delete FAQ question."));
     },
   });
 }

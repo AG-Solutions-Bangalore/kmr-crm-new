@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createNotification,
   fetchNotificationById,
@@ -46,7 +48,11 @@ export function useCreateNotification() {
   return useMutation({
     mutationFn: (payload: NotificationMutationPayload) => createNotification(payload),
     onSuccess: () => {
+      toast.success("Notification created successfully.");
       void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save notification."));
     },
   });
 }
@@ -63,7 +69,11 @@ export function useUpdateNotification() {
       payload: NotificationMutationPayload;
     }) => updateNotification(id, payload),
     onSuccess: () => {
+      toast.success("Notification updated successfully.");
       void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save notification."));
     },
   });
 }
@@ -80,7 +90,11 @@ export function useUpdateNotificationStatus() {
       status: NotificationStatus;
     }) => updateNotificationStatus(id, status),
     onSuccess: () => {
+      toast.success("Notification status updated.");
       void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save notification."));
     },
   });
 }

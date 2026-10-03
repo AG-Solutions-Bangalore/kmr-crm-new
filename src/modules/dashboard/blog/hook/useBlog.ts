@@ -1,4 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   createBlog,
   fetchBlogById,
@@ -46,7 +48,11 @@ export function useCreateBlog() {
   return useMutation({
     mutationFn: (payload: BlogMutationPayload) => createBlog(payload),
     onSuccess: () => {
+      toast.success("Blog post created successfully.");
       void queryClient.invalidateQueries({ queryKey: blogKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save blog post."));
     },
   });
 }
@@ -63,7 +69,11 @@ export function useUpdateBlog() {
       payload: BlogMutationPayload;
     }) => updateBlog(id, payload),
     onSuccess: () => {
+      toast.success("Blog post updated successfully.");
       void queryClient.invalidateQueries({ queryKey: blogKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save blog post."));
     },
   });
 }
@@ -80,7 +90,11 @@ export function useUpdateBlogStatus() {
       status: BlogStatus;
     }) => updateBlogStatus(id, status),
     onSuccess: () => {
+      toast.success("Blog post status updated.");
       void queryClient.invalidateQueries({ queryKey: blogKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save blog post."));
     },
   });
 }
