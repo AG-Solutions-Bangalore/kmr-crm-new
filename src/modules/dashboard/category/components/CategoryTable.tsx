@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Edit2, FolderTree, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -9,18 +9,44 @@ import type { Category } from "../types/category.types.ts";
 interface CategoryTableProps {
   categories: Category[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  onPageChange: (page: number) => void;
   onEdit: (category: Category) => void;
+}
+
+function pageWindow(current: number, total: number): number[] {
+  const pages: number[] = [];
+  const start = Math.max(1, Math.min(current - 2, Math.max(1, total - 4)));
+  const end = Math.min(total, start + 4);
+  for (let p = start; p <= end; p++) pages.push(p);
+  return pages;
 }
 
 export function CategoryTable({
   categories,
   isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  onPageChange,
   onEdit,
 }: CategoryTableProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
+
+  // Search/filter applies to the loaded page — jump back to page 1 on change.
+  useEffect(() => {
+    if (page !== 1) onPageChange(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, statusFilter]);
 
   const filtered = categories.filter((cat) => {
     const matchesSearch =
@@ -203,6 +229,53 @@ export function CategoryTable({
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Server-side pagination */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-muted-foreground">
+          {total === 0
+            ? "No categories"
+            : `Showing ${(page - 1) * perPage + 1}–${Math.min(page * perPage, total)} of ${total}`}
+          {isFetching && !isLoading && " • Updating..."}
+        </p>
+        {search.trim() !== "" && (
+          <p className="text-[11px] text-muted-foreground">
+            Search filters the loaded page only.
+          </p>
+        )}
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1 || isLoading}
+            onClick={() => onPageChange(page - 1)}
+            className="h-8 px-3 text-xs"
+          >
+            Previous
+          </Button>
+          {pageWindow(page, Math.max(totalPages, 1)).map((p) => (
+            <Button
+              key={p}
+              variant={p === page ? "default" : "outline"}
+              size="sm"
+              disabled={isLoading}
+              onClick={() => onPageChange(p)}
+              className="size-8 p-0 text-xs"
+            >
+              {p}
+            </Button>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages || isLoading}
+            onClick={() => onPageChange(page + 1)}
+            className="h-8 px-3 text-xs"
+          >
+            Next
+          </Button>
         </div>
       </div>
     </div>

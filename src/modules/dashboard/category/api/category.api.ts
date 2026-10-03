@@ -7,13 +7,13 @@ import type {
   CategoryStatus,
 } from "../types/category.types.ts";
 
-/** GET /category — Fetch all categories. */
+/** GET /category — Fetch all categories (full list for dropdowns). */
 export async function fetchCategories(): Promise<Category[]> {
   // Backend paginates (10/page, 158 total) — ask for all for dropdowns.
   const { data } = await api.get<CategoryListResponse | Category[]>(
     "/category?per_page=500",
   );
-  
+
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -24,10 +24,69 @@ export async function fetchCategories(): Promise<Category[]> {
   return [];
 }
 
-/** GET /activeCategories — Fetch only active categories. */
+export interface CategoriesPage {
+  items: Category[];
+  total: number;
+  perPage: number;
+  currentPage: number;
+  lastPage: number;
+}
+
+/** GET /category?page=N&per_page=M — Server-side paginated categories for the list. */
+export async function fetchCategoriesPage(
+  page = 1,
+  perPage = 10,
+): Promise<CategoriesPage> {
+  const { data } = await api.get<CategoryListResponse | Category[]>(
+    `/category?page=${page}&per_page=${perPage}`,
+  );
+
+  if (Array.isArray(data)) {
+    return {
+      items: data,
+      total: data.length,
+      perPage: data.length || perPage,
+      currentPage: 1,
+      lastPage: 1,
+    };
+  }
+  if (data && typeof data === "object") {
+    const nested = data.data;
+    if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+      const paged = nested as {
+        current_page?: number;
+        data: Category[];
+        total?: number;
+        per_page?: number;
+        last_page?: number;
+      };
+      if (Array.isArray(paged.data)) {
+        return {
+          items: paged.data,
+          total: paged.total ?? paged.data.length,
+          perPage: paged.per_page ?? perPage,
+          currentPage: paged.current_page ?? page,
+          lastPage: paged.last_page ?? 1,
+        };
+      }
+    }
+    if (Array.isArray(nested)) {
+      return {
+        items: nested,
+        total: nested.length,
+        perPage: nested.length || perPage,
+        currentPage: 1,
+        lastPage: 1,
+      };
+    }
+  }
+  return { items: [], total: 0, perPage, currentPage: page, lastPage: 1 };
+}
+
+/** GET /activeCategories — Fetch only active categories (full list, no pagination). */
 export async function fetchActiveCategories(): Promise<Category[]> {
   const { data } = await api.get<CategoryListResponse | Category[]>(
-    "/activeCategories?per_page=500",
+    "/activeCategories",
   );
   
   if (Array.isArray(data)) return data;
@@ -70,13 +129,16 @@ export async function updateCategory(
   id: number | string,
   payload: CategoryMutationPayload,
 ): Promise<unknown> {
+  // Omit image when unchanged — sending "" trips backend required validation.
   const formData = toFormData({
     _method: "PUT",
     parent_id: payload.parent_id ?? "0",
     categories_sort_order: payload.categories_sort_order ?? "1",
     categories_name: payload.categories_name,
     categories_slug: payload.categories_slug ?? "",
-    categories_image: payload.categories_image ?? "",
+    ...(payload.categories_image instanceof File
+      ? { categories_image: payload.categories_image }
+      : {}),
     categories_status: payload.categories_status ?? "Active",
   });
 

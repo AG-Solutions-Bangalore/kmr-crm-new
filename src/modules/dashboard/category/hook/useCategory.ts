@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createCategory,
   fetchActiveCategories,
   fetchCategories,
+  fetchCategoriesPage,
   fetchCategoryById,
   updateCategory,
   updateCategoryStatus,
@@ -21,6 +22,15 @@ export function useCategories() {
     queryKey: categoryKeys.list(),
     queryFn: fetchCategories,
     retry: 1,
+  });
+}
+
+export function useCategoriesPage(page: number, perPage: number) {
+  return useQuery({
+    queryKey: [...categoryKeys.all, "page", page, perPage] as const,
+    queryFn: () => fetchCategoriesPage(page, perPage),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

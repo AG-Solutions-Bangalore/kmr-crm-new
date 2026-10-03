@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, FolderTree, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -10,11 +10,31 @@ import {
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { CategoryFormDialog } from "../components/CategoryFormDialog.tsx";
 import { CategoryTable } from "../components/CategoryTable.tsx";
-import { useCategories } from "../hook/useCategory.ts";
+import { useCategoriesPage } from "../hook/useCategory.ts";
 import type { Category } from "../types/category.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function CategoryPage() {
-  const { data: categories = [], isLoading, error, refetch, isFetching } = useCategories();
+  const [page, setPage] = useState(1);
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useCategoriesPage(page, PAGE_SIZE);
+
+  const categories = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  // Clamp page if total shrinks (e.g. deleted last item on last page).
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -29,9 +49,8 @@ export function CategoryPage() {
     setDialogOpen(true);
   };
 
-  const totalCount = categories.length;
   const activeCount = categories.filter((c) => c.categories_status === "Active").length;
-  const inactiveCount = totalCount - activeCount;
+  const inactiveCount = categories.length - activeCount;
 
   return (
     <div className="flex flex-col gap-6">
@@ -145,6 +164,12 @@ export function CategoryPage() {
       <CategoryTable
         categories={categories}
         isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        onPageChange={setPage}
         onEdit={handleOpenEdit}
       />
 
