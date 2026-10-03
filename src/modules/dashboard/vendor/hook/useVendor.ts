@@ -12,8 +12,10 @@ import {
   fetchVendorRates,
   fetchVendors,
   fetchVendorsPage,
+  fetchVendorSpotById,
   fetchVendorSpots,
   updateVendor,
+  updateVendorSpot,
   updateVendorSpotStatus,
   updateVendorStatus,
 } from "../api/vendor.api.ts";
@@ -21,6 +23,7 @@ import type {
   VendorMutationPayload,
   VendorRatePayload,
   VendorSpotPayload,
+  VendorSpotUpdatePayload,
   VendorStatus,
 } from "../types/vendor.types.ts";
 
@@ -30,6 +33,7 @@ export const vendorKeys = {
   active: () => [...vendorKeys.all, "active"] as const,
   detail: (id: number | string) => [...vendorKeys.all, "detail", id] as const,
   spots: () => [...vendorKeys.all, "spots"] as const,
+  spotDetail: (id: number | string) => [...vendorKeys.all, "spot", id] as const,
   lives: () => [...vendorKeys.all, "lives"] as const,
   rates: () => [...vendorKeys.all, "rates"] as const,
 };
@@ -159,6 +163,35 @@ export function useCreateVendorSpot() {
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to create vendor spot."));
+    },
+  });
+}
+
+export function useVendorSpot(id: number | string | null | undefined) {
+  return useQuery({
+    queryKey: vendorKeys.spotDetail(id ?? ""),
+    queryFn: () => fetchVendorSpotById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useUpdateVendorSpot() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number | string;
+      payload: VendorSpotUpdatePayload;
+    }) => updateVendorSpot(id, payload),
+    onSuccess: () => {
+      toast.success("Vendor spot updated");
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.spots() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update vendor spot."));
     },
   });
 }

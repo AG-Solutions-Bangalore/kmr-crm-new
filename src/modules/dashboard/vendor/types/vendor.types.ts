@@ -89,6 +89,14 @@ export interface VendorSpotPayload {
   }>;
 }
 
+export interface VendorSpotUpdatePayload {
+  category_id: number | string;
+  sub_category_id?: number | string;
+  vendor_spot_heading: string;
+  vendor_spot_details: string;
+  vendor_spot_status?: string;
+}
+
 export interface VendorRatePayload {
   products: Array<{
     vendor_id: number | string;

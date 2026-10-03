@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Power, Search, Sparkles } from "lucide-react";
+import { Edit2, Power, Search, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -9,9 +9,10 @@ import type { VendorSpotItem } from "../types/vendor.types.ts";
 interface VendorSpotTableProps {
   spots: VendorSpotItem[];
   isLoading: boolean;
+  onEdit: (spot: VendorSpotItem) => void;
 }
 
-export function VendorSpotTable({ spots, isLoading }: VendorSpotTableProps) {
+export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTableProps) {
   const [search, setSearch] = useState("");
   const updateStatusMutation = useUpdateVendorSpotStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -171,21 +172,34 @@ export function VendorSpotTable({ spots, isLoading }: VendorSpotTableProps) {
                       </td>
 
                       <td className="px-4 py-3.5 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleToggleStatus(item)}
-                          disabled={isToggling}
-                          title={isActive ? "Set Inactive" : "Set Active"}
-                          className="size-8 p-0"
-                        >
-                          <Power
-                            className={`size-3.5 ${
-                              isActive ? "text-emerald-600" : "text-muted-foreground"
-                            }`}
-                          />
-                          <span className="sr-only">Toggle</span>
-                        </Button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleStatus(item)}
+                            disabled={isToggling}
+                            title={isActive ? "Set Inactive" : "Set Active"}
+                            className="size-8 p-0"
+                          >
+                            <Power
+                              className={`size-3.5 ${
+                                isActive ? "text-emerald-600" : "text-muted-foreground"
+                              }`}
+                            />
+                            <span className="sr-only">Toggle</span>
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onEdit(item)}
+                            className="size-8 p-0"
+                            title="Edit Spot Quote"
+                          >
+                            <Edit2 className="size-3.5" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );

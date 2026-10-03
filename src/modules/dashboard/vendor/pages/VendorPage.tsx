@@ -30,7 +30,7 @@ import {
   useVendorLives,
   useVendorRates,
 } from "../hook/useVendor.ts";
-import type { Vendor } from "../types/vendor.types.ts";
+import type { Vendor, VendorSpotItem } from "../types/vendor.types.ts";
 
 const PAGE_SIZE = 10;
 
@@ -89,6 +89,7 @@ export function VendorPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [spotDialogOpen, setSpotDialogOpen] = useState(false);
+  const [selectedSpot, setSelectedSpot] = useState<VendorSpotItem | null>(null);
   const [rateDialogOpen, setRateDialogOpen] = useState(false);
 
   const handleOpenCreate = () => {
@@ -96,6 +97,7 @@ export function VendorPage() {
       setSelectedVendor(null);
       setDialogOpen(true);
     } else if (activeTab === "spots") {
+      setSelectedSpot(null);
       setSpotDialogOpen(true);
     } else {
       setRateDialogOpen(true);
@@ -105,6 +107,11 @@ export function VendorPage() {
   const handleOpenEdit = (vendor: Vendor) => {
     setSelectedVendor(vendor);
     setDialogOpen(true);
+  };
+
+  const handleOpenSpotEdit = (spot: VendorSpotItem) => {
+    setSelectedSpot(spot);
+    setSpotDialogOpen(true);
   };
 
   const handleRefresh = () => {
@@ -328,7 +335,11 @@ export function VendorPage() {
           onEdit={handleOpenEdit}
         />
       ) : activeTab === "spots" ? (
-        <VendorSpotTable spots={spots} isLoading={loadingSpots} />
+        <VendorSpotTable
+          spots={spots}
+          isLoading={loadingSpots}
+          onEdit={handleOpenSpotEdit}
+        />
       ) : activeTab === "live" ? (
         <VendorRateTable
           rates={liveRates}
@@ -354,10 +365,11 @@ export function VendorPage() {
         vendor={selectedVendor}
       />
 
-      {/* Create Spot Quote Dialog */}
+      {/* Create / Edit Spot Quote Dialog */}
       <VendorSpotFormDialog
         open={spotDialogOpen}
         onOpenChange={setSpotDialogOpen}
+        spot={selectedSpot}
       />
 
       {/* Create Rate Product Dialog (Live or Standard) */}

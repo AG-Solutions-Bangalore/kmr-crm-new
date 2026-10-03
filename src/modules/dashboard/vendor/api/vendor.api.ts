@@ -117,6 +117,41 @@ export async function fetchVendorSpots(): Promise<VendorSpotItem[]> {
   return parsePaginatedResponse<VendorSpotItem>(data, 1, 10).items;
 }
 
+/** GET /vendor-spot/:id — Fetch single vendor spot details. */
+export async function fetchVendorSpotById(id: number | string): Promise<VendorSpotItem> {
+  const { data } = await api.get<{ data?: VendorSpotItem } | VendorSpotItem>(
+    `/vendor-spot/${id}`,
+  );
+  if (data && typeof data === "object" && "data" in data && data.data) {
+    return data.data;
+  }
+  return data as VendorSpotItem;
+}
+
+/** PUT /vendor-spot/:id — Update existing vendor spot (raw JSON per Postman spec). */
+export async function updateVendorSpot(
+  id: number | string,
+  payload: {
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_spot_heading: string;
+    vendor_spot_details: string;
+    vendor_spot_status?: string;
+  },
+): Promise<unknown> {
+  const { data } = await api.put(`/vendor-spot/${id}`, {
+    category_id: payload.category_id,
+    ...(payload.sub_category_id !== undefined && payload.sub_category_id !== ""
+      ? { sub_category_id: payload.sub_category_id }
+      : {}),
+    vendor_spot_heading: payload.vendor_spot_heading,
+    vendor_spot_details: payload.vendor_spot_details,
+    ...(payload.vendor_spot_status ? { vendor_spot_status: payload.vendor_spot_status } : {}),
+  });
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update vendor spot.");
+  return data;
+}
+
 /** POST /vendor-spot — Create vendor spot. */
 export async function createVendorSpot(payload: {
   products: Array<{
