@@ -3,33 +3,42 @@ import { Edit2, MessageSquare, Power, Search, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { useUpdateTestimonialStatus } from "../hook/useTestimonial.ts";
 import type { TestimonialItem, TestimonialStatus } from "../types/testimonial.types.ts";
 
 interface TestimonialTableProps {
   testimonials: TestimonialItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (item: TestimonialItem) => void;
 }
 
 export function TestimonialTable({
   testimonials,
   isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
   onEdit,
 }: TestimonialTableProps) {
-  const [search, setSearch] = useState("");
   const updateStatusMutation = useUpdateTestimonialStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  const filtered = testimonials.filter((t) => {
-    const q = search.toLowerCase();
-    return (
-      t.testimonial_client_name?.toLowerCase().includes(q) ||
-      t.testimonial_for?.toLowerCase().includes(q) ||
-      t.testimonial_description?.toLowerCase().includes(q) ||
-      String(t.id).includes(q)
-    );
-  });
+  // Search is server-side (?search=); render the loaded page directly.
+  const filtered = testimonials;
 
   const handleToggleStatus = async (item: TestimonialItem) => {
     const nextStatus = item.testimonial_status === "Active" ? "Inactive" : "Active";
@@ -52,7 +61,7 @@ export function TestimonialTable({
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search testimonials by client, page, or review..."
             className="pl-8"
           />
@@ -195,6 +204,16 @@ export function TestimonialTable({
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

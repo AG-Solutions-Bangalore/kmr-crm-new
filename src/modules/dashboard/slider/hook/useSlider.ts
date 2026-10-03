@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createSlider,
   fetchSliderById,
   fetchSliders,
+  fetchSlidersPage,
   updateSlider,
   updateSliderStatus,
 } from "../api/slider.api.ts";
@@ -19,6 +20,15 @@ export function useSliders() {
     queryKey: sliderKeys.list(),
     queryFn: fetchSliders,
     retry: 1,
+  });
+}
+
+export function useSlidersPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...sliderKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchSlidersPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

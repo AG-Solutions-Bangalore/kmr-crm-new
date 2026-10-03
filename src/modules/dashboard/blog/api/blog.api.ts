@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   BlogItem,
   BlogListResponse,
@@ -17,6 +18,18 @@ export async function fetchBlogs(): Promise<BlogItem[]> {
     }
   }
   return [];
+}
+
+/** GET /blog?page=N&per_page=M&search=Q — Server-side paginated blog posts. */
+export async function fetchBlogsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<BlogItem>> {
+  const { data } = await api.get<BlogListResponse | BlogItem[]>(
+    pageQuery("/blog", page, perPage, search),
+  );
+  return parsePaginatedResponse<BlogItem>(data, page, perPage);
 }
 
 /** GET /blog/:id — Fetch single blog post. */

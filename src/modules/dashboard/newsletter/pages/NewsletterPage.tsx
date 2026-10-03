@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Mail, RefreshCw, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -7,13 +8,37 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { NewsletterTable } from "../components/NewsletterTable.tsx";
-import { useNewsletterSubscribers } from "../hook/useNewsletter.ts";
+import { useNewsletterSubscribersPage } from "../hook/useNewsletter.ts";
+
+const PAGE_SIZE = 10;
 
 export function NewsletterPage() {
-  const { data: subscribers = [], isLoading, error, refetch, isFetching } = useNewsletterSubscribers();
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
 
-  const totalCount = subscribers.length;
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const { data, isLoading, error, refetch, isFetching } = useNewsletterSubscribersPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
+
+  const subscribers = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  // Clamp page if total shrinks (e.g. deleted last item on last page).
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,7 +139,18 @@ export function NewsletterPage() {
       </div>
 
       {/* Newsletter Table */}
-      <NewsletterTable subscribers={subscribers} isLoading={isLoading} />
+      <NewsletterTable
+        subscribers={subscribers}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

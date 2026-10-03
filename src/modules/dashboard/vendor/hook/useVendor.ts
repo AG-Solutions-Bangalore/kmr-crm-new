@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createVendor,
   createVendorLive,
@@ -9,6 +9,7 @@ import {
   fetchVendorLives,
   fetchVendorRates,
   fetchVendors,
+  fetchVendorsPage,
   fetchVendorSpots,
   updateVendor,
   updateVendorSpotStatus,
@@ -36,6 +37,15 @@ export function useVendors() {
     queryKey: vendorKeys.list(),
     queryFn: fetchVendors,
     retry: 1,
+  });
+}
+
+export function useVendorsPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...vendorKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchVendorsPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

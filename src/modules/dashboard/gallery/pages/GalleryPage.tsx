@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Images, Plus, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -8,13 +8,36 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { GalleryFormDialog } from "../components/GalleryFormDialog.tsx";
 import { GalleryTable } from "../components/GalleryTable.tsx";
-import { useGalleryList } from "../hook/useGallery.ts";
+import { useGalleryPage } from "../hook/useGallery.ts";
 import type { GalleryItem } from "../types/gallery.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function GalleryPage() {
-  const { data: galleryItems = [], isLoading, error, refetch, isFetching } = useGalleryList();
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const { data, isLoading, error, refetch, isFetching } = useGalleryPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
+
+  const galleryItems = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
@@ -29,7 +52,6 @@ export function GalleryPage() {
     setDialogOpen(true);
   };
 
-  const totalCount = galleryItems.length;
   const activeCount = galleryItems.filter((g) => g.gallery_status === "Active").length;
   const inactiveCount = galleryItems.filter((g) => g.gallery_status === "Inactive").length;
 
@@ -139,6 +161,14 @@ export function GalleryPage() {
       <GalleryTable
         galleryItems={galleryItems}
         isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
         onEdit={handleOpenEdit}
       />
 

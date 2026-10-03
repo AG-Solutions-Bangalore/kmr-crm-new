@@ -13,31 +13,45 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { useDeleteFaq, useUpdateFaqStatus } from "../hook/useFaq.ts";
 import type { FaqItem, FaqStatus } from "../types/faq.types.ts";
 
 interface FaqTableProps {
   faqs: FaqItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (item: FaqItem) => void;
 }
 
-export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
-  const [search, setSearch] = useState("");
+export function FaqTable({
+  faqs,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+  onEdit,
+}: FaqTableProps) {
   const updateStatusMutation = useUpdateFaqStatus();
   const deleteMutation = useDeleteFaq();
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FaqItem | null>(null);
 
-  const filtered = faqs.filter((f) => {
-    const q = search.toLowerCase();
-    return (
-      f.faq_for?.toLowerCase().includes(q) ||
-      f.faq_status?.toLowerCase().includes(q) ||
-      String(f.id).includes(q)
-    );
-  });
+  // Search is server-side (?search=); render the loaded page directly.
+  const filtered = faqs;
 
   const handleToggleStatus = async (item: FaqItem) => {
     const nextStatus = item.faq_status === "Active" ? "Inactive" : "Active";
@@ -72,7 +86,7 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search FAQs by page or status..."
             className="pl-8"
           />
@@ -199,6 +213,16 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
 
       <AlertDialog
         open={Boolean(deleteTarget)}

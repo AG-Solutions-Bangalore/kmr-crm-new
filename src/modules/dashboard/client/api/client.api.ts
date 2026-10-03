@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   ClientItem,
   ClientListResponse,
@@ -17,6 +18,18 @@ export async function fetchClients(): Promise<ClientItem[]> {
     }
   }
   return [];
+}
+
+/** GET /client?page=N&per_page=M&search=Q — Server-side paginated clients. */
+export async function fetchClientsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<ClientItem>> {
+  const { data } = await api.get<ClientListResponse | ClientItem[]>(
+    pageQuery("/client", page, perPage, search),
+  );
+  return parsePaginatedResponse<ClientItem>(data, page, perPage);
 }
 
 /** GET /client/:id — Fetch single client details. */

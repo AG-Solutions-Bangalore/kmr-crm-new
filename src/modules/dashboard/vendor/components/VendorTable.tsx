@@ -3,35 +3,49 @@ import { Edit2, MapPin, Phone, Power, Search, Store } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { useUpdateVendorStatus } from "../hook/useVendor.ts";
 import type { Vendor } from "../types/vendor.types.ts";
 
 interface VendorTableProps {
   vendors: Vendor[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (vendor: Vendor) => void;
 }
 
-export function VendorTable({ vendors, isLoading, onEdit }: VendorTableProps) {
-  const [search, setSearch] = useState("");
+export function VendorTable({
+  vendors,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+  onEdit,
+}: VendorTableProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateVendorStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
+  // Search is server-side (?search=); status filter applies to the loaded page.
   const filtered = vendors.filter((v) => {
-    const s = search.toLowerCase();
-    const matchesSearch =
-      v.vendor_name?.toLowerCase().includes(s) ||
-      v.vendor_city?.toLowerCase().includes(s) ||
-      v.vendor_mobile?.toLowerCase().includes(s) ||
-      v.vendor_email?.toLowerCase().includes(s);
-
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "active" && v.vendor_status === "Active") ||
       (statusFilter === "inactive" && v.vendor_status !== "Active");
 
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
 
   const handleToggleStatus = async (vendor: Vendor) => {
@@ -55,7 +69,7 @@ export function VendorTable({ vendors, isLoading, onEdit }: VendorTableProps) {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by vendor name, mobile, or city..."
             className="pl-8"
           />
@@ -218,6 +232,16 @@ export function VendorTable({ vendors, isLoading, onEdit }: VendorTableProps) {
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

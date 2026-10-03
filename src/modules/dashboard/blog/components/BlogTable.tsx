@@ -3,35 +3,48 @@ import { Edit2, FileText, Power, Search, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { useUpdateBlogStatus } from "../hook/useBlog.ts";
 import type { BlogItem, BlogStatus } from "../types/blog.types.ts";
 
 interface BlogTableProps {
   blogs: BlogItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (blog: BlogItem) => void;
 }
 
-export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
-  const [search, setSearch] = useState("");
+export function BlogTable({
+  blogs,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+  onEdit,
+}: BlogTableProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateBlogStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
+  // Search is server-side (?search=); status filter applies to the loaded page.
   const filtered = blogs.filter((b) => {
-    const s = search.toLowerCase();
-    const matchesSearch =
-      b.blog_title?.toLowerCase().includes(s) ||
-      b.blog_short_description?.toLowerCase().includes(s) ||
-      b.categories?.toLowerCase().includes(s) ||
-      b.blog_meta_keywords?.toLowerCase().includes(s);
-
-    const matchesStatus =
+    return (
       statusFilter === "all" ||
       (statusFilter === "active" && b.blog_status === "Active") ||
-      (statusFilter === "inactive" && b.blog_status !== "Active");
-
-    return matchesSearch && matchesStatus;
+      (statusFilter === "inactive" && b.blog_status !== "Active")
+    );
   });
 
   const handleToggleStatus = async (item: BlogItem) => {
@@ -55,7 +68,7 @@ export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search articles by title, category, or summary..."
             className="pl-8"
           />
@@ -235,6 +248,16 @@ export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

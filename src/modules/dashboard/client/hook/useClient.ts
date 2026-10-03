@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createClient,
   fetchClientById,
   fetchClients,
+  fetchClientsPage,
   updateClient,
   updateClientStatus,
 } from "../api/client.api.ts";
@@ -19,6 +20,15 @@ export function useClients() {
     queryKey: clientKeys.list(),
     queryFn: fetchClients,
     retry: 1,
+  });
+}
+
+export function useClientsPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...clientKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchClientsPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

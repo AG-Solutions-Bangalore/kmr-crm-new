@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createTestimonial,
   fetchPageOne,
   fetchTestimonialById,
   fetchTestimonials,
+  fetchTestimonialsPage,
   updateTestimonial,
   updateTestimonialStatus,
 } from "../api/testimonial.api.ts";
@@ -32,6 +33,15 @@ export function useTestimonials() {
     queryKey: testimonialKeys.list(),
     queryFn: fetchTestimonials,
     retry: 1,
+  });
+}
+
+export function useTestimonialsPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...testimonialKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchTestimonialsPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

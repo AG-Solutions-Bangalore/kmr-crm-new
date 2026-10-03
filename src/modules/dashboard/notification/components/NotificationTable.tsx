@@ -3,38 +3,48 @@ import { Bell, Calendar, Edit2, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { useUpdateNotificationStatus } from "../hook/useNotification.ts";
 import type { NotificationItem, NotificationStatus } from "../types/notification.types.ts";
 
 interface NotificationTableProps {
   notifications: NotificationItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (notification: NotificationItem) => void;
 }
 
 export function NotificationTable({
   notifications,
   isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
   onEdit,
 }: NotificationTableProps) {
-  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateNotificationStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
+  // Search is server-side (?search=); status filter applies to the loaded page.
   const filtered = notifications.filter((n) => {
-    const s = search.toLowerCase();
-    const matchesSearch =
-      n.notification_heading?.toLowerCase().includes(s) ||
-      n.notification_description?.toLowerCase().includes(s) ||
-      n.notification_date?.toLowerCase().includes(s);
-
-    const matchesStatus =
+    return (
       statusFilter === "all" ||
       (statusFilter === "active" && n.notification_status === "Active") ||
-      (statusFilter === "inactive" && n.notification_status !== "Active");
-
-    return matchesSearch && matchesStatus;
+      (statusFilter === "inactive" && n.notification_status !== "Active")
+    );
   });
 
   const handleToggleStatus = async (item: NotificationItem) => {
@@ -58,7 +68,7 @@ export function NotificationTable({
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by heading or message content..."
             className="pl-8"
           />
@@ -212,6 +222,16 @@ export function NotificationTable({
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

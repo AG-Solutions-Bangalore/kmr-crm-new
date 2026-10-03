@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   PageOneItem,
   TestimonialItem,
@@ -28,6 +29,18 @@ export async function fetchTestimonials(): Promise<TestimonialItem[]> {
     }
   }
   return [];
+}
+
+/** GET /testimonial?page=N&per_page=M&search=Q — Server-side paginated testimonials. */
+export async function fetchTestimonialsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<TestimonialItem>> {
+  const { data } = await api.get<TestimonialListResponse | TestimonialItem[]>(
+    pageQuery("/testimonial", page, perPage, search),
+  );
+  return parsePaginatedResponse<TestimonialItem>(data, page, perPage);
 }
 
 /** GET /testimonial/:id — Fetch single testimonial details. */

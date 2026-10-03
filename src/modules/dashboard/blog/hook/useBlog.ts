@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createBlog,
   fetchBlogById,
   fetchBlogs,
+  fetchBlogsPage,
   updateBlog,
   updateBlogStatus,
 } from "../api/blog.api.ts";
@@ -19,6 +20,15 @@ export function useBlogs() {
     queryKey: blogKeys.list(),
     queryFn: fetchBlogs,
     retry: 1,
+  });
+}
+
+export function useBlogsPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...blogKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchBlogsPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

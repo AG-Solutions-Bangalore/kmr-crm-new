@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createGallery,
   fetchGallery,
   fetchGalleryById,
+  fetchGalleryPage,
   updateGallery,
   updateGalleryStatus,
 } from "../api/gallery.api.ts";
@@ -19,6 +20,15 @@ export function useGalleryList() {
     queryKey: galleryKeys.list(),
     queryFn: fetchGallery,
     retry: 1,
+  });
+}
+
+export function useGalleryPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...galleryKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchGalleryPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

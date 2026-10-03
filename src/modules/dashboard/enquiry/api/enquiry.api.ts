@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   EnquiryItem,
   EnquiryListResponse,
@@ -16,6 +17,18 @@ export async function fetchEnquiries(): Promise<EnquiryItem[]> {
     }
   }
   return [];
+}
+
+/** GET /enquiry?page=N&per_page=M&search=Q — Server-side paginated enquiries. */
+export async function fetchEnquiriesPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<EnquiryItem>> {
+  const { data } = await api.get<EnquiryListResponse | EnquiryItem[]>(
+    pageQuery("/enquiry", page, perPage, search),
+  );
+  return parsePaginatedResponse<EnquiryItem>(data, page, perPage);
 }
 
 /** GET /enquiry/:id — Fetch single enquiry details. */

@@ -3,6 +3,7 @@ import { Edit2, Images, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateGalleryStatus } from "../hook/useGallery.ts";
 import type { GalleryItem, GalleryStatus } from "../types/gallery.types.ts";
@@ -47,22 +48,35 @@ function GalleryThumb({
 interface GalleryTableProps {
   galleryItems: GalleryItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (item: GalleryItem) => void;
 }
 
-export function GalleryTable({ galleryItems, isLoading, onEdit }: GalleryTableProps) {
-  const [search, setSearch] = useState("");
+export function GalleryTable({
+  galleryItems,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+  onEdit,
+}: GalleryTableProps) {
   const updateStatusMutation = useUpdateGalleryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  const filtered = galleryItems.filter((item) => {
-    const q = search.toLowerCase();
-    return (
-      item.gallery_image?.toLowerCase().includes(q) ||
-      String(item.id).includes(q) ||
-      item.gallery_status?.toLowerCase().includes(q)
-    );
-  });
+  // Search is server-side (?search=); the loaded page is rendered as-is.
+  const filtered = galleryItems;
 
   const handleToggleStatus = async (item: GalleryItem) => {
     const nextStatus = item.gallery_status === "Active" ? "Inactive" : "Active";
@@ -85,7 +99,7 @@ export function GalleryTable({ galleryItems, isLoading, onEdit }: GalleryTablePr
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search gallery images by name or ID..."
             className="pl-8"
           />
@@ -207,6 +221,16 @@ export function GalleryTable({ galleryItems, isLoading, onEdit }: GalleryTablePr
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

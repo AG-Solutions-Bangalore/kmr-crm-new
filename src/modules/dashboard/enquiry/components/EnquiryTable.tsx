@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,14 @@ import type { EnquiryItem, EnquiryStatus } from "../types/enquiry.types.ts";
 interface EnquiryTableProps {
   enquiries: EnquiryItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
 }
 
 function getName(e: EnquiryItem): string {
@@ -56,8 +65,18 @@ function getMessage(e: EnquiryItem): string {
   return e.enquiryMessage || e.message || "";
 }
 
-export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
-  const [search, setSearch] = useState("");
+export function EnquiryTable({
+  enquiries,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+}: EnquiryTableProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateEnquiryStatus();
   const deleteMutation = useDeleteEnquiry();
@@ -66,20 +85,13 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number | null>(null);
 
+  // Search is server-side (?search=); status filter applies to the loaded page.
   const filtered = enquiries.filter((item) => {
-    const s = search.toLowerCase();
-    const matchesSearch =
-      getName(item).toLowerCase().includes(s) ||
-      getEmail(item).toLowerCase().includes(s) ||
-      getMobile(item).toLowerCase().includes(s) ||
-      getMessage(item).toLowerCase().includes(s) ||
-      getService(item).toLowerCase().includes(s);
-
     const matchesStatus =
       statusFilter === "all" ||
       item.enquiryStatus?.toLowerCase() === statusFilter.toLowerCase();
 
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
 
   const handleStatusChange = async (item: EnquiryItem, newStatus: EnquiryStatus) => {
@@ -137,7 +149,7 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by name, email, mobile, service..."
             className="pl-8"
           />
@@ -311,6 +323,16 @@ export function EnquiryTable({ enquiries, isLoading }: EnquiryTableProps) {
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
 
       {/* View details — GET /enquiry/:id */}
       <Dialog open={viewId !== null} onOpenChange={(o) => !o && setViewId(null)}>

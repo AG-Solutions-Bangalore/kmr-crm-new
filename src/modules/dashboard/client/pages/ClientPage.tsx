@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Plus, RefreshCw, Users, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -8,13 +8,36 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { ClientFormDialog } from "../components/ClientFormDialog.tsx";
 import { ClientTable } from "../components/ClientTable.tsx";
-import { useClients } from "../hook/useClient.ts";
+import { useClientsPage } from "../hook/useClient.ts";
 import type { ClientItem } from "../types/client.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function ClientPage() {
-  const { data: clients = [], isLoading, error, refetch, isFetching } = useClients();
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const { data, isLoading, error, refetch, isFetching } = useClientsPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
+
+  const clients = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<ClientItem | null>(null);
@@ -29,7 +52,6 @@ export function ClientPage() {
     setDialogOpen(true);
   };
 
-  const totalCount = clients.length;
   const activeCount = clients.filter((c) => c.clients_status === "Active").length;
   const inactiveCount = clients.filter((c) => c.clients_status === "Inactive").length;
 
@@ -139,6 +161,14 @@ export function ClientPage() {
       <ClientTable
         clients={clients}
         isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
         onEdit={handleOpenEdit}
       />
 

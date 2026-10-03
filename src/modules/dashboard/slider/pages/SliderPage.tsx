@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Home, Layers, Plus, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -8,13 +8,36 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { SliderFormDialog } from "../components/SliderFormDialog.tsx";
 import { SliderTable } from "../components/SliderTable.tsx";
-import { useSliders } from "../hook/useSlider.ts";
+import { useSlidersPage } from "../hook/useSlider.ts";
 import type { SliderItem } from "../types/slider.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function SliderPage() {
-  const { data: sliders = [], isLoading, error, refetch, isFetching } = useSliders();
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const { data, isLoading, error, refetch, isFetching } = useSlidersPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
+
+  const sliders = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSlider, setSelectedSlider] = useState<SliderItem | null>(null);
@@ -29,7 +52,6 @@ export function SliderPage() {
     setDialogOpen(true);
   };
 
-  const totalCount = sliders.length;
   const homeCount = sliders.filter((s) => s.slider_type === "Home").length;
   const categoryCount = sliders.filter((s) => s.slider_type === "Category").length;
   const activeCount = sliders.filter((s) => s.slider_status === "Active").length;
@@ -154,6 +176,14 @@ export function SliderPage() {
       <SliderTable
         sliders={sliders}
         isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
         onEdit={handleOpenEdit}
       />
 

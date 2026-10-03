@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   Vendor,
   VendorListResponse,
@@ -19,6 +20,18 @@ export async function fetchVendors(): Promise<Vendor[]> {
     }
   }
   return [];
+}
+
+/** GET /vendor?page=N&per_page=M&search=Q — Server-side paginated vendors. */
+export async function fetchVendorsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<Vendor>> {
+  const { data } = await api.get<VendorListResponse | Vendor[]>(
+    pageQuery("/vendor", page, perPage, search),
+  );
+  return parsePaginatedResponse<Vendor>(data, page, perPage);
 }
 
 /** GET /activeVendors — Fetch only active vendors. */

@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   NewsItem,
   NewsListResponse,
@@ -17,6 +18,18 @@ export async function fetchNews(): Promise<NewsItem[]> {
     }
   }
   return [];
+}
+
+/** GET /news?page=N&per_page=M&search=Q — Server-side paginated news items. */
+export async function fetchNewsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<NewsItem>> {
+  const { data } = await api.get<NewsListResponse | NewsItem[]>(
+    pageQuery("/news", page, perPage, search),
+  );
+  return parsePaginatedResponse<NewsItem>(data, page, perPage);
 }
 
 /** GET /news/:id — Fetch single news item. */

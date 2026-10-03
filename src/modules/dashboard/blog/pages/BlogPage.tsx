@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, FileText, Plus, RefreshCw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -8,13 +8,32 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { BlogFormDialog } from "../components/BlogFormDialog.tsx";
 import { BlogTable } from "../components/BlogTable.tsx";
-import { useBlogs } from "../hook/useBlog.ts";
+import { useBlogsPage } from "../hook/useBlog.ts";
 import type { BlogItem } from "../types/blog.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function BlogPage() {
-  const { data: blogs = [], isLoading, error, refetch, isFetching } = useBlogs();
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const { data, isLoading, error, refetch, isFetching } = useBlogsPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
+
+  const blogs = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<BlogItem | null>(null);
@@ -29,7 +48,6 @@ export function BlogPage() {
     setDialogOpen(true);
   };
 
-  const totalCount = blogs.length;
   const activeCount = blogs.filter((b) => b.blog_status === "Active").length;
   const featuredCount = blogs.filter((b) => b.blog_featured === "1" || b.blog_featured === 1).length;
 
@@ -136,7 +154,19 @@ export function BlogPage() {
       </div>
 
       {/* Blog Table */}
-      <BlogTable blogs={blogs} isLoading={isLoading} onEdit={handleOpenEdit} />
+      <BlogTable
+        blogs={blogs}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
+        onEdit={handleOpenEdit}
+      />
 
       {/* Add / Edit Dialog */}
       <BlogFormDialog

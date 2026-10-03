@@ -3,34 +3,48 @@ import { Calendar, Edit2, Newspaper, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { useUpdateNewsStatus } from "../hook/useNews.ts";
 import type { NewsItem } from "../types/news.types.ts";
 
 interface NewsTableProps {
   articles: NewsItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (article: NewsItem) => void;
 }
 
-export function NewsTable({ articles, isLoading, onEdit }: NewsTableProps) {
-  const [search, setSearch] = useState("");
+export function NewsTable({
+  articles,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+  onEdit,
+}: NewsTableProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateNewsStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
+  // Search is server-side (?search=); status filter applies to the loaded page.
   const filtered = articles.filter((a) => {
-    const s = search.toLowerCase();
-    const matchesSearch =
-      a.news_heading?.toLowerCase().includes(s) ||
-      a.news_details?.toLowerCase().includes(s) ||
-      a.categories_name?.toLowerCase().includes(s);
-
-    const matchesStatus =
+    return (
       statusFilter === "all" ||
       (statusFilter === "active" && a.news_status === "Active") ||
-      (statusFilter === "inactive" && a.news_status !== "Active");
-
-    return matchesSearch && matchesStatus;
+      (statusFilter === "inactive" && a.news_status !== "Active")
+    );
   });
 
   const handleToggleStatus = async (item: NewsItem) => {
@@ -54,7 +68,7 @@ export function NewsTable({ articles, isLoading, onEdit }: NewsTableProps) {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search news by headline, details, or category..."
             className="pl-8"
           />
@@ -217,6 +231,16 @@ export function NewsTable({ articles, isLoading, onEdit }: NewsTableProps) {
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

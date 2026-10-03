@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { VendorFormDialog } from "../components/VendorFormDialog.tsx";
 import { VendorTable } from "../components/VendorTable.tsx";
 import { VendorSpotFormDialog } from "../components/VendorSpotFormDialog.tsx";
@@ -24,23 +25,43 @@ import { VendorSpotTable } from "../components/VendorSpotTable.tsx";
 import { VendorRateTable } from "../components/VendorRateTable.tsx";
 import { VendorRateFormDialog } from "../components/VendorRateFormDialog.tsx";
 import {
-  useVendors,
+  useVendorsPage,
   useVendorSpots,
   useVendorLives,
   useVendorRates,
 } from "../hook/useVendor.ts";
 import type { Vendor } from "../types/vendor.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function VendorPage() {
   const [activeTab, setActiveTab] = useState<"vendors" | "spots" | "live" | "rates">("vendors");
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   const {
-    data: vendors = [],
+    data,
     isLoading,
     error,
     refetch,
     isFetching,
-  } = useVendors();
+  } = useVendorsPage(page, PAGE_SIZE, search);
+
+  const vendors = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  // Clamp page if total shrinks (e.g. deleted last item on last page).
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const {
     data: spots = [],
@@ -95,9 +116,8 @@ export function VendorPage() {
 
   const isRefreshing = isFetching || fetchingSpots || fetchingLive || fetchingRates;
 
-  const totalCount = vendors.length;
   const activeCount = vendors.filter((v) => v.vendor_status === "Active").length;
-  const inactiveCount = totalCount - activeCount;
+  const inactiveCount = vendors.length - activeCount;
 
   return (
     <div className="flex flex-col gap-6">
@@ -249,7 +269,7 @@ export function VendorPage() {
           }`}
         >
           <Store className="size-4" />
-          <span>Vendors Directory ({vendors.length})</span>
+          <span>Vendors Directory ({totalCount})</span>
         </button>
 
         <button
@@ -297,6 +317,14 @@ export function VendorPage() {
         <VendorTable
           vendors={vendors}
           isLoading={isLoading}
+          isFetching={isFetching}
+          page={page}
+          totalPages={totalPages}
+          total={totalCount}
+          perPage={PAGE_SIZE}
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          onPageChange={setPage}
           onEdit={handleOpenEdit}
         />
       ) : activeTab === "spots" ? (

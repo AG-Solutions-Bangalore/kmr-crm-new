@@ -3,6 +3,7 @@ import { Edit2, ExternalLink, Power, Search, SlidersHorizontal } from "lucide-re
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateSliderStatus } from "../hook/useSlider.ts";
 import type { SliderItem, SliderStatus } from "../types/slider.types.ts";
@@ -27,27 +28,40 @@ function SliderThumb({ filename }: { filename?: string | null }) {
 interface SliderTableProps {
   sliders: SliderItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (slider: SliderItem) => void;
 }
 
-export function SliderTable({ sliders, isLoading, onEdit }: SliderTableProps) {
-  const [search, setSearch] = useState("");
+export function SliderTable({
+  sliders,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+  onEdit,
+}: SliderTableProps) {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateSliderStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
+  // Search is server-side (?search=); type filter applies to the loaded page.
   const filtered = sliders.filter((s) => {
-    const q = search.toLowerCase();
-    const matchesSearch =
-      s.slider_type?.toLowerCase().includes(q) ||
-      s.slider_image?.toLowerCase().includes(q) ||
-      s.slider_url?.toLowerCase().includes(q);
-
-    const matchesType =
+    return (
       typeFilter === "all" ||
-      s.slider_type?.toLowerCase() === typeFilter.toLowerCase();
-
-    return matchesSearch && matchesType;
+      s.slider_type?.toLowerCase() === typeFilter.toLowerCase()
+    );
   });
 
   const handleToggleStatus = async (item: SliderItem) => {
@@ -71,7 +85,7 @@ export function SliderTable({ sliders, isLoading, onEdit }: SliderTableProps) {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by image, URL, or type..."
             className="pl-8"
           />
@@ -242,6 +256,16 @@ export function SliderTable({ sliders, isLoading, onEdit }: SliderTableProps) {
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

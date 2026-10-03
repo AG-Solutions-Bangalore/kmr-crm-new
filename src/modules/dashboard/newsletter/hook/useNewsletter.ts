@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteNewsletterSubscriber,
   fetchNewsletterSubscribers,
+  fetchNewsletterSubscribersPage,
 } from "../api/newsletter.api.ts";
 
 export const newsletterKeys = {
@@ -14,6 +15,15 @@ export function useNewsletterSubscribers() {
     queryKey: newsletterKeys.list(),
     queryFn: fetchNewsletterSubscribers,
     retry: 1,
+  });
+}
+
+export function useNewsletterSubscribersPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...newsletterKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchNewsletterSubscribersPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

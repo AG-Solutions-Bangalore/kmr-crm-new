@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Plus, Quote, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -8,13 +8,36 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { TestimonialFormDialog } from "../components/TestimonialFormDialog.tsx";
 import { TestimonialTable } from "../components/TestimonialTable.tsx";
-import { useTestimonials } from "../hook/useTestimonial.ts";
+import { useTestimonialsPage } from "../hook/useTestimonial.ts";
 import type { TestimonialItem } from "../types/testimonial.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function TestimonialPage() {
-  const { data: testimonials = [], isLoading, error, refetch, isFetching } = useTestimonials();
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const { data, isLoading, error, refetch, isFetching } = useTestimonialsPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
+
+  const testimonials = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TestimonialItem | null>(null);
@@ -29,7 +52,6 @@ export function TestimonialPage() {
     setDialogOpen(true);
   };
 
-  const totalCount = testimonials.length;
   const activeCount = testimonials.filter((t) => t.testimonial_status === "Active").length;
   const inactiveCount = testimonials.filter((t) => t.testimonial_status === "Inactive").length;
 
@@ -139,6 +161,14 @@ export function TestimonialPage() {
       <TestimonialTable
         testimonials={testimonials}
         isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
         onEdit={handleOpenEdit}
       />
 

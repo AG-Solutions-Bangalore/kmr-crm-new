@@ -1,4 +1,5 @@
 import { api, throwIfApiError } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   NewsletterListResponse,
   NewsletterSubscriber,
@@ -15,6 +16,18 @@ export async function fetchNewsletterSubscribers(): Promise<NewsletterSubscriber
     }
   }
   return [];
+}
+
+/** GET /newsletter?page=N&per_page=M&search=Q — Server-side paginated subscribers. */
+export async function fetchNewsletterSubscribersPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<NewsletterSubscriber>> {
+  const { data } = await api.get<NewsletterListResponse | NewsletterSubscriber[]>(
+    pageQuery("/newsletter", page, perPage, search),
+  );
+  return parsePaginatedResponse<NewsletterSubscriber>(data, page, perPage);
 }
 
 /** DELETE /newsletter/:id — Remove a newsletter subscriber. */

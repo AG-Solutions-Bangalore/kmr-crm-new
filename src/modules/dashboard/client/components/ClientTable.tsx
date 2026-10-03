@@ -3,28 +3,42 @@ import { Edit2, Power, Search, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { useUpdateClientStatus } from "../hook/useClient.ts";
 import type { ClientItem, ClientStatus } from "../types/client.types.ts";
 
 interface ClientTableProps {
   clients: ClientItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (client: ClientItem) => void;
 }
 
-export function ClientTable({ clients, isLoading, onEdit }: ClientTableProps) {
-  const [search, setSearch] = useState("");
+export function ClientTable({
+  clients,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+  onEdit,
+}: ClientTableProps) {
   const updateStatusMutation = useUpdateClientStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  const filtered = clients.filter((c) => {
-    const q = search.toLowerCase();
-    return (
-      c.clients_name?.toLowerCase().includes(q) ||
-      String(c.id).includes(q) ||
-      c.clients_status?.toLowerCase().includes(q)
-    );
-  });
+  // Search is server-side (?search=); render the loaded page directly.
+  const filtered = clients;
 
   const handleToggleStatus = async (item: ClientItem) => {
     const nextStatus = item.clients_status === "Active" ? "Inactive" : "Active";
@@ -47,7 +61,7 @@ export function ClientTable({ clients, isLoading, onEdit }: ClientTableProps) {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search clients by name or ID..."
             className="pl-8"
           />
@@ -182,6 +196,16 @@ export function ClientTable({ clients, isLoading, onEdit }: ClientTableProps) {
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

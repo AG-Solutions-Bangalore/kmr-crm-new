@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Calendar, Mail, Search, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +19,14 @@ import type { NewsletterSubscriber } from "../types/newsletter.types.ts";
 interface NewsletterTableProps {
   subscribers: NewsletterSubscriber[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
 }
 
 function getEmail(s: NewsletterSubscriber): string {
@@ -28,16 +37,25 @@ function getCreated(s: NewsletterSubscriber): string {
   return s.newsletter_created || s.created_at || "";
 }
 
-export function NewsletterTable({ subscribers, isLoading }: NewsletterTableProps) {
-  const [search, setSearch] = useState("");
+export function NewsletterTable({
+  subscribers,
+  isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
+}: NewsletterTableProps) {
   const deleteMutation = useDeleteNewsletterSubscriber();
   const [deleteTarget, setDeleteTarget] =
     useState<NewsletterSubscriber | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const filtered = subscribers.filter((s) =>
-    getEmail(s).toLowerCase().includes(search.toLowerCase()),
-  );
+  // Search is server-side (?search=); rows render the loaded page directly.
+  const filtered = subscribers;
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -58,7 +76,7 @@ export function NewsletterTable({ subscribers, isLoading }: NewsletterTableProps
         <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search subscribers by email..."
           className="pl-8"
         />
@@ -148,6 +166,16 @@ export function NewsletterTable({ subscribers, isLoading }: NewsletterTableProps
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
 
       <AlertDialog
         open={Boolean(deleteTarget)}

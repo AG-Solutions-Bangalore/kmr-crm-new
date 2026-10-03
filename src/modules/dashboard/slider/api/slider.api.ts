@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   SliderItem,
   SliderListResponse,
@@ -17,6 +18,18 @@ export async function fetchSliders(): Promise<SliderItem[]> {
     }
   }
   return [];
+}
+
+/** GET /slider?page=N&per_page=M&search=Q — Server-side paginated sliders. */
+export async function fetchSlidersPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<SliderItem>> {
+  const { data } = await api.get<SliderListResponse | SliderItem[]>(
+    pageQuery("/slider", page, perPage, search),
+  );
+  return parsePaginatedResponse<SliderItem>(data, page, perPage);
 }
 
 /** GET /slider/:id — Fetch single slider details. */

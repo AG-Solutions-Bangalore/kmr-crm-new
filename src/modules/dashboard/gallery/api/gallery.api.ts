@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   GalleryItem,
   GalleryListResponse,
@@ -17,6 +18,18 @@ export async function fetchGallery(): Promise<GalleryItem[]> {
     }
   }
   return [];
+}
+
+/** GET /gallery?page=N&per_page=M&search=Q — Server-side paginated gallery images. */
+export async function fetchGalleryPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<GalleryItem>> {
+  const { data } = await api.get<GalleryListResponse | GalleryItem[]>(
+    pageQuery("/gallery", page, perPage, search),
+  );
+  return parsePaginatedResponse<GalleryItem>(data, page, perPage);
 }
 
 /** GET /gallery/:id — Fetch single gallery item. */

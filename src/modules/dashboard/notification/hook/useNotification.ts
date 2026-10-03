@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createNotification,
   fetchNotificationById,
   fetchNotifications,
+  fetchNotificationsPage,
   updateNotification,
   updateNotificationStatus,
 } from "../api/notification.api.ts";
@@ -19,6 +20,15 @@ export function useNotifications() {
     queryKey: notificationKeys.list(),
     queryFn: fetchNotifications,
     retry: 1,
+  });
+}
+
+export function useNotificationsPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...notificationKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchNotificationsPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

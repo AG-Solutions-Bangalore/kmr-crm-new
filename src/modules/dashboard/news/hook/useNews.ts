@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createNews,
   fetchNews,
   fetchNewsById,
+  fetchNewsPage,
   updateNews,
   updateNewsStatus,
 } from "../api/news.api.ts";
@@ -19,6 +20,15 @@ export function useNews() {
     queryKey: newsKeys.list(),
     queryFn: fetchNews,
     retry: 1,
+  });
+}
+
+export function useNewsPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...newsKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchNewsPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

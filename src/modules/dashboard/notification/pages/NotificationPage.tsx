@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, Bell, CheckCircle2, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -8,19 +8,38 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { NotificationFormDialog } from "../components/NotificationFormDialog.tsx";
 import { NotificationTable } from "../components/NotificationTable.tsx";
-import { useNotifications } from "../hook/useNotification.ts";
+import { useNotificationsPage } from "../hook/useNotification.ts";
 import type { NotificationItem } from "../types/notification.types.ts";
 
+const PAGE_SIZE = 10;
+
 export function NotificationPage() {
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
   const {
-    data: notifications = [],
+    data,
     isLoading,
     error,
     refetch,
     isFetching,
-  } = useNotifications();
+  } = useNotificationsPage(page, PAGE_SIZE, search);
+
+  const notifications = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedNotif, setSelectedNotif] = useState<NotificationItem | null>(null);
@@ -35,9 +54,8 @@ export function NotificationPage() {
     setDialogOpen(true);
   };
 
-  const totalCount = notifications.length;
   const activeCount = notifications.filter((n) => n.notification_status === "Active").length;
-  const inactiveCount = totalCount - activeCount;
+  const inactiveCount = notifications.length - activeCount;
 
   return (
     <div className="flex flex-col gap-6">
@@ -145,6 +163,14 @@ export function NotificationPage() {
       <NotificationTable
         notifications={notifications}
         isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
         onEdit={handleOpenEdit}
       />
 

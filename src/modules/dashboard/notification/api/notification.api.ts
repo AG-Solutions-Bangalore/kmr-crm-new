@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   NotificationItem,
   NotificationListResponse,
@@ -17,6 +18,18 @@ export async function fetchNotifications(): Promise<NotificationItem[]> {
     }
   }
   return [];
+}
+
+/** GET /notification?page=N&per_page=M&search=Q — Server-side paginated notifications. */
+export async function fetchNotificationsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<NotificationItem>> {
+  const { data } = await api.get<NotificationListResponse | NotificationItem[]>(
+    pageQuery("/notification", page, perPage, search),
+  );
+  return parsePaginatedResponse<NotificationItem>(data, page, perPage);
 }
 
 /** GET /notification/:id — Fetch single notification. */

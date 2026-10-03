@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   FaqCreatePayload,
   FaqItem,
@@ -29,6 +30,18 @@ export async function fetchFaqs(): Promise<FaqItem[]> {
     }
   }
   return [];
+}
+
+/** GET /faq?page=N&per_page=M&search=Q — Server-side paginated FAQs. */
+export async function fetchFaqsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<FaqItem>> {
+  const { data } = await api.get<FaqListResponse | FaqItem[]>(
+    pageQuery("/faq", page, perPage, search),
+  );
+  return parsePaginatedResponse<FaqItem>(data, page, perPage);
 }
 
 /** GET /faq/:id — Fetch single FAQ details with question subs. */

@@ -1,10 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createFaq,
   deleteFaq,
   deleteFaqSub,
   fetchFaqById,
   fetchFaqs,
+  fetchFaqsPage,
   fetchPageTwo,
   updateFaq,
   updateFaqStatus,
@@ -35,6 +36,15 @@ export function useFaqs() {
     queryKey: faqKeys.list(),
     queryFn: fetchFaqs,
     retry: 1,
+  });
+}
+
+export function useFaqsPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...faqKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchFaqsPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Clock, MessageSquare, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -7,13 +8,38 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { EnquiryTable } from "../components/EnquiryTable.tsx";
-import { useEnquiries } from "../hook/useEnquiry.ts";
+import { useEnquiriesPage } from "../hook/useEnquiry.ts";
+
+const PAGE_SIZE = 10;
 
 export function EnquiryPage() {
-  const { data: enquiries = [], isLoading, error, refetch, isFetching } = useEnquiries();
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
 
-  const totalCount = enquiries.length;
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const { data, isLoading, error, refetch, isFetching } = useEnquiriesPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
+
+  const enquiries = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = data?.lastPage ?? 1;
+
+  // Clamp page if total shrinks (e.g. deleted last item on last page).
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
   const pendingCount = enquiries.filter(
     (e) => !e.enquiryStatus || e.enquiryStatus.toLowerCase() === "pending",
   ).length;
@@ -137,7 +163,18 @@ export function EnquiryPage() {
       </div>
 
       {/* Enquiry Table */}
-      <EnquiryTable enquiries={enquiries} isLoading={isLoading} />
+      <EnquiryTable
+        enquiries={enquiries}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        page={page}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

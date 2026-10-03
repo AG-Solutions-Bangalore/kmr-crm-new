@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteEnquiry,
   fetchEnquiries,
+  fetchEnquiriesPage,
   fetchEnquiryById,
   updateEnquiryStatus,
 } from "../api/enquiry.api.ts";
@@ -18,6 +19,15 @@ export function useEnquiries() {
     queryKey: enquiryKeys.list(),
     queryFn: fetchEnquiries,
     retry: 1,
+  });
+}
+
+export function useEnquiriesPage(page: number, perPage: number, search = "") {
+  return useQuery({
+    queryKey: [...enquiryKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchEnquiriesPage(page, perPage, search),
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 
