@@ -25,10 +25,10 @@ export function useCategories() {
   });
 }
 
-export function useCategoriesPage(page: number, perPage: number) {
+export function useCategoriesPage(page: number, perPage: number, search = "") {
   return useQuery({
-    queryKey: [...categoryKeys.all, "page", page, perPage] as const,
-    queryFn: () => fetchCategoriesPage(page, perPage),
+    queryKey: [...categoryKeys.all, "page", page, perPage, search] as const,
+    queryFn: () => fetchCategoriesPage(page, perPage, search),
     retry: 1,
     placeholderData: keepPreviousData,
   });

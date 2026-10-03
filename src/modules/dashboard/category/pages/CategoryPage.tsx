@@ -17,13 +17,25 @@ const PAGE_SIZE = 10;
 
 export function CategoryPage() {
   const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+
+  // Debounce search → server query (avoids a request per keystroke).
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
   const {
     data,
     isLoading,
     isFetching,
     error,
     refetch,
-  } = useCategoriesPage(page, PAGE_SIZE);
+  } = useCategoriesPage(page, PAGE_SIZE, search);
 
   const categories = data?.items ?? [];
   const totalCount = data?.total ?? 0;
@@ -169,6 +181,8 @@ export function CategoryPage() {
         totalPages={totalPages}
         total={totalCount}
         perPage={PAGE_SIZE}
+        search={searchInput}
+        onSearchChange={setSearchInput}
         onPageChange={setPage}
         onEdit={handleOpenEdit}
       />

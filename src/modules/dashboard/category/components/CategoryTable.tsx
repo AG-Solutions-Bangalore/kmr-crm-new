@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Edit2, FolderTree, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -14,6 +14,8 @@ interface CategoryTableProps {
   totalPages: number;
   total: number;
   perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (category: Category) => void;
 }
@@ -34,31 +36,23 @@ export function CategoryTable({
   totalPages,
   total,
   perPage,
+  search,
+  onSearchChange,
   onPageChange,
   onEdit,
 }: CategoryTableProps) {
-  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  // Search/filter applies to the loaded page — jump back to page 1 on change.
-  useEffect(() => {
-    if (page !== 1) onPageChange(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, statusFilter]);
-
+  // Search is server-side (?search=); status filter applies to the loaded page.
   const filtered = categories.filter((cat) => {
-    const matchesSearch =
-      cat.categories_name?.toLowerCase().includes(search.toLowerCase()) ||
-      cat.categories_slug?.toLowerCase().includes(search.toLowerCase());
-
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "active" && cat.categories_status === "Active") ||
       (statusFilter === "inactive" && cat.categories_status !== "Active");
 
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
 
   const handleToggleStatus = async (cat: Category) => {
@@ -82,7 +76,7 @@ export function CategoryTable({
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search categories by name or slug..."
             className="pl-8"
           />
@@ -240,11 +234,6 @@ export function CategoryTable({
             : `Showing ${(page - 1) * perPage + 1}–${Math.min(page * perPage, total)} of ${total}`}
           {isFetching && !isLoading && " • Updating..."}
         </p>
-        {search.trim() !== "" && (
-          <p className="text-[11px] text-muted-foreground">
-            Search filters the loaded page only.
-          </p>
-        )}
         <div className="flex items-center gap-1.5">
           <Button
             variant="outline"

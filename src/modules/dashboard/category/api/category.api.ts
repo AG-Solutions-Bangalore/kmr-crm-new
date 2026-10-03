@@ -32,13 +32,15 @@ export interface CategoriesPage {
   lastPage: number;
 }
 
-/** GET /category?page=N&per_page=M — Server-side paginated categories for the list. */
+/** GET /category?page=N&per_page=M&search=Q — Server-side paginated categories for the list. */
 export async function fetchCategoriesPage(
   page = 1,
   perPage = 10,
+  search = "",
 ): Promise<CategoriesPage> {
+  const q = search.trim();
   const { data } = await api.get<CategoryListResponse | Category[]>(
-    `/category?page=${page}&per_page=${perPage}`,
+    `/category?page=${page}&per_page=${perPage}${q ? `&search=${encodeURIComponent(q)}` : ""}`,
   );
 
   if (Array.isArray(data)) {
