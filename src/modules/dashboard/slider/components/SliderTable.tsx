@@ -3,8 +3,26 @@ import { Edit2, ExternalLink, Power, Search, SlidersHorizontal } from "lucide-re
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateSliderStatus } from "../hook/useSlider.ts";
 import type { SliderItem, SliderStatus } from "../types/slider.types.ts";
+
+function SliderThumb({ filename }: { filename?: string | null }) {
+  const [failed, setFailed] = useState(false);
+  const url = resolveAssetImageUrl(filename, "slider_images");
+  if (!url || failed) {
+    return <SlidersHorizontal className="size-4 text-muted-foreground" />;
+  }
+  return (
+    <img
+      src={url}
+      alt="Slider"
+      loading="lazy"
+      className="h-full w-full object-cover"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 interface SliderTableProps {
   sliders: SliderItem[];
@@ -125,18 +143,7 @@ export function SliderTable({ sliders, isLoading, onEdit }: SliderTableProps) {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/30 font-mono text-xs overflow-hidden">
-                            {slider.slider_image ? (
-                              <img
-                                src={`https://kmrlive.in/crmapi/public/assets/images/slider_images/${slider.slider_image}`}
-                                alt="Slider"
-                                className="h-full w-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLElement).style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              <SlidersHorizontal className="size-4 text-muted-foreground" />
-                            )}
+                            <SliderThumb filename={slider.slider_image} />
                           </div>
                           <div>
                             <p className="font-medium text-foreground text-xs font-mono truncate max-w-[160px]">

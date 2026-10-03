@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,12 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { useCreateSlider, useUpdateSlider } from "../hook/useSlider.ts";
+import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { useCreateSlider, useSlider, useUpdateSlider } from "../hook/useSlider.ts";
+import {
+  useActiveCategories,
+  useCategories,
+} from "../../category/hook/useCategory.ts";
 import type { SliderItem, SliderStatus, SliderType } from "../types/slider.types.ts";
 
 interface SliderFormDialogProps {
@@ -33,16 +39,49 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
   const [sliderType, setSliderType] = useState<SliderType>(
     (slider?.slider_type as SliderType) || "Category",
   );
-  const [categoryId, setCategoryId] = useState(String(slider?.category_id ?? "1"));
+  const { data: activeCategories = [], isLoading: categoriesLoading } =
+    useActiveCategories();
+  const { data: allCategories = [] } = useCategories();
+  // Prefer /activeCategories, fallback to /category (backend sometimes 500s on one).
+  const categories =
+    activeCategories.length > 0 ? activeCategories : allCategories;
+  const [categoryId, setCategoryId] = useState(
+    String(slider?.category_id ?? ""),
+  );
+
+  // Default to first real category instead of hardcoded "1".
+  useEffect(() => {
+    if (!categoryId && categories.length > 0) {
+      setCategoryId(String(categories[0].id));
+    }
+  }, [categories, categoryId]);
   const [sortOrder, setSortOrder] = useState(String(slider?.slider_sort_order ?? "1"));
   const [url, setUrl] = useState(slider?.slider_url || "");
   const [status, setStatus] = useState<SliderStatus>(
     (slider?.slider_status as SliderStatus) || "Active",
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
+  const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
+
+  // Preview for newly selected file (revoke on change/unmount).
+  useEffect(() => {
+    if (!imageFile) {
+      setNewPreviewUrl(null);
+      return;
+    }
+    const objUrl = URL.createObjectURL(imageFile);
+    setNewPreviewUrl(objUrl);
+    return () => URL.revokeObjectURL(objUrl);
+  }, [imageFile]);
+
+  const existingImageUrl = resolveAssetImageUrl(
+    slider?.slider_image,
+    "slider_images",
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +91,10 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
       setErrorMessage("Please select a banner image file.");
       return;
     }
+    if (sliderType === "Category" && !categoryId) {
+      setErrorMessage("Please select a category.");
+      return;
+    }
 
     try {
       if (isEditing && slider) {
@@ -59,7 +102,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
           id: slider.id,
           payload: {
             slider_type: sliderType,
-            category_id: sliderType === "Category" ? categoryId : "0",
+            category_id: sliderType === "Category" ? categoryId : undefined,
             slider_sort_order: sortOrder,
             slider_url: url.trim(),
             slider_status: status,
@@ -69,7 +112,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
       } else {
         await createMutation.mutateAsync({
           slider_type: sliderType,
-          category_id: sliderType === "Category" ? categoryId : "0",
+          category_id: sliderType === "Category" ? categoryId : undefined,
           slider_sort_order: sortOrder,
           slider_url: url.trim(),
           slider_status: status,
@@ -130,14 +173,28 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
 
         {sliderType === "Category" && (
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="s-cat">Category ID</Label>
-            <Input
+            <Label htmlFor="s-cat">Category</Label>
+            <select
               id="s-cat"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              placeholder="e.g. 1"
+              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               required
-            />
+            >
+              <option value="" disabled>
+                {categoriesLoading ? "Loading categories..." : "Select category"}
+              </option>
+              {categories.map((c) => (
+                <option key={c.id} value={String(c.id)}>
+                  {c.categories_name} (ID: {c.id})
+                </option>
+              ))}
+            </select>
+            {slider?.categories_name && (
+              <p className="text-xs text-muted-foreground">
+                Current: {slider.categories_name} (ID: {slider.category_id})
+              </p>
+            )}
           </div>
         )}
 
@@ -178,10 +235,67 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
             }}
             required={!isEditing}
           />
-          {slider?.slider_image && !imageFile && (
-            <p className="text-xs text-muted-foreground truncate">
-              Current: {slider.slider_image}
-            </p>
+          {newPreviewUrl ? (
+            <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+              <img
+                src={newPreviewUrl}
+                alt="New banner preview"
+                className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-foreground">
+                  New banner preview
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {imageFile?.name}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setImageFile(null)}
+                className="size-7 shrink-0 p-0"
+                title="Remove selected image"
+              >
+                <X className="size-3.5" />
+              </Button>
+            </div>
+          ) : (
+            existingImageUrl && (
+              <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+                {existingImgError ? (
+                  <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 p-1 text-center">
+                    <span className="text-[10px] font-medium leading-tight text-destructive">
+                      Preview not available
+                    </span>
+                  </div>
+                ) : (
+                  <img
+                    src={existingImageUrl}
+                    alt="Currently uploaded banner"
+                    className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                    onError={() => setExistingImgError(true)}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground">
+                    Currently uploaded
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {slider?.slider_image}
+                  </p>
+                  {existingImgError && (
+                    <p className="text-[11px] text-destructive">
+                      File not found at this URL — check folder/filename.
+                    </p>
+                  )}
+                  <p className="text-[11px] text-muted-foreground/80">
+                    Upload a new file to replace it.
+                  </p>
+                </div>
+              </div>
+            )
           )}
         </div>
       </div>
@@ -210,15 +324,50 @@ export function SliderFormDialog({
 }: SliderFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
         {open && (
-          <SliderFormContent
-            key={slider?.id ?? "new-slider"}
-            slider={slider}
+          <SliderFormContainer
+            sliderId={slider?.id}
+            initialSlider={slider}
             onClose={() => onOpenChange(false)}
           />
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function SliderFormContainer({
+  sliderId,
+  initialSlider,
+  onClose,
+}: {
+  sliderId?: number;
+  initialSlider?: SliderItem | null;
+  onClose: () => void;
+}) {
+  // GET /slider/:id — fetch fresh details for edit.
+  const { data: detailedSlider, isLoading } = useSlider(sliderId);
+
+  if (sliderId && isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <span>Loading slider details from server...</span>
+      </div>
+    );
+  }
+
+  const effectiveSlider = detailedSlider || initialSlider;
+  return (
+    <SliderFormContent
+      key={
+        effectiveSlider?.id
+          ? `${effectiveSlider.id}-${effectiveSlider.updated_at ?? ""}-${effectiveSlider.slider_image?.length ?? 0}`
+          : "new-slider"
+      }
+      slider={effectiveSlider}
+      onClose={onClose}
+    />
   );
 }

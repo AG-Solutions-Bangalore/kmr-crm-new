@@ -34,7 +34,9 @@ export async function createNotification(payload: NotificationMutationPayload): 
     notification_date: payload.notification_date,
     notification_heading: payload.notification_heading,
     notification_description: payload.notification_description,
-    notification_image: payload.notification_image ?? "",
+    ...(payload.notification_image instanceof File
+      ? { notification_image: payload.notification_image }
+      : {}),
     notification_status: payload.notification_status ?? "Active",
   });
 
@@ -48,12 +50,16 @@ export async function updateNotification(
   id: number | string,
   payload: NotificationMutationPayload,
 ): Promise<unknown> {
+  // Omit image when unchanged — sending "" trips backend
+  // "The notification image field is required." on update.
   const formData = toFormData({
     _method: "PUT",
     notification_date: payload.notification_date,
     notification_heading: payload.notification_heading,
     notification_description: payload.notification_description,
-    notification_image: payload.notification_image ?? "",
+    ...(payload.notification_image instanceof File
+      ? { notification_image: payload.notification_image }
+      : {}),
     notification_status: payload.notification_status ?? "Active",
   });
 

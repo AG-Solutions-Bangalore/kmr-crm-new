@@ -32,7 +32,12 @@ export async function fetchSliderById(id: number | string): Promise<SliderItem> 
 export async function createSlider(payload: SliderMutationPayload): Promise<unknown> {
   const formData = toFormData({
     slider_type: payload.slider_type,
-    category_id: payload.category_id ?? "0",
+    // Omit for Home — sending "0"/"1" trips "Selected category does not exist."
+    ...(payload.category_id &&
+    String(payload.category_id) !== "0" &&
+    String(payload.category_id) !== ""
+      ? { category_id: payload.category_id }
+      : {}),
     slider_image: payload.slider_image ?? "",
     slider_url: payload.slider_url ?? "",
     slider_sort_order: payload.slider_sort_order ?? "1",
@@ -49,11 +54,19 @@ export async function updateSlider(
   id: number | string,
   payload: SliderMutationPayload,
 ): Promise<unknown> {
+  // Omit image when unchanged — sending "" trips backend required validation.
+  // Omit category for Home — sending "0"/"1" trips "Selected category does not exist."
   const formData = toFormData({
     _method: "PUT",
     slider_type: payload.slider_type,
-    category_id: payload.category_id ?? "0",
-    slider_image: payload.slider_image ?? "",
+    ...(payload.category_id &&
+    String(payload.category_id) !== "0" &&
+    String(payload.category_id) !== ""
+      ? { category_id: payload.category_id }
+      : {}),
+    ...(payload.slider_image instanceof File
+      ? { slider_image: payload.slider_image }
+      : {}),
     slider_url: payload.slider_url ?? "",
     slider_sort_order: payload.slider_sort_order ?? "1",
     slider_status: payload.slider_status ?? "Active",

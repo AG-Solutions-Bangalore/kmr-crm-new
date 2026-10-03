@@ -9,7 +9,10 @@ import type {
 
 /** GET /category — Fetch all categories. */
 export async function fetchCategories(): Promise<Category[]> {
-  const { data } = await api.get<CategoryListResponse | Category[]>("/category");
+  // Backend paginates (10/page, 158 total) — ask for all for dropdowns.
+  const { data } = await api.get<CategoryListResponse | Category[]>(
+    "/category?per_page=500",
+  );
   
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
@@ -23,7 +26,9 @@ export async function fetchCategories(): Promise<Category[]> {
 
 /** GET /activeCategories — Fetch only active categories. */
 export async function fetchActiveCategories(): Promise<Category[]> {
-  const { data } = await api.get<CategoryListResponse | Category[]>("/activeCategories");
+  const { data } = await api.get<CategoryListResponse | Category[]>(
+    "/activeCategories?per_page=500",
+  );
   
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
