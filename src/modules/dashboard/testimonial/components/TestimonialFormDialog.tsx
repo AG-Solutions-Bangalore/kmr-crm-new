@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   useCreateTestimonial,
   usePageOneOptions,
+  useTestimonial,
   useUpdateTestimonial,
 } from "../hook/useTestimonial.ts";
 import type { TestimonialItem, TestimonialStatus } from "../types/testimonial.types.ts";
@@ -227,13 +229,49 @@ export function TestimonialFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         {open && (
-          <TestimonialFormContent
-            key={testimonial?.id ?? "new-testimonial"}
-            testimonial={testimonial}
+          <TestimonialFormContainer
+            testimonialId={testimonial?.id}
+            initialTestimonial={testimonial}
             onClose={() => onOpenChange(false)}
           />
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function TestimonialFormContainer({
+  testimonialId,
+  initialTestimonial,
+  onClose,
+}: {
+  testimonialId?: number;
+  initialTestimonial?: TestimonialItem | null;
+  onClose: () => void;
+}) {
+  // GET /testimonial/:id — fetch fresh details for edit, like FAQ edit does.
+  const { data: detailedTestimonial, isLoading } =
+    useTestimonial(testimonialId);
+
+  if (testimonialId && isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <span>Loading testimonial details from server...</span>
+      </div>
+    );
+  }
+
+  const effectiveTestimonial = detailedTestimonial || initialTestimonial;
+  return (
+    <TestimonialFormContent
+      key={
+        effectiveTestimonial?.id
+          ? `${effectiveTestimonial.id}-${effectiveTestimonial.updated_at ?? ""}-${effectiveTestimonial.testimonial_description?.length ?? 0}`
+          : "new-testimonial"
+      }
+      testimonial={effectiveTestimonial}
+      onClose={onClose}
+    />
   );
 }
