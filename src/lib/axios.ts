@@ -68,14 +68,19 @@ export function getApiErrorMessage(
   error: unknown,
   fallbackMessage = "Something went wrong. Please try again.",
 ): string {
-  if (error instanceof Error && error.message) return error.message;
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as
-      | { message?: string; code?: number }
+      | { message?: string; code?: number; errors?: Record<string, string[]> }
       | undefined;
+    // Laravel 422: { message, errors: { field: ["msg"] } } — show first validation message.
+    if (data?.errors && typeof data.errors === "object") {
+      const first = Object.values(data.errors).flat().find(Boolean);
+      if (first) return String(first);
+    }
     if (data?.message) return data.message;
     if (error.message) return error.message;
   }
+  if (error instanceof Error && error.message) return error.message;
   return fallbackMessage;
 }
 

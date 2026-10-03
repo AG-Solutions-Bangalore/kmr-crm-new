@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,8 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { useCreateBlog, useUpdateBlog } from "../hook/useBlog.ts";
+import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { useBlog, useCreateBlog, useUpdateBlog } from "../hook/useBlog.ts";
 import type { BlogItem, BlogStatus } from "../types/blog.types.ts";
 
 interface BlogFormDialogProps {
@@ -40,12 +42,16 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
   const [metaKeywords, setMetaKeywords] = useState(
     blog?.blog_meta_keywords || "",
   );
+  const [bannerAlt, setBannerAlt] = useState(blog?.blog_banner_image_alt || "");
   const [featured, setFeatured] = useState(String(blog?.blog_featured ?? "0"));
   const [front, setFront] = useState(String(blog?.blog_front ?? "1"));
+  const [blogIndex, setBlogIndex] = useState(blog?.blog_index || "Yes");
   const [status, setStatus] = useState<BlogStatus>(
     (blog?.blog_status as BlogStatus) || "Active",
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
+  const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleTitleChange = (val: string) => {
@@ -64,6 +70,22 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
+  // Preview for newly selected file (revoke on change/unmount).
+  useEffect(() => {
+    if (!imageFile) {
+      setNewPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(imageFile);
+    setNewPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
+
+  const existingImageUrl = resolveAssetImageUrl(
+    blog?.blog_banner_image,
+    "blog_images",
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -74,6 +96,11 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
     }
     if (!shortDesc.trim()) {
       setErrorMessage("Short description is required.");
+      return;
+    }
+    // Backend returns 422 "Banner Alt is Required." — validate up front.
+    if (!bannerAlt.trim()) {
+      setErrorMessage("Banner alt text is required.");
       return;
     }
 
@@ -88,8 +115,10 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
             blog_description: description.trim(),
             blog_categories_ids: categoriesIds.trim(),
             blog_meta_keywords: metaKeywords.trim(),
+            blog_banner_image_alt: bannerAlt.trim(),
             blog_featured: featured,
             blog_front: front,
+            blog_index: blogIndex,
             blog_status: status,
             blog_banner_image: imageFile ?? undefined,
           },
@@ -102,8 +131,10 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
           blog_description: description.trim(),
           blog_categories_ids: categoriesIds.trim(),
           blog_meta_keywords: metaKeywords.trim(),
+          blog_banner_image_alt: bannerAlt.trim(),
           blog_featured: featured,
           blog_front: front,
+          blog_index: blogIndex,
           blog_status: status,
           blog_banner_image: imageFile ?? undefined,
         });
@@ -204,7 +235,7 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="b-status">Status</Label>
             <select
@@ -215,6 +246,19 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
             >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="b-index">Blog Index (Yes/No)</Label>
+            <select
+              id="b-index"
+              value={blogIndex}
+              onChange={(e) => setBlogIndex(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
             </select>
           </div>
 
@@ -256,11 +300,81 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
               setImageFile(file);
             }}
           />
-          {blog?.blog_banner_image && !imageFile && (
-            <p className="text-xs text-muted-foreground truncate">
-              Current: {blog.blog_banner_image}
-            </p>
+          {newPreviewUrl ? (
+            <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+              <img
+                src={newPreviewUrl}
+                alt={bannerAlt || "New banner preview"}
+                className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-foreground">
+                  New banner preview
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {imageFile?.name}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setImageFile(null)}
+                className="size-7 shrink-0 p-0"
+                title="Remove selected image"
+              >
+                <X className="size-3.5" />
+              </Button>
+            </div>
+          ) : (
+            existingImageUrl && (
+              <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+                {existingImgError ? (
+                  <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 p-1 text-center">
+                    <span className="text-[10px] font-medium leading-tight text-destructive">
+                      Preview not available
+                    </span>
+                  </div>
+                ) : (
+                  <img
+                    src={existingImageUrl}
+                    alt={bannerAlt || "Currently uploaded banner"}
+                    className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                    onError={() => setExistingImgError(true)}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground">
+                    Currently uploaded
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {blog?.blog_banner_image}
+                  </p>
+                  {existingImgError && (
+                    <p className="text-[11px] text-destructive">
+                      File not found at this URL — check folder/filename.
+                    </p>
+                  )}
+                  <p className="text-[11px] text-muted-foreground/80">
+                    Upload a new file to replace it.
+                  </p>
+                </div>
+              </div>
+            )
           )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="b-alt">
+            Banner Alt <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="b-alt"
+            value={bannerAlt}
+            onChange={(e) => setBannerAlt(e.target.value)}
+            placeholder="e.g. Edible oil market trends 2026"
+            required
+          />
         </div>
       </div>
 
@@ -288,15 +402,50 @@ export function BlogFormDialog({
 }: BlogFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         {open && (
-          <BlogFormContent
-            key={blog?.id ?? "new-blog"}
-            blog={blog}
+          <BlogFormContainer
+            blogId={blog?.id}
+            initialBlog={blog}
             onClose={() => onOpenChange(false)}
           />
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function BlogFormContainer({
+  blogId,
+  initialBlog,
+  onClose,
+}: {
+  blogId?: number;
+  initialBlog?: BlogItem | null;
+  onClose: () => void;
+}) {
+  // GET /blog/:id — fetch fresh details for edit, like client/gallery edit.
+  const { data: detailedBlog, isLoading } = useBlog(blogId);
+
+  if (blogId && isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <span>Loading blog details from server...</span>
+      </div>
+    );
+  }
+
+  const effectiveBlog = detailedBlog || initialBlog;
+  return (
+    <BlogFormContent
+      key={
+        effectiveBlog?.id
+          ? `${effectiveBlog.id}-${effectiveBlog.updated_at ?? ""}-${effectiveBlog.blog_banner_image?.length ?? 0}`
+          : "new-blog"
+      }
+      blog={effectiveBlog}
+      onClose={onClose}
+    />
   );
 }

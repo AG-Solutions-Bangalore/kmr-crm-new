@@ -22,8 +22,9 @@ export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
     const s = search.toLowerCase();
     const matchesSearch =
       b.blog_title?.toLowerCase().includes(s) ||
-      b.blog_slug?.toLowerCase().includes(s) ||
-      b.blog_short_description?.toLowerCase().includes(s);
+      b.blog_short_description?.toLowerCase().includes(s) ||
+      b.categories?.toLowerCase().includes(s) ||
+      b.blog_meta_keywords?.toLowerCase().includes(s);
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -55,7 +56,7 @@ export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search articles by title, slug, or summary..."
+            placeholder="Search articles by title, category, or summary..."
             className="pl-8"
           />
         </div>
@@ -81,8 +82,8 @@ export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Article Title</th>
-                <th className="px-4 py-3">Slug</th>
-                <th className="px-4 py-3">Tags & Front</th>
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Flags</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -115,6 +116,7 @@ export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
                 filtered.map((item) => {
                   const isActive = item.blog_status === "Active";
                   const isFeatured = item.blog_featured === "1" || item.blog_featured === 1;
+                  const isFront = item.blog_front === "1" || item.blog_front === 1;
                   const isToggling = togglingId === item.id;
 
                   return (
@@ -139,26 +141,46 @@ export function BlogTable({ blogs, isLoading, onEdit }: BlogTableProps) {
                             <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                               {item.blog_short_description || "—"}
                             </p>
+                            <span className="text-[11px] text-muted-foreground font-mono">
+                              ID: #{item.id}
+                              {item.blog_created_date
+                                ? ` • ${item.blog_created_date}`
+                                : ""}
+                            </span>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                        {item.blog_slug || "—"}
+                      <td className="px-4 py-3.5 text-xs">
+                        {item.categories ? (
+                          <Badge variant="secondary" className="text-[11px]">
+                            {item.categories}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                        {item.blog_categories_ids && (
+                          <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                            Cat #{item.blog_categories_ids}
+                          </p>
+                        )}
                       </td>
 
                       <td className="px-4 py-3.5 text-xs">
                         <div className="flex flex-wrap items-center gap-1">
+                          {item.blog_index && (
+                            <Badge variant="outline" className="text-[10px]">
+                              Index: {item.blog_index}
+                            </Badge>
+                          )}
                           {isFeatured && (
                             <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/30">
                               Featured
                             </Badge>
                           )}
-                          {item.blog_categories_ids && (
-                            <Badge variant="secondary" className="text-[10px]">
-                              Cat #{item.blog_categories_ids}
-                            </Badge>
-                          )}
+                          <Badge variant="outline" className="text-[10px]">
+                            {isFront ? "Front" : "No Front"}
+                          </Badge>
                         </div>
                       </td>
 
