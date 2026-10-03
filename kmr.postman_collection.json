@@ -7,28 +7,6 @@
   },
   "item": [
     {
-      "name": "check-status",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://kmrlive.in/crmapi/public/api/panel-check-status",
-          "protocol": "https",
-          "host": [
-            "kmrlive",
-            "in"
-          ],
-          "path": [
-            "crmapi",
-            "public",
-            "api",
-            "panel-check-status"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "fetch-dotenv",
       "request": {
         "method": "GET",
@@ -50,46 +28,7 @@
       },
       "response": []
     },
-    {
-      "name": "login",
-      "request": {
-        "auth": {
-          "type": "bearer"
-        },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "formdata",
-          "formdata": [
-            {
-              "key": "username",
-              "value": "7892036268",
-              "type": "text"
-            },
-            {
-              "key": "password",
-              "value": "123456",
-              "type": "text"
-            }
-          ]
-        },
-        "url": {
-          "raw": "https://kmrlive.in/crmapi/public/api/panel-login",
-          "protocol": "https",
-          "host": [
-            "kmrlive",
-            "in"
-          ],
-          "path": [
-            "crmapi",
-            "public",
-            "api",
-            "panel-login"
-          ]
-        }
-      },
-      "response": []
-    },
+  
     {
       "name": "forgot-password",
       "request": {
@@ -169,40 +108,10 @@
       },
       "response": []
     },
-    {
-      "name": "logout",
-      "request": {
-        "auth": {
-          "type": "bearer"
-        },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "https://kmrlive.in/crmapi/public/api/panel-logout",
-          "protocol": "https",
-          "host": [
-            "kmrlive",
-            "in"
-          ],
-          "path": [
-            "crmapi",
-            "public",
-            "api",
-            "panel-logout"
-          ]
-        }
-      },
-      "response": []
-    },
+   
+
+
+    
     {
       "name": "fetch-profile",
       "request": {

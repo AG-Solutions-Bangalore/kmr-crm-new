@@ -18,9 +18,11 @@ export const PATHS = {
   enquiry: "/enquiry",
   newsletter: "/newsletter",
   notification: "/notification",
+  slider: "/slider",
   faq: "/faq",
   testimonial: "/testimonial",
   client: "/client",
+  pages: "/pages",
 
   // Account
   profile: "/profile",

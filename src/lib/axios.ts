@@ -84,7 +84,11 @@ export function toFormData(values: Record<string, unknown>): FormData {
   const form = new FormData();
   for (const [key, value] of Object.entries(values)) {
     if (value === undefined || value === null) continue;
-    form.append(key, String(value));
+    if (value instanceof File || value instanceof Blob) {
+      form.append(key, value);
+    } else {
+      form.append(key, String(value));
+    }
   }
   return form;
 }

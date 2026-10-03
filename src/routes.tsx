@@ -1,10 +1,22 @@
 import type { ReactNode } from "react";
 import { PATHS } from "./constants/paths.ts";
-import { ModulePlaceholder } from "./components/common/ModulePlaceholder.tsx";
 import { LoginPage } from "./modules/auth/login/pages/LoginPage.tsx";
 import { ForgotPasswordPage } from "./modules/auth/login/pages/ForgotPasswordPage.tsx";
 import { ChangePasswordPage } from "./modules/auth/login/pages/ChangePasswordPage.tsx";
 import { OverviewPage } from "./modules/dashboard/overview/pages/OverviewPage.tsx";
+import { CategoryPage } from "./modules/dashboard/category/pages/CategoryPage.tsx";
+import { VendorPage } from "./modules/dashboard/vendor/pages/VendorPage.tsx";
+import { NewsPage } from "./modules/dashboard/news/pages/NewsPage.tsx";
+import { ClientPage } from "./modules/dashboard/client/pages/ClientPage.tsx";
+import { TestimonialPage } from "./modules/dashboard/testimonial/pages/TestimonialPage.tsx";
+import { FaqPage } from "./modules/dashboard/faq/pages/FaqPage.tsx";
+import { SliderPage } from "./modules/dashboard/slider/pages/SliderPage.tsx";
+import { PagesPage } from "./modules/dashboard/pages/pages/PagesPage.tsx";
+import { NotificationPage } from "./modules/dashboard/notification/pages/NotificationPage.tsx";
+import { EnquiryPage } from "./modules/dashboard/enquiry/pages/EnquiryPage.tsx";
+import { NewsletterPage } from "./modules/dashboard/newsletter/pages/NewsletterPage.tsx";
+import { BlogPage } from "./modules/dashboard/blog/pages/BlogPage.tsx";
+import { GalleryPage } from "./modules/dashboard/gallery/pages/GalleryPage.tsx";
 
 export interface AppRoute {
   path: string;
@@ -36,108 +48,66 @@ export const dashboardRoutes: AppRoute[] = [
   {
     path: PATHS.vendor,
     title: "Vendors",
-    element: (
-      <ModulePlaceholder
-        title="Vendors"
-        description="Manage vendors and their details."
-      />
-    ),
+    element: <VendorPage />,
   },
   {
     path: PATHS.category,
     title: "Categories",
-    element: (
-      <ModulePlaceholder
-        title="Categories"
-        description="Manage product categories."
-      />
-    ),
+    element: <CategoryPage />,
   },
   {
     path: PATHS.news,
     title: "News",
-    element: (
-      <ModulePlaceholder
-        title="News"
-        description="Publish and manage news articles."
-      />
-    ),
+    element: <NewsPage />,
   },
   {
     path: PATHS.blog,
     title: "Blog",
-    element: (
-      <ModulePlaceholder
-        title="Blog"
-        description="Publish and manage blog posts."
-      />
-    ),
+    element: <BlogPage />,
   },
   {
     path: PATHS.gallery,
     title: "Gallery",
-    element: (
-      <ModulePlaceholder
-        title="Gallery"
-        description="Manage gallery images."
-      />
-    ),
+    element: <GalleryPage />,
   },
   {
     path: PATHS.enquiry,
     title: "Enquiries",
-    element: (
-      <ModulePlaceholder
-        title="Enquiries"
-        description="View and manage customer enquiries."
-      />
-    ),
+    element: <EnquiryPage />,
   },
   {
     path: PATHS.newsletter,
     title: "Newsletter",
-    element: (
-      <ModulePlaceholder
-        title="Newsletter"
-        description="Manage newsletter subscribers."
-      />
-    ),
+    element: <NewsletterPage />,
   },
   {
     path: PATHS.notification,
     title: "Notifications",
-    element: (
-      <ModulePlaceholder
-        title="Notifications"
-        description="Manage push notifications."
-      />
-    ),
+    element: <NotificationPage />,
   },
   {
     path: PATHS.faq,
     title: "FAQs",
-    element: (
-      <ModulePlaceholder
-        title="FAQs"
-        description="Manage frequently asked questions."
-      />
-    ),
+    element: <FaqPage />,
   },
   {
     path: PATHS.testimonial,
     title: "Testimonials",
-    element: (
-      <ModulePlaceholder
-        title="Testimonials"
-        description="Manage customer testimonials."
-      />
-    ),
+    element: <TestimonialPage />,
   },
   {
     path: PATHS.client,
     title: "Clients",
-    element: (
-      <ModulePlaceholder title="Clients" description="Manage clients." />
-    ),
+    element: <ClientPage />,
+  },
+  {
+    path: PATHS.slider,
+    title: "Sliders",
+    element: <SliderPage />,
+  },
+  {
+    path: PATHS.pages,
+    title: "Site Pages",
+    element: <PagesPage />,
   },
 ];
