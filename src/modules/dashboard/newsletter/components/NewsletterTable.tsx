@@ -1,8 +1,17 @@
 import { useState } from "react";
 import { Calendar, Mail, Search, Trash2, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog.tsx";
 import { useDeleteNewsletterSubscriber } from "../hook/useNewsletter.ts";
 import type { NewsletterSubscriber } from "../types/newsletter.types.ts";
 
@@ -11,17 +20,34 @@ interface NewsletterTableProps {
   isLoading: boolean;
 }
 
+function getEmail(s: NewsletterSubscriber): string {
+  return s.newsletter_email || s.email || "";
+}
+
+function getCreated(s: NewsletterSubscriber): string {
+  return s.newsletter_created || s.created_at || "";
+}
+
 export function NewsletterTable({ subscribers, isLoading }: NewsletterTableProps) {
   const [search, setSearch] = useState("");
   const deleteMutation = useDeleteNewsletterSubscriber();
+  const [deleteTarget, setDeleteTarget] =
+    useState<NewsletterSubscriber | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const filtered = subscribers.filter((s) =>
-    s.email?.toLowerCase().includes(search.toLowerCase()),
+    getEmail(s).toLowerCase().includes(search.toLowerCase()),
   );
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Remove this email from newsletter distribution?")) {
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
+    setDeletingId(id);
+    try {
       await deleteMutation.mutateAsync(id);
+      setDeleteTarget(null);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -44,9 +70,9 @@ export function NewsletterTable({ subscribers, isLoading }: NewsletterTableProps
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Subscriber</th>
+                <th className="px-4 py-3">ID</th>
+                <th className="px-4 py-3">Subscriber Email</th>
                 <th className="px-4 py-3">Date Subscribed</th>
-                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -80,43 +106,34 @@ export function NewsletterTable({ subscribers, isLoading }: NewsletterTableProps
                     key={item.id}
                     className="transition-colors hover:bg-muted/30"
                   >
+                    <td className="px-4 py-3.5 font-mono text-xs font-semibold text-foreground">
+                      #{item.id}
+                    </td>
+
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                           <Mail className="size-4" />
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {item.email}
-                          </p>
-                          <span className="text-[11px] text-muted-foreground">
-                            Subscriber ID: #{item.id}
-                          </span>
-                        </div>
+                        <p className="font-medium text-foreground">
+                          {getEmail(item) || "—"}
+                        </p>
                       </div>
                     </td>
 
                     <td className="px-4 py-3.5 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5 font-medium text-foreground">
                         <Calendar className="size-3 text-muted-foreground" />
-                        {item.created_at ? new Date(item.created_at).toLocaleDateString() : "Active"}
+                        {getCreated(item) || "—"}
                       </div>
-                    </td>
-
-                    <td className="px-4 py-3.5">
-                      <Badge
-                        variant="default"
-                        className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-medium"
-                      >
-                        {item.status || "Subscribed"}
-                      </Badge>
                     </td>
 
                     <td className="px-4 py-3.5 text-right">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => setDeleteTarget(item)}
+                        disabled={deletingId === item.id}
                         className="size-8 p-0 text-destructive hover:bg-destructive/10"
                         title="Unsubscribe"
                       >
@@ -131,6 +148,42 @@ export function NewsletterTable({ subscribers, isLoading }: NewsletterTableProps
           </table>
         </div>
       </div>
+
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open && deletingId === null) setDeleteTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove subscriber?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove{" "}
+              <span className="font-mono font-semibold text-foreground">
+                {deleteTarget ? getEmail(deleteTarget) : ""} (#
+                {deleteTarget?.id})
+              </span>{" "}
+              from newsletter distribution. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingId !== null}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDelete();
+              }}
+              disabled={deletingId !== null}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingId !== null ? "Removing..." : "Remove"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

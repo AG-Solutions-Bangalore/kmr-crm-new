@@ -1,6 +1,9 @@
 export interface NewsletterSubscriber {
   id: number;
-  email: string;
+  newsletter_email: string;
+  newsletter_created?: string | null;
+  // legacy mock aliases (kept for backward compat)
+  email?: string | null;
   status?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
