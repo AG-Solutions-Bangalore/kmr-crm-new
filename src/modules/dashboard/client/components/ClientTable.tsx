@@ -63,14 +63,13 @@ export function ClientTable({ clients, isLoading, onEdit }: ClientTableProps) {
                 <th className="px-4 py-3">Client</th>
                 <th className="px-4 py-3">Logo</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Created At</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading clients...</span>
@@ -79,7 +78,7 @@ export function ClientTable({ clients, isLoading, onEdit }: ClientTableProps) {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Users className="size-8 opacity-40" />
                       <p className="font-medium">No clients found</p>
@@ -143,10 +142,6 @@ export function ClientTable({ clients, isLoading, onEdit }: ClientTableProps) {
                         >
                           {item.clients_status || "Active"}
                         </Badge>
-                      </td>
-
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {item.created_at ? new Date(item.created_at).toLocaleDateString() : "—"}
                       </td>
 
                       <td className="px-4 py-3.5 text-right">
