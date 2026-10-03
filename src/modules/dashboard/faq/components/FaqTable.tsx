@@ -3,6 +3,16 @@ import { Edit2, HelpCircle, Power, Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog.tsx";
 import { useDeleteFaq, useUpdateFaqStatus } from "../hook/useFaq.ts";
 import type { FaqItem, FaqStatus } from "../types/faq.types.ts";
 
@@ -18,6 +28,7 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
   const deleteMutation = useDeleteFaq();
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<FaqItem | null>(null);
 
   const filtered = faqs.filter((f) => {
     const q = search.toLowerCase();
@@ -41,13 +52,13 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this FAQ group?")) {
-      return;
-    }
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
     setDeletingId(id);
     try {
       await deleteMutation.mutateAsync(id);
+      setDeleteTarget(null);
     } finally {
       setDeletingId(null);
     }
@@ -170,7 +181,7 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(item.id)}
+                            onClick={() => setDeleteTarget(item)}
                             disabled={isDeleting}
                             title="Delete FAQ"
                             className="size-8 p-0 text-destructive hover:bg-destructive/10"
@@ -188,6 +199,42 @@ export function FaqTable({ faqs, isLoading, onEdit }: FaqTableProps) {
           </table>
         </div>
       </div>
+
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open && deletingId === null) setDeleteTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete FAQ group?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete{" "}
+              <span className="font-mono font-semibold text-foreground">
+                #{deleteTarget?.id} ({deleteTarget?.faq_for})
+              </span>{" "}
+              along with all its questions and answers. This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingId !== null}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDelete();
+              }}
+              disabled={deletingId !== null}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingId !== null ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

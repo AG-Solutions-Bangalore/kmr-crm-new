@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   useCreateFaq,
+  useDeleteFaqSub,
   useFaq,
   usePageTwoOptions,
   useUpdateFaq,
@@ -35,6 +36,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   const isEditing = Boolean(faq);
   const createMutation = useCreateFaq();
   const updateMutation = useUpdateFaq();
+  const deleteSubMutation = useDeleteFaqSub();
   const { data: pageOptions = [] } = usePageTwoOptions();
 
   const [faqFor, setFaqFor] = useState(
@@ -57,8 +59,15 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
         ],
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // IDs removed in the UI but still persisted on the server.
+  // PUT /faq/:id does NOT auto-delete missing subs — they must be
+  // explicitly removed via DELETE /faq-sub/:id on save.
+  const [removedSubIds, setRemovedSubIds] = useState<(number | string)[]>([]);
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  const isPending =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteSubMutation.isPending;
 
   const handleAddSub = () => {
     setSubs((prev) => [
@@ -77,6 +86,16 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
     if (subs.length <= 1) {
       setErrorMessage("At least one FAQ question is required.");
       return;
+    }
+    const target = subs[index];
+    // Remember persisted rows so they can be deleted on save.
+    // New (unsaved) rows have no id — just drop them locally.
+    if (target?.id !== undefined && target?.id !== null && target?.id !== "") {
+      setRemovedSubIds((prev) =>
+        prev.includes(target.id as number | string)
+          ? prev
+          : [...prev, target.id as number | string],
+      );
     }
     setSubs((prev) => prev.filter((_, i) => i !== index));
   };
@@ -121,6 +140,11 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
             })),
           },
         });
+        // Explicitly delete rows removed in the UI.
+        // Backend keeps them otherwise (PUT only upserts).
+        for (const subId of removedSubIds) {
+          await deleteSubMutation.mutateAsync(subId);
+        }
       } else {
         await createMutation.mutateAsync({
           faq_for: faqFor,
