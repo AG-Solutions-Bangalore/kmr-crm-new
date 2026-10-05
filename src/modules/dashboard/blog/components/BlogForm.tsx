@@ -1,26 +1,13 @@
 import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { RichTextEditor } from "@/components/common/RichTextEditor.tsx";
 import { useBlog, useCreateBlog, useUpdateBlog } from "../hook/useBlog.ts";
 import type { BlogItem, BlogStatus } from "../types/blog.types.ts";
-
-interface BlogFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  blog?: BlogItem | null;
-}
 
 interface InnerFormProps {
   blog?: BlogItem | null;
@@ -147,16 +134,16 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <DialogHeader>
-        <DialogTitle>
+      <div className="flex flex-col space-y-1.5 text-center sm:text-left">
+        <h2 className="text-lg font-semibold leading-none tracking-tight">
           {isEditing ? "Edit Blog Post" : "Create Blog Post"}
-        </DialogTitle>
-        <DialogDescription>
+        </h2>
+        <p className="text-sm text-muted-foreground">
           {isEditing
             ? "Modify blog content and SEO metadata."
             : "Compose and publish insightful articles for SEO and audience engagement."}
-        </DialogDescription>
-      </DialogHeader>
+        </p>
+      </div>
 
       {errorMessage && (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
@@ -164,7 +151,8 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
         </div>
       )}
 
-      <div className="grid gap-3">
+      <div className="grid items-start gap-5 lg:grid-cols-3">
+        <div className="flex flex-col gap-4 lg:col-span-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="b-title">
             Article Title <span className="text-destructive">*</span>
@@ -178,7 +166,31 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="b-short">
+            Short Summary <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="b-short"
+            value={shortDesc}
+            onChange={(e) => setShortDesc(e.target.value)}
+            placeholder="A punchy 1-2 sentence overview for cards and meta descriptions"
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="b-desc">Article Body Content</Label>
+          <RichTextEditor
+            id="b-desc"
+            value={description}
+            onChange={setDescription}
+            placeholder="Write the full blog post text or HTML..."
+          />
+        </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="b-slug">URL Slug</Label>
             <Input
@@ -198,42 +210,16 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
               placeholder="e.g. 1"
             />
           </div>
-        </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="b-short">
-            Short Summary <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="b-short"
-            value={shortDesc}
-            onChange={(e) => setShortDesc(e.target.value)}
-            placeholder="A punchy 1-2 sentence overview for cards and meta descriptions"
-            required
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="b-meta">Meta Keywords</Label>
-          <Input
-            id="b-meta"
-            value={metaKeywords}
-            onChange={(e) => setMetaKeywords(e.target.value)}
-            placeholder="e.g. oil, mustard, refined, commodity"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="b-desc">Article Body Content</Label>
-          <textarea
-            id="b-desc"
-            rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Write the full blog post text or HTML..."
-            className="w-full rounded-md border border-input bg-background p-3 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
-        </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="b-meta">Meta Keywords</Label>
+            <Input
+              id="b-meta"
+              value={metaKeywords}
+              onChange={(e) => setMetaKeywords(e.target.value)}
+              placeholder="e.g. oil, mustard, refined, commodity"
+            />
+          </div>
 
         <div className="grid grid-cols-2 gap-3">
           {isEditing && (
@@ -378,9 +364,10 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
             required
           />
         </div>
+        </div>
       </div>
 
-      <DialogFooter className="pt-2">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-2">
         <Button
           type="button"
           variant="outline"
@@ -392,28 +379,8 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
         <Button type="submit" disabled={isPending}>
           {isPending ? "Saving..." : isEditing ? "Update Post" : "Publish Post"}
         </Button>
-      </DialogFooter>
+      </div>
     </form>
-  );
-}
-
-export function BlogFormDialog({
-  open,
-  onOpenChange,
-  blog,
-}: BlogFormDialogProps) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
-        {open && (
-          <BlogFormContainer
-            blogId={blog?.id}
-            initialBlog={blog}
-            onClose={() => onOpenChange(false)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
   );
 }
 

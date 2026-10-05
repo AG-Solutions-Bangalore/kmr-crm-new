@@ -1,13 +1,5 @@
 import { useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
@@ -20,12 +12,6 @@ import {
   useUpdateFaq,
 } from "../hook/useFaq.ts";
 import type { FaqItem, FaqStatus, FaqSubItem } from "../types/faq.types.ts";
-
-interface FaqFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  faq?: FaqItem | null;
-}
 
 interface InnerFormProps {
   faq?: FaqItem | null;
@@ -164,14 +150,16 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <DialogHeader>
-        <DialogTitle>{isEditing ? "Edit FAQ Group" : "Create FAQ Group"}</DialogTitle>
-        <DialogDescription>
+      <div className="flex flex-col space-y-1.5 text-center sm:text-left">
+        <h2 className="text-lg font-semibold leading-none tracking-tight">
+          {isEditing ? "Edit FAQ Group" : "Create FAQ Group"}
+        </h2>
+        <p className="text-sm text-muted-foreground">
           {isEditing
             ? "Modify questions and answers in this group."
             : "Add a set of frequently asked questions for a specific page."}
-        </DialogDescription>
-      </DialogHeader>
+        </p>
+      </div>
 
       {errorMessage && (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
@@ -302,7 +290,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
         </div>
       </div>
 
-      <DialogFooter className="pt-2">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-2">
         <Button
           type="button"
           variant="outline"
@@ -314,7 +302,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
         <Button type="submit" disabled={isPending}>
           {isPending ? "Saving..." : isEditing ? "Update FAQ" : "Create FAQ"}
         </Button>
-      </DialogFooter>
+      </div>
     </form>
   );
 }
@@ -346,21 +334,5 @@ export function FaqFormContainer({
       faq={effectiveFaq}
       onClose={onClose}
     />
-  );
-}
-
-export function FaqFormDialog({ open, onOpenChange, faq }: FaqFormDialogProps) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        {open && (
-          <FaqFormContainer
-            faqId={faq?.id}
-            initialFaq={faq}
-            onClose={() => onOpenChange(false)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
   );
 }

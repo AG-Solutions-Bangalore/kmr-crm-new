@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent } from "@/components/ui/card.tsx";
 import { PATHS } from "@/constants/paths.ts";
-import { BlogFormContainer } from "../components/BlogFormDialog.tsx";
+import { BlogFormContainer } from "../components/BlogForm.tsx";
 
 /** Full-page create/edit for blog posts — replaces the cramped dialog. */
 export function BlogFormPage() {
@@ -16,7 +16,7 @@ export function BlogFormPage() {
   const goBack = () => navigate(PATHS.blog);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={goBack} className="gap-2">
           <ArrowLeft className="size-4" />
