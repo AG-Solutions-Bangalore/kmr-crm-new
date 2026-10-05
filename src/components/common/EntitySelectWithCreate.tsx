@@ -13,29 +13,41 @@ interface BaseProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  clearable?: boolean;
 }
 
 /**
- * Category dropdown with an inline `+` — creates the missing category
- * inside the current form and auto-selects it. No navigation, no lost drafts.
+ * Category dropdown with an inline `+` and creatable search.
+ * Users can type a new category name and press Enter to create it immediately,
+ * auto-selecting it without leaving the form or losing drafts.
  */
 export function CategorySelectWithCreate({
   defaultParentId,
   ...selectProps
 }: BaseProps & { defaultParentId?: string }) {
   const [quickOpen, setQuickOpen] = useState(false);
+  const [pendingName, setPendingName] = useState("");
+
+  const handleCreateNew = (typedName: string) => {
+    setPendingName(typedName);
+    setQuickOpen(true);
+  };
 
   return (
     <>
       <div className="flex items-center gap-1.5">
         <div className="min-w-0 flex-1">
-          <SearchableSelect {...selectProps} />
+          <SearchableSelect
+            {...selectProps}
+            onCreateNew={handleCreateNew}
+            createLabel={(q) => `Create category "${q}"`}
+          />
         </div>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => setQuickOpen(true)}
+          onClick={() => handleCreateNew("")}
           title="Create a new category without leaving this form"
           aria-label="Create a new category without leaving this form"
           className="size-9 shrink-0 p-0"
@@ -46,7 +58,11 @@ export function CategorySelectWithCreate({
       {quickOpen && (
         <QuickCreateCategoryDialog
           open={quickOpen}
-          onOpenChange={setQuickOpen}
+          onOpenChange={(v) => {
+            setQuickOpen(v);
+            if (!v) setPendingName("");
+          }}
+          initialName={pendingName}
           defaultParentId={defaultParentId}
           onCreated={selectProps.onChange}
         />
@@ -56,23 +72,34 @@ export function CategorySelectWithCreate({
 }
 
 /**
- * Vendor dropdown with an inline `+` — creates the missing vendor
- * (name + mobile) inside the current form and auto-selects it.
+ * Vendor dropdown with an inline `+` and creatable search.
+ * Users can type a vendor name, press Enter or click "+ Create",
+ * and quick-create the vendor prefilled, focusing directly on the mobile field.
  */
 export function VendorSelectWithCreate(selectProps: BaseProps) {
   const [quickOpen, setQuickOpen] = useState(false);
+  const [pendingName, setPendingName] = useState("");
+
+  const handleCreateNew = (typedName: string) => {
+    setPendingName(typedName);
+    setQuickOpen(true);
+  };
 
   return (
     <>
       <div className="flex items-center gap-1.5">
         <div className="min-w-0 flex-1">
-          <SearchableSelect {...selectProps} />
+          <SearchableSelect
+            {...selectProps}
+            onCreateNew={handleCreateNew}
+            createLabel={(q) => `Create vendor "${q}"`}
+          />
         </div>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => setQuickOpen(true)}
+          onClick={() => handleCreateNew("")}
           title="Create a new vendor without leaving this form"
           aria-label="Create a new vendor without leaving this form"
           className="size-9 shrink-0 p-0"
@@ -83,7 +110,11 @@ export function VendorSelectWithCreate(selectProps: BaseProps) {
       {quickOpen && (
         <QuickCreateVendorDialog
           open={quickOpen}
-          onOpenChange={setQuickOpen}
+          onOpenChange={(v) => {
+            setQuickOpen(v);
+            if (!v) setPendingName("");
+          }}
+          initialName={pendingName}
           onCreated={selectProps.onChange}
         />
       )}

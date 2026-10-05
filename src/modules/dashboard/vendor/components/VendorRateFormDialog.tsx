@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { AlertCircle, IndianRupee, Loader2, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, Copy, IndianRupee, Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -79,6 +79,22 @@ export function VendorRateFormDialog({
     setRows((prev) => [...prev, blankRow(keyRef.current++)]);
   };
 
+  const handleDuplicateRow = (key: number) => {
+    const rowToClone = rows.find((r) => r.key === key);
+    if (!rowToClone) return;
+    const newRow: RateRow = {
+      ...rowToClone,
+      key: keyRef.current++,
+    };
+    setRows((prev) => {
+      const idx = prev.findIndex((r) => r.key === key);
+      if (idx === -1) return [...prev, newRow];
+      const copy = [...prev];
+      copy.splice(idx + 1, 0, newRow);
+      return copy;
+    });
+  };
+
   const handleRemoveRow = (key: number) => {
     if (rows.length <= 1) {
       setErrorMessage("At least one product is required.");
@@ -149,7 +165,16 @@ export function VendorRateFormDialog({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+              e.preventDefault();
+              void handleSubmit(e);
+            }
+          }}
+          className="flex flex-col gap-4"
+        >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="vendor_select">Vendor (applies to all rows)</Label>
             <VendorSelectWithCreate
@@ -186,122 +211,152 @@ export function VendorRateFormDialog({
               </Button>
             </div>
 
-            <div className="flex max-h-[320px] flex-col gap-3 overflow-y-auto pr-1">
-              {rows.map((row, idx) => (
-                <div
-                  key={row.key}
-                  className="flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-foreground">
-                      #{idx + 1}
-                    </span>
-                    {rows.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveRow(row.key)}
-                        className="size-7 p-0 text-destructive hover:bg-destructive/10"
-                        title="Remove product"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`rate-product-${row.key}`}>
-                      Product Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id={`rate-product-${row.key}`}
-                      placeholder="e.g. Sunflower Oil, Mustard Refined..."
-                      value={row.productName}
-                      onChange={(e) => updateRow(row.key, "productName", e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor={`rate-size-${row.key}`}>Size / Unit</Label>
-                      <Input
-                        id={`rate-size-${row.key}`}
-                        placeholder="e.g. 15 kg Tin, 1 Ltr Pouch"
-                        value={row.productSize}
-                        onChange={(e) => updateRow(row.key, "productSize", e.target.value)}
-                      />
+            <div className="flex max-h-[340px] flex-col gap-3 overflow-y-auto pr-1">
+              {rows.map((row, idx) => {
+                const subCats = subsFor(row.categoryId);
+                return (
+                  <div
+                    key={row.key}
+                    className="flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 transition-colors hover:border-border"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-foreground">
+                        #{idx + 1}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDuplicateRow(row.key)}
+                          className="size-7 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          title="Duplicate this row (copies name & categories)"
+                        >
+                          <Copy className="size-3.5" />
+                        </Button>
+                        {rows.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveRow(row.key)}
+                            className="size-7 p-0 text-destructive hover:bg-destructive/10"
+                            title="Remove product"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
+
                     <div className="flex flex-col gap-1.5">
-                      <Label htmlFor={`rate-price-${row.key}`}>
-                        Rate (₹) <span className="text-destructive">*</span>
+                      <Label htmlFor={`rate-product-${row.key}`}>
+                        Product Name <span className="text-destructive">*</span>
                       </Label>
                       <Input
-                        id={`rate-price-${row.key}`}
-                        type="number"
-                        placeholder="e.g. 1450"
-                        value={row.productRate}
-                        onChange={(e) => updateRow(row.key, "productRate", e.target.value)}
+                        id={`rate-product-${row.key}`}
+                        placeholder="e.g. Sunflower Oil, Mustard Refined..."
+                        value={row.productName}
+                        onChange={(e) => updateRow(row.key, "productName", e.target.value)}
                         required
                       />
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor={`rate-cat-${row.key}`}>Category</Label>
-                      <CategorySelectWithCreate
-                        id={`rate-cat-${row.key}`}
-                        value={row.categoryId}
-                        onChange={(val) => {
-                          updateRow(row.key, "categoryId", val);
-                          updateRow(row.key, "subCategoryId", "");
-                        }}
-                        options={categories.map((c) => ({
-                          value: String(c.id),
-                          label: `${c.categories_name} (ID: ${c.id})`,
-                        }))}
-                        placeholder="Select category — or +"
-                      />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor={`rate-size-${row.key}`}>Size / Unit</Label>
+                        <Input
+                          id={`rate-size-${row.key}`}
+                          placeholder="e.g. 15 kg Tin, 1 Ltr Pouch"
+                          value={row.productSize}
+                          onChange={(e) => updateRow(row.key, "productSize", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor={`rate-price-${row.key}`}>
+                          Rate (₹) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id={`rate-price-${row.key}`}
+                          type="number"
+                          placeholder="e.g. 1450"
+                          value={row.productRate}
+                          onChange={(e) => updateRow(row.key, "productRate", e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor={`rate-subcat-${row.key}`}>Sub-Category</Label>
-                      <SearchableSelect
-                        id={`rate-subcat-${row.key}`}
-                        value={row.subCategoryId}
-                        onChange={(val) => updateRow(row.key, "subCategoryId", val)}
-                        options={[
-                          { value: "", label: "None" },
-                          ...subsFor(row.categoryId).map((c) => ({
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor={`rate-cat-${row.key}`}>Category</Label>
+                        <CategorySelectWithCreate
+                          id={`rate-cat-${row.key}`}
+                          value={row.categoryId}
+                          onChange={(val) => {
+                            updateRow(row.key, "categoryId", val);
+                            updateRow(row.key, "subCategoryId", "");
+                          }}
+                          options={categories.map((c) => ({
                             value: String(c.id),
                             label: `${c.categories_name} (ID: ${c.id})`,
-                          })),
-                        ]}
-                        placeholder="Select sub-category"
-                      />
+                          }))}
+                          placeholder="Select category — or +"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor={`rate-subcat-${row.key}`}>Sub-Category</Label>
+                        <SearchableSelect
+                          id={`rate-subcat-${row.key}`}
+                          value={row.subCategoryId}
+                          onChange={(val) => updateRow(row.key, "subCategoryId", val)}
+                          options={[
+                            { value: "", label: subCats.length > 0 ? "None" : "(No sub-categories)" },
+                            ...subCats.map((c) => ({
+                              value: String(c.id),
+                              label: `${c.categories_name} (ID: ${c.id})`,
+                            })),
+                          ]}
+                          placeholder={
+                            !row.categoryId
+                              ? "Select category first"
+                              : subCats.length > 0
+                                ? "Select sub-category"
+                                : "No sub-categories"
+                          }
+                          disabled={!row.categoryId || subCats.length === 0}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          <DialogFooter className="mt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="gap-2">
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-              <span>
-                Save {rows.length > 1 ? `${rows.length} Rates` : "Rate"}
-              </span>
-            </Button>
+          <DialogFooter className="mt-2 flex-row items-center justify-between sm:justify-between">
+            <span className="hidden text-xs text-muted-foreground sm:inline">
+              <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                Ctrl+Enter
+              </kbd>{" "}
+              to save all rows
+            </span>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="gap-2">
+                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                <span>
+                  Save {rows.length > 1 ? `${rows.length} Rates` : "Rate"}
+                </span>
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

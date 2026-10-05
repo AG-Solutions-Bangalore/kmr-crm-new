@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Plus, Settings2 } from "lucide-react";
+import { Loader2, Plus, RotateCcw, Settings2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,8 @@ import {
 interface QuickCreateCategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Pre-filled name from search or caller. */
+  initialName?: string;
   /** Pre-selected parent for the new category. Defaults to root ("0"). */
   defaultParentId?: string;
   /** Called with the new category id so the caller can auto-select it. */
@@ -50,6 +52,7 @@ function slugifyName(val: string): string {
 export function QuickCreateCategoryDialog({
   open,
   onOpenChange,
+  initialName = "",
   defaultParentId = "0",
   onCreated,
 }: QuickCreateCategoryDialogProps) {
@@ -58,12 +61,31 @@ export function QuickCreateCategoryDialog({
   const { data: allCategories = [] } = useCategories();
   const categories = activeCategories.length > 0 ? activeCategories : allCategories;
 
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
+  const [name, setName] = useState(initialName);
+  const [slug, setSlug] = useState(initialName ? slugifyName(initialName) : "");
   const [slugTouched, setSlugTouched] = useState(false);
   const [parentId, setParentId] = useState(defaultParentId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync initial state when dialog opens
+  useEffect(() => {
+    if (open) {
+      const trimmed = initialName.trim();
+      setName(trimmed);
+      setSlug(trimmed ? slugifyName(trimmed) : "");
+      setSlugTouched(false);
+      setParentId(defaultParentId);
+      setErrorMessage(null);
+      setTimeout(() => {
+        if (nameInputRef.current) {
+          nameInputRef.current.focus();
+          if (trimmed) nameInputRef.current.select();
+        }
+      }, 50);
+    }
+  }, [open, initialName, defaultParentId]);
 
   const reset = () => {
     setName("");
@@ -76,6 +98,11 @@ export function QuickCreateCategoryDialog({
   const handleNameChange = (val: string) => {
     setName(val);
     if (!slugTouched) setSlug(slugifyName(val));
+  };
+
+  const handleSlugReset = () => {
+    setSlug(slugifyName(name));
+    setSlugTouched(false);
   };
 
   const resolveNewId = async (res: unknown, finalSlug: string, finalName: string): Promise<string | null> => {
@@ -126,6 +153,21 @@ export function QuickCreateCategoryDialog({
     }
   };
 
+  const parentOptions = useMemo(() => {
+    return [
+      { value: "0", label: "Root (No Parent)" },
+      ...categories.map((c) => {
+        const isRoot = !c.parent_id || c.parent_id === "0" || c.parent_id === 0;
+        return {
+          value: String(c.id),
+          label: isRoot
+            ? `${c.categories_name} (ID: ${c.id})`
+            : `  ↳ ${c.categories_name} (ID: ${c.id})`,
+        };
+      }),
+    ];
+  }, [categories]);
+
   return (
     <Dialog
       open={open}
@@ -135,14 +177,28 @@ export function QuickCreateCategoryDialog({
       }}
     >
       <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+              e.preventDefault();
+              void handleSubmit(e);
+            }
+          }}
+          className="flex flex-col gap-4"
+        >
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plus className="size-4 text-primary" />
-              New Category
-            </DialogTitle>
-            <DialogDescription>
-              Create it here — it will be selected automatically. Your current form stays untouched.
+            <div className="flex items-center justify-between pr-6">
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <Plus className="size-4 text-primary" />
+                New Category
+              </DialogTitle>
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                Quick Add
+              </span>
+            </div>
+            <DialogDescription className="text-xs">
+              Create it here — it will be auto-selected instantly. Your current form stays untouched.
             </DialogDescription>
           </DialogHeader>
 
@@ -158,23 +214,37 @@ export function QuickCreateCategoryDialog({
                 Category Name <span className="text-destructive">*</span>
               </Label>
               <Input
+                ref={nameInputRef}
                 id="qc-name"
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Mustard Oil"
                 required
-                autoFocus
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="qc-slug">Slug</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="qc-slug">Slug</Label>
+                {slugTouched && (
+                  <button
+                    type="button"
+                    onClick={handleSlugReset}
+                    className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                    title="Reset slug to auto-match category name"
+                  >
+                    <RotateCcw className="size-3" />
+                    <span>Auto-sync</span>
+                  </button>
+                )}
+              </div>
               <Input
                 id="qc-slug"
                 value={slug}
                 onChange={(e) => {
-                  setSlug(e.target.value);
-                  setSlugTouched(true);
+                  const val = e.target.value;
+                  setSlug(val);
+                  setSlugTouched(Boolean(val.trim()));
                 }}
                 placeholder="auto-generated"
               />
@@ -186,13 +256,7 @@ export function QuickCreateCategoryDialog({
                 id="qc-parent"
                 value={parentId}
                 onChange={setParentId}
-                options={[
-                  { value: "0", label: "Root (No Parent)" },
-                  ...categories.map((c) => ({
-                    value: String(c.id),
-                    label: `${c.categories_name} (ID: ${c.id})`,
-                  })),
-                ]}
+                options={parentOptions}
                 placeholder="Select parent"
               />
             </div>
@@ -200,13 +264,22 @@ export function QuickCreateCategoryDialog({
 
           <DialogFooter className="flex-col gap-2 pt-2 sm:flex-col">
             <div className="flex w-full items-center justify-between gap-2">
-              <Link
-                to={PATHS.category}
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline"
-              >
-                <Settings2 className="size-3" />
-                Full category manager
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to={PATHS.category}
+                  tabIndex={-1}
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline"
+                >
+                  <Settings2 className="size-3" />
+                  Full manager
+                </Link>
+                <span className="hidden text-[11px] text-muted-foreground/70 sm:inline">
+                  <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                    Ctrl+Enter
+                  </kbd>{" "}
+                  to save
+                </span>
+              </div>
               <div className="flex gap-2">
                 <Button
                   type="button"

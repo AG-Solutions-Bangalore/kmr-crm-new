@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Copy, Loader2, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -113,7 +113,16 @@ function VendorSpotEditContent({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          void handleSubmit(e);
+        }
+      }}
+      className="flex flex-col gap-4"
+    >
       <DialogHeader>
         <DialogTitle>Edit Spot Quote</DialogTitle>
         <DialogDescription>
@@ -231,18 +240,26 @@ function VendorSpotEditContent({
         </div>
       </div>
 
-      <DialogFooter className="pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-          disabled={updateMutation.isPending}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={updateMutation.isPending}>
-          {updateMutation.isPending ? "Saving..." : "Update Spot Quote"}
-        </Button>
+      <DialogFooter className="pt-2 flex-row items-center justify-between sm:justify-between">
+        <span className="hidden text-xs text-muted-foreground sm:inline">
+          <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+            Ctrl+Enter
+          </kbd>{" "}
+          to save
+        </span>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={updateMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={updateMutation.isPending}>
+            {updateMutation.isPending ? "Saving..." : "Update Spot Quote"}
+          </Button>
+        </div>
       </DialogFooter>
     </form>
   );
@@ -324,6 +341,22 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     ]);
   };
 
+  const handleDuplicateRow = (key: number) => {
+    const rowToClone = rows.find((r) => r.key === key);
+    if (!rowToClone) return;
+    const newRow: SpotRow = {
+      ...rowToClone,
+      key: keyRef.current++,
+    };
+    setRows((prev) => {
+      const idx = prev.findIndex((r) => r.key === key);
+      if (idx === -1) return [...prev, newRow];
+      const copy = [...prev];
+      copy.splice(idx + 1, 0, newRow);
+      return copy;
+    });
+  };
+
   const handleRemoveRow = (key: number) => {
     if (rows.length <= 1) {
       setErrorMessage("At least one spot quote is required.");
@@ -368,7 +401,16 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          void handleSubmit(e);
+        }
+      }}
+      className="flex flex-col gap-4"
+    >
       <DialogHeader>
         <DialogTitle>Create Spot Quote</DialogTitle>
         <DialogDescription>
@@ -429,18 +471,30 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                   <span className="text-xs font-semibold text-foreground">
                     #{idx + 1}
                   </span>
-                  {rows.length > 1 && (
+                  <div className="flex items-center gap-1">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRemoveRow(row.key)}
-                      className="size-7 p-0 text-destructive hover:bg-destructive/10"
-                      title="Remove quote"
+                      onClick={() => handleDuplicateRow(row.key)}
+                      className="size-7 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                      title="Duplicate this quote"
                     >
-                      <Trash2 className="size-3.5" />
+                      <Copy className="size-3.5" />
                     </Button>
-                  )}
+                    {rows.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveRow(row.key)}
+                        className="size-7 p-0 text-destructive hover:bg-destructive/10"
+                        title="Remove quote"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -509,22 +563,30 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <DialogFooter className="pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-          disabled={createMutation.isPending}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={createMutation.isPending}>
-          {createMutation.isPending
-            ? "Saving..."
-            : rows.length > 1
-              ? `Create ${rows.length} Spot Quotes`
-              : "Create Spot Quote"}
-        </Button>
+      <DialogFooter className="pt-2 flex-row items-center justify-between sm:justify-between">
+        <span className="hidden text-xs text-muted-foreground sm:inline">
+          <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+            Ctrl+Enter
+          </kbd>{" "}
+          to save all quotes
+        </span>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={createMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={createMutation.isPending}>
+            {createMutation.isPending
+              ? "Saving..."
+              : rows.length > 1
+                ? `Create ${rows.length} Spot Quotes`
+                : "Create Spot Quote"}
+          </Button>
+        </div>
       </DialogFooter>
     </form>
   );

@@ -121,7 +121,16 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          void handleSubmit(e);
+        }
+      }}
+      className="flex flex-col gap-4"
+    >
       <DialogHeader>
         <DialogTitle>
           {isEditing ? "Edit News Article" : "Publish News Article"}
@@ -141,9 +150,14 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
 
       <div className="grid gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="n-heading">
-            Headline / Title <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="n-heading">
+              Headline / Title <span className="text-destructive">*</span>
+            </Label>
+            <span className="text-[11px] text-muted-foreground">
+              {heading.length} chars
+            </span>
+          </div>
           <Input
             id="n-heading"
             value={heading}
@@ -316,22 +330,30 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
         </div>
       </div>
 
-      <DialogFooter className="pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-          disabled={isPending}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isPending}>
-          {isPending
-            ? "Saving..."
-            : isEditing
-              ? "Update Article"
-              : "Publish Article"}
-        </Button>
+      <DialogFooter className="pt-2 flex-row items-center justify-between sm:justify-between">
+        <span className="hidden text-xs text-muted-foreground sm:inline">
+          <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+            Ctrl+Enter
+          </kbd>{" "}
+          to {isEditing ? "update" : "publish"}
+        </span>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending
+              ? "Saving..."
+              : isEditing
+                ? "Update Article"
+                : "Publish Article"}
+          </Button>
+        </div>
       </DialogFooter>
     </form>
   );

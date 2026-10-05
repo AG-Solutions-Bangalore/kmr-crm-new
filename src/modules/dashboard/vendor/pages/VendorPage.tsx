@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
   CheckCircle2,
@@ -35,9 +36,28 @@ import {
 import type { Vendor, VendorRateProduct, VendorSpotItem } from "../types/vendor.types.ts";
 
 const PAGE_SIZE = 10;
+type VendorTabKey = "vendors" | "spots" | "live" | "rates";
 
 export function VendorPage() {
-  const [activeTab, setActiveTab] = useState<"vendors" | "spots" | "live" | "rates">("vendors");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawTab = searchParams.get("tab");
+  const activeTab: VendorTabKey =
+    rawTab === "spots" || rawTab === "live" || rawTab === "rates" ? rawTab : "vendors";
+
+  const setActiveTab = (tab: VendorTabKey) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (tab === "vendors") {
+          next.delete("tab");
+        } else {
+          next.set("tab", tab);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -281,57 +301,73 @@ export function VendorPage() {
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex flex-wrap border-b border-border/80">
+      <div className="flex flex-wrap border-b border-border/80 gap-1 sm:gap-2">
         <button
           type="button"
           onClick={() => setActiveTab("vendors")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "vendors"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
           <Store className="size-4" />
-          <span>Vendors Directory ({totalCount})</span>
+          <span>Vendors</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {totalCount}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("spots")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "spots"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
           <Sparkles className="size-4" />
-          <span>Spot Rates ({spots.length})</span>
+          <span>Spot Rates</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {spots.length}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("live")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "live"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+            <span className="relative inline-flex size-2 rounded-full bg-rose-500" />
+          </span>
           <Radio className="size-4" />
-          <span>Live ({liveRates.length})</span>
+          <span>Live Rates</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {liveRates.length}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("rates")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "rates"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
           <IndianRupee className="size-4" />
-          <span>Rates ({standardRates.length})</span>
+          <span>Standard Rates</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {standardRates.length}
+          </span>
         </button>
       </div>
 

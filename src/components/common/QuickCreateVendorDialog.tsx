@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, Plus, Settings2 } from "lucide-react";
 import {
@@ -21,6 +21,8 @@ import { useCreateVendor } from "@/modules/dashboard/vendor/hook/useVendor.ts";
 interface QuickCreateVendorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Pre-filled vendor name from search. */
+  initialName?: string;
   /** Called with the new vendor id so the caller can auto-select it. */
   onCreated: (id: string) => void;
 }
@@ -33,15 +35,36 @@ interface QuickCreateVendorDialogProps {
 export function QuickCreateVendorDialog({
   open,
   onOpenChange,
+  initialName = "",
   onCreated,
 }: QuickCreateVendorDialogProps) {
   const createMutation = useCreateVendor();
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName);
   const [mobile, setMobile] = useState("");
   const [city, setCity] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const mobileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) {
+      const trimmed = initialName.trim();
+      setName(trimmed);
+      setMobile("");
+      setCity("");
+      setErrorMessage(null);
+      setTimeout(() => {
+        if (trimmed && mobileInputRef.current) {
+          mobileInputRef.current.focus();
+        } else if (nameInputRef.current) {
+          nameInputRef.current.focus();
+        }
+      }, 50);
+    }
+  }, [open, initialName]);
 
   const reset = () => {
     setName("");
@@ -110,14 +133,28 @@ export function QuickCreateVendorDialog({
       }}
     >
       <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+              e.preventDefault();
+              void handleSubmit(e);
+            }
+          }}
+          className="flex flex-col gap-4"
+        >
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plus className="size-4 text-primary" />
-              New Vendor
-            </DialogTitle>
-            <DialogDescription>
-              Just name + mobile — it will be selected automatically. Complete the profile later if needed.
+            <div className="flex items-center justify-between pr-6">
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <Plus className="size-4 text-primary" />
+                New Vendor
+              </DialogTitle>
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                Quick Add
+              </span>
+            </div>
+            <DialogDescription className="text-xs">
+              Just name + mobile — it will be selected automatically. Complete full profile later if needed.
             </DialogDescription>
           </DialogHeader>
 
@@ -133,12 +170,12 @@ export function QuickCreateVendorDialog({
                 Vendor Name <span className="text-destructive">*</span>
               </Label>
               <Input
+                ref={nameInputRef}
                 id="qv-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. HALDIYA PORT RATE"
                 required
-                autoFocus
               />
             </div>
 
@@ -148,9 +185,10 @@ export function QuickCreateVendorDialog({
                   Mobile <span className="text-destructive">*</span>
                 </Label>
                 <Input
+                  ref={mobileInputRef}
                   id="qv-mobile"
                   value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
+                  onChange={(e) => setMobile(e.target.value.replace(/[^\d+\s-]/g, ""))}
                   placeholder="e.g. 9830000000"
                   required
                 />
@@ -169,13 +207,22 @@ export function QuickCreateVendorDialog({
 
           <DialogFooter className="flex-col gap-2 pt-2 sm:flex-col">
             <div className="flex w-full items-center justify-between gap-2">
-              <Link
-                to={PATHS.vendor}
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline"
-              >
-                <Settings2 className="size-3" />
-                Full vendor manager
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to={PATHS.vendor}
+                  tabIndex={-1}
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline"
+                >
+                  <Settings2 className="size-3" />
+                  Full manager
+                </Link>
+                <span className="hidden text-[11px] text-muted-foreground/70 sm:inline">
+                  <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                    Ctrl+Enter
+                  </kbd>{" "}
+                  to save
+                </span>
+              </div>
               <div className="flex gap-2">
                 <Button
                   type="button"
