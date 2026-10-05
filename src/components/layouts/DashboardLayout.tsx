@@ -3,13 +3,13 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { cn } from "@/lib/utils";
-import { APP_NAME } from "@/constants/app.ts";
 import { NAV_SECTIONS } from "@/constants/navigation.ts";
 import { PATHS } from "@/constants/paths.ts";
 import { ProfileDialog } from "@/modules/auth/profile/components/ProfileDialog.tsx";
 import { ChangePasswordDialog } from "@/modules/auth/login/components/ChangePasswordDialog.tsx";
 import { AccountMenu, type AccountDialog } from "./AccountMenu.tsx";
 import { AccountSection } from "./AccountSection.tsx";
+import { CompanyLogo } from "./CompanyLogo.tsx";
 import { ThemeToggle } from "./ThemeToggle.tsx";
 
 interface SidebarContentProps {
@@ -28,11 +28,7 @@ function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
           className="flex items-center gap-2.5 font-semibold tracking-tight text-sidebar-foreground"
         >
           <div className="flex h-8 items-center rounded-md bg-white px-2 py-0.5 shadow-xs border border-border/50">
-            <img
-              src="/logo.png"
-              alt={APP_NAME}
-              className="h-5 w-auto max-w-[125px] object-contain"
-            />
+            <CompanyLogo className="h-5 w-auto max-w-[125px] object-contain" />
           </div>
           <span className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
             CRM
@@ -141,11 +137,7 @@ export function DashboardLayout() {
           {/* Mobile logo branding */}
           <div className="flex items-center gap-2 lg:hidden">
             <div className="flex h-7 items-center rounded bg-white px-1.5 py-0.5 border border-border/40">
-              <img
-                src="/logo.png"
-                alt={APP_NAME}
-                className="h-4.5 w-auto object-contain"
-              />
+              <CompanyLogo className="h-4.5 w-auto object-contain" />
             </div>
             <span className="text-[11px] font-bold text-muted-foreground uppercase">
               CRM
