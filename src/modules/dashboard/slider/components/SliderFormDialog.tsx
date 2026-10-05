@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
-import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
+import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import { useCreateSlider, useSlider, useUpdateSlider } from "../hook/useSlider.ts";
 import {
   useActiveCategories,
@@ -177,7 +177,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
         {sliderType === "Category" && (
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="s-cat">Category</Label>
-            <SearchableSelect
+            <CategorySelectWithCreate
               id="s-cat"
               value={categoryId}
               onChange={setCategoryId}
@@ -185,7 +185,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
                 value: String(c.id),
                 label: `${c.categories_name} (ID: ${c.id})`,
               }))}
-              placeholder={categoriesLoading ? "Loading categories..." : "Select category"}
+              placeholder={categoriesLoading ? "Loading categories..." : "Select category — or + to create one"}
               required
             />
             {slider?.categories_name && (

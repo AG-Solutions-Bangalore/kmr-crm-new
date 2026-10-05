@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
-import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
+import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import { useCreateNews, useNewsItem, useUpdateNews } from "../hook/useNews.ts";
 import {
   useActiveCategories,
@@ -156,7 +156,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
         <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="n-cat">Category</Label>
-            <SearchableSelect
+            <CategorySelectWithCreate
               id="n-cat"
               value={categoryId}
               onChange={setCategoryId}
@@ -164,7 +164,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
                 value: String(c.id),
                 label: `${c.categories_name} (ID: ${c.id})`,
               }))}
-              placeholder="Select category"
+              placeholder="Select category — or + to create one"
               required
             />
             {news?.categories_name && (

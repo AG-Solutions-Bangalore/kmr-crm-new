@@ -13,7 +13,15 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
+import {
+  CategorySelectWithCreate,
+  VendorSelectWithCreate,
+} from "@/components/common/EntitySelectWithCreate.tsx";
 import { useActiveVendors, useCreateVendorLive, useCreateVendorRate } from "../hook/useVendor.ts";
+import {
+  useActiveCategories,
+  useCategories,
+} from "../../category/hook/useCategory.ts";
 
 interface VendorRateFormDialogProps {
   open: boolean;
@@ -45,8 +53,16 @@ export function VendorRateFormDialog({
   type,
 }: VendorRateFormDialogProps) {
   const { data: vendors = [] } = useActiveVendors();
+  const { data: activeCategories = [] } = useActiveCategories();
+  const { data: allCategories = [] } = useCategories();
+  const categories = activeCategories.length > 0 ? activeCategories : allCategories;
   const createLiveMutation = useCreateVendorLive();
   const createRateMutation = useCreateVendorRate();
+
+  const subsFor = (catId: string) =>
+    categories.filter(
+      (c) => String(c.parent_id ?? "") === String(catId) && String(c.id) !== String(catId),
+    );
 
   const [vendorId, setVendorId] = useState<string>("");
   const [rows, setRows] = useState<RateRow[]>([blankRow(0)]);
@@ -136,7 +152,7 @@ export function VendorRateFormDialog({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="vendor_select">Vendor (applies to all rows)</Label>
-            <SearchableSelect
+            <VendorSelectWithCreate
               id="vendor_select"
               value={vendorId || (vendors[0]?.id ? String(vendors[0].id) : "1")}
               onChange={setVendorId}
@@ -148,7 +164,7 @@ export function VendorRateFormDialog({
                     }))
                   : [{ value: "1", label: "Default Vendor (#1)" }]
               }
-              placeholder="Select vendor — type to search..."
+              placeholder="Select vendor — or + to create one"
               required
             />
           </div>
@@ -234,22 +250,35 @@ export function VendorRateFormDialog({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
-                      <Label htmlFor={`rate-cat-${row.key}`}>Category ID</Label>
-                      <Input
+                      <Label htmlFor={`rate-cat-${row.key}`}>Category</Label>
+                      <CategorySelectWithCreate
                         id={`rate-cat-${row.key}`}
-                        type="number"
                         value={row.categoryId}
-                        onChange={(e) => updateRow(row.key, "categoryId", e.target.value)}
-                        required
+                        onChange={(val) => {
+                          updateRow(row.key, "categoryId", val);
+                          updateRow(row.key, "subCategoryId", "");
+                        }}
+                        options={categories.map((c) => ({
+                          value: String(c.id),
+                          label: `${c.categories_name} (ID: ${c.id})`,
+                        }))}
+                        placeholder="Select category — or +"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <Label htmlFor={`rate-subcat-${row.key}`}>Sub-Category ID</Label>
-                      <Input
+                      <Label htmlFor={`rate-subcat-${row.key}`}>Sub-Category</Label>
+                      <SearchableSelect
                         id={`rate-subcat-${row.key}`}
-                        type="number"
                         value={row.subCategoryId}
-                        onChange={(e) => updateRow(row.key, "subCategoryId", e.target.value)}
+                        onChange={(val) => updateRow(row.key, "subCategoryId", val)}
+                        options={[
+                          { value: "", label: "None" },
+                          ...subsFor(row.categoryId).map((c) => ({
+                            value: String(c.id),
+                            label: `${c.categories_name} (ID: ${c.id})`,
+                          })),
+                        ]}
+                        placeholder="Select sub-category"
                       />
                     </div>
                   </div>

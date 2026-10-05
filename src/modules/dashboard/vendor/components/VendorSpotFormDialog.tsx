@@ -14,6 +14,10 @@ import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
 import {
+  CategorySelectWithCreate,
+  VendorSelectWithCreate,
+} from "@/components/common/EntitySelectWithCreate.tsx";
+import {
   useActiveVendors,
   useCreateVendorSpot,
   useUpdateVendorSpot,
@@ -137,7 +141,7 @@ function VendorSpotEditContent({
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="sp-cat">Category</Label>
-            <SearchableSelect
+            <CategorySelectWithCreate
               id="sp-cat"
               value={categoryId}
               onChange={(val) => {
@@ -148,7 +152,7 @@ function VendorSpotEditContent({
                 value: String(c.id),
                 label: `${c.categories_name} (ID: ${c.id})`,
               }))}
-              placeholder="Select category"
+              placeholder="Select category — or + to create one"
               required
             />
             {spot?.categories_name && (
@@ -381,7 +385,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
       <div className="grid gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="sp-vendor">Select Vendor (applies to all rows)</Label>
-          <SearchableSelect
+          <VendorSelectWithCreate
             id="sp-vendor"
             value={vendorId}
             onChange={setVendorId}
@@ -393,7 +397,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                   }))
                 : [{ value: "1", label: "Vendor #1" }]
             }
-            placeholder="Select vendor — type to search..."
+            placeholder="Select vendor — or + to create one"
             required
           />
         </div>
@@ -442,7 +446,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor={`sp-cat-${row.key}`}>Category</Label>
-                    <SearchableSelect
+                    <CategorySelectWithCreate
                       id={`sp-cat-${row.key}`}
                       value={row.categoryId}
                       onChange={(val) => updateRow(row.key, "categoryId", val)}
@@ -450,7 +454,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                         value: String(c.id),
                         label: `${c.categories_name} (ID: ${c.id})`,
                       }))}
-                      placeholder="Select category"
+                      placeholder="Select category — or +"
                     />
                   </div>
 

@@ -1,11 +1,16 @@
-import { useEffect, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { RichTextEditor } from "@/components/common/RichTextEditor.tsx";
+import { QuickCreateCategoryDialog } from "@/components/common/QuickCreateCategoryDialog.tsx";
+import {
+  useActiveCategories,
+  useCategories,
+} from "../../category/hook/useCategory.ts";
 import { useBlog, useCreateBlog, useUpdateBlog } from "../hook/useBlog.ts";
 import type { BlogItem, BlogStatus } from "../types/blog.types.ts";
 
@@ -40,6 +45,32 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
   const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
   const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [quickCatOpen, setQuickCatOpen] = useState(false);
+
+  const { data: activeCategories = [] } = useActiveCategories();
+  const { data: allCategories = [] } = useCategories();
+  const categories = activeCategories.length > 0 ? activeCategories : allCategories;
+
+  // Resolve typed IDs to names so the field is never guesswork.
+  const categoryNamePreview = useMemo(() => {
+    const ids = categoriesIds.split(",").map((s) => s.trim()).filter(Boolean);
+    if (ids.length === 0) return "No category selected.";
+    const names = ids.map((id) => {
+      const found = categories.find((c) => String(c.id) === id);
+      return found ? found.categories_name : `#${id} (unknown)`;
+    });
+    return names.join(" • ");
+  }, [categoriesIds, categories]);
+
+  const appendCategoryId = (id: string) => {
+    setCategoriesIds((prev) => {
+      const ids = prev.split(",").map((s) => s.trim()).filter(Boolean);
+      if (ids.includes(id)) return prev;
+      // Replace a bare "1" placeholder only when the user never typed anything custom.
+      if (ids.length === 1 && ids[0] === "1" && !blog?.blog_categories_ids) return id;
+      return [...ids, id].join(",");
+    });
+  };
 
   const handleTitleChange = (val: string) => {
     setTitle(val);
@@ -202,13 +233,37 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="b-cat">Category IDs</Label>
-            <Input
-              id="b-cat"
-              value={categoriesIds}
-              onChange={(e) => setCategoriesIds(e.target.value)}
-              placeholder="e.g. 1"
-            />
+            <div className="flex items-center gap-1.5">
+              <div className="min-w-0 flex-1">
+                <Input
+                  id="b-cat"
+                  value={categoriesIds}
+                  onChange={(e) => setCategoriesIds(e.target.value)}
+                  placeholder="e.g. 1"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setQuickCatOpen(true)}
+                title="Create a new category without leaving this form — its ID is added automatically"
+                aria-label="Create a new category without leaving this form"
+                className="size-9 shrink-0 p-0"
+              >
+                <Plus className="size-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">{categoryNamePreview}</p>
           </div>
+
+          {quickCatOpen && (
+            <QuickCreateCategoryDialog
+              open={quickCatOpen}
+              onOpenChange={setQuickCatOpen}
+              onCreated={appendCategoryId}
+            />
+          )}
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="b-meta">Meta Keywords</Label>

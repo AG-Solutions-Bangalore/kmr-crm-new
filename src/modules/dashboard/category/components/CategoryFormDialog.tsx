@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
-import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
+import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import {
   useCategories,
   useCategory,
@@ -205,12 +205,13 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="cat-parent">Parent Category (0 for root)</Label>
-          <SearchableSelect
+          <CategorySelectWithCreate
             id="cat-parent"
             value={parentId}
             onChange={setParentId}
             options={parentOptions}
-            placeholder="Select parent — type to search..."
+            placeholder="Select parent — or + to create one"
+            defaultParentId="0"
           />
         </div>
 
