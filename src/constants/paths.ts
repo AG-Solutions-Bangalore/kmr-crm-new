@@ -18,6 +18,7 @@ export const PATHS = {
   blogEdit: "/blog/:id/edit",
   gallery: "/gallery",
   enquiry: "/enquiry",
+  enquiryReport: "/enquiry-report",
   newsletter: "/newsletter",
   notification: "/notification",
   slider: "/slider",
@@ -26,6 +27,7 @@ export const PATHS = {
   faqEdit: "/faq/:id/edit",
   testimonial: "/testimonial",
   client: "/client",
+  member: "/member",
   // Account
   profile: "/profile",
 } as const;

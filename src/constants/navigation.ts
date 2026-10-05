@@ -97,6 +97,12 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: MessageSquare,
       },
       {
+        title: "Enquiry Report",
+        description: "Full enquiry register with status overview.",
+        path: PATHS.enquiryReport,
+        icon: FileText,
+      },
+      {
         title: "Newsletter",
         description: "Manage newsletter subscribers.",
         path: PATHS.newsletter,
@@ -124,6 +130,12 @@ export const NAV_SECTIONS: NavSection[] = [
         title: "Clients",
         description: "Manage clients.",
         path: PATHS.client,
+        icon: Users,
+      },
+      {
+        title: "Members",
+        description: "Manage registered members.",
+        path: PATHS.member,
         icon: Users,
       },
     ],

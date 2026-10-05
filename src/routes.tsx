@@ -8,9 +8,11 @@ import { BlogFormPage } from "./modules/dashboard/blog/pages/BlogFormPage.tsx";
 import { CategoryPage } from "./modules/dashboard/category/pages/CategoryPage.tsx";
 import { ClientPage } from "./modules/dashboard/client/pages/ClientPage.tsx";
 import { EnquiryPage } from "./modules/dashboard/enquiry/pages/EnquiryPage.tsx";
+import { EnquiryReportPage } from "./modules/dashboard/enquiry-report/pages/EnquiryReportPage.tsx";
 import { FaqPage } from "./modules/dashboard/faq/pages/FaqPage.tsx";
 import { FaqFormPage } from "./modules/dashboard/faq/pages/FaqFormPage.tsx";
 import { GalleryPage } from "./modules/dashboard/gallery/pages/GalleryPage.tsx";
+import { MemberPage } from "./modules/dashboard/member/pages/MemberPage.tsx";
 import { NewsPage } from "./modules/dashboard/news/pages/NewsPage.tsx";
 import { NewsletterPage } from "./modules/dashboard/newsletter/pages/NewsletterPage.tsx";
 import { NotificationPage } from "./modules/dashboard/notification/pages/NotificationPage.tsx";
@@ -87,6 +89,11 @@ export const dashboardRoutes: AppRoute[] = [
     element: <EnquiryPage />,
   },
   {
+    path: PATHS.enquiryReport,
+    title: "Enquiry Report",
+    element: <EnquiryReportPage />,
+  },
+  {
     path: PATHS.newsletter,
     title: "Newsletter",
     element: <NewsletterPage />,
@@ -120,6 +127,11 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.client,
     title: "Clients",
     element: <ClientPage />,
+  },
+  {
+    path: PATHS.member,
+    title: "Members",
+    element: <MemberPage />,
   },
   {
     path: PATHS.slider,
