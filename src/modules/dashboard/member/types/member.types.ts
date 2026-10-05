@@ -43,9 +43,11 @@ export interface MemberMutationPayload {
 export interface MemberValidityUpdate {
   id: number | string;
   validity_date: string;
+  member?: MemberItem;
 }
 
 export interface MemberTrailUpdate {
   id: number | string;
   trail: string;
+  member?: MemberItem;
 }

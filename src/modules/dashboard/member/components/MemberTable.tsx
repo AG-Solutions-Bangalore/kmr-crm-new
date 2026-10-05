@@ -88,11 +88,13 @@ export function MemberTable({
       setBulkError("Select members and pick a validity date.");
       return;
     }
+    const memberMap = new Map(members.map((m) => [m.id, m]));
     try {
       await updateValidityMutation.mutateAsync(
         [...selectedIds].map((id) => ({
           id,
           validity_date: bulkValidityDate,
+          member: memberMap.get(id),
         })),
       );
       setSelectedIds(new Set());
@@ -107,9 +109,14 @@ export function MemberTable({
       setBulkError("Select members first.");
       return;
     }
+    const memberMap = new Map(members.map((m) => [m.id, m]));
     try {
       await updateTrailMutation.mutateAsync(
-        [...selectedIds].map((id) => ({ id, trail: bulkTrail })),
+        [...selectedIds].map((id) => ({
+          id,
+          trail: bulkTrail,
+          member: memberMap.get(id),
+        })),
       );
       setSelectedIds(new Set());
     } catch {

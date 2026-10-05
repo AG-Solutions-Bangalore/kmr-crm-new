@@ -4,6 +4,8 @@ import type {
   MemberItem,
   MemberListResponse,
   MemberMutationPayload,
+  MemberTrailUpdate,
+  MemberValidityUpdate,
 } from "../types/member.types.ts";
 
 /** GET /member — Fetch all members. */
@@ -116,30 +118,88 @@ export async function fetchTrailMembersPage(
   return parsePaginatedResponse<MemberItem>(data, page, perPage);
 }
 
-export interface MemberValidityUpdate {
-  id: number | string;
-  validity_date: string;
-}
-
-/** PUT /updateMemberValidity — Bulk update member validity dates (raw JSON). */
+/** PUT /updateMemberValidity — Bulk update member validity dates (with fallback for backend 500 error). */
 export async function updateMemberValidity(
   memberData: MemberValidityUpdate[],
 ): Promise<unknown> {
-  const { data } = await api.put("/updateMemberValidity", { memberData });
-  throwIfApiError(data as { code?: number; message?: string }, "Could not update member validity.");
-  return data;
+  try {
+    const { data } = await api.put("/updateMemberValidity", {
+      memberData: memberData.map(({ id, validity_date }) => ({ id, validity_date })),
+    });
+    throwIfApiError(data as { code?: number; message?: string }, "Could not update member validity.");
+    return data;
+  } catch (err) {
+    // If backend bulk endpoint fails (Laravel BadMethodCallException: Request::validated does not exist)
+    console.warn("Backend /updateMemberValidity failed. Applying client-side fallback update...", err);
+    await Promise.all(
+      memberData.map(async (item) => {
+        let current = item.member;
+        if (!current) {
+          const all = await fetchMembers();
+          current = all.find((m) => String(m.id) === String(item.id));
+        }
+        if (!current) {
+          const trailList = await fetchTrailMembersPage(1, 100);
+          current = trailList.items.find((m) => String(m.id) === String(item.id));
+        }
+        if (!current) {
+          throw new Error(`Member #${item.id} details not found for validity update.`);
+        }
+        return updateMember(item.id, {
+          name: current.name,
+          mobile: current.mobile || "",
+          email: current.email || "",
+          city: current.city || "",
+          address: current.address || "",
+          trail: current.trail || undefined,
+          validity_date: item.validity_date,
+          status: current.status || "Active",
+        });
+      }),
+    );
+    return { code: 200, message: "Member validity updated successfully." };
+  }
 }
 
-export interface MemberTrailUpdate {
-  id: number | string;
-  trail: string;
-}
-
-/** PUT /updateMemberTrail — Bulk update member trail flags (raw JSON). */
+/** PUT /updateMemberTrail — Bulk update member trail flags (with fallback for backend 500 error). */
 export async function updateMemberTrail(
   memberData: MemberTrailUpdate[],
 ): Promise<unknown> {
-  const { data } = await api.put("/updateMemberTrail", { memberData });
-  throwIfApiError(data as { code?: number; message?: string }, "Could not update member trail.");
-  return data;
+  try {
+    const { data } = await api.put("/updateMemberTrail", {
+      memberData: memberData.map(({ id, trail }) => ({ id, trail })),
+    });
+    throwIfApiError(data as { code?: number; message?: string }, "Could not update member trail.");
+    return data;
+  } catch (err) {
+    // If backend bulk endpoint fails (Laravel BadMethodCallException: Request::validated does not exist)
+    console.warn("Backend /updateMemberTrail failed. Applying client-side fallback update...", err);
+    await Promise.all(
+      memberData.map(async (item) => {
+        let current = item.member;
+        if (!current) {
+          const all = await fetchMembers();
+          current = all.find((m) => String(m.id) === String(item.id));
+        }
+        if (!current) {
+          const trailList = await fetchTrailMembersPage(1, 100);
+          current = trailList.items.find((m) => String(m.id) === String(item.id));
+        }
+        if (!current) {
+          throw new Error(`Member #${item.id} details not found for trail update.`);
+        }
+        return updateMember(item.id, {
+          name: current.name,
+          mobile: current.mobile || "",
+          email: current.email || "",
+          city: current.city || "",
+          address: current.address || "",
+          trail: item.trail,
+          validity_date: current.validity_date || undefined,
+          status: current.status || "Active",
+        });
+      }),
+    );
+    return { code: 200, message: "Member trail updated successfully." };
+  }
 }
