@@ -29,8 +29,10 @@ import {
   useVendorSpots,
   useVendorLives,
   useVendorRates,
+  useUpdateVendorLiveStatus,
+  useUpdateVendorRateStatus,
 } from "../hook/useVendor.ts";
-import type { Vendor, VendorSpotItem } from "../types/vendor.types.ts";
+import type { Vendor, VendorRateProduct, VendorSpotItem } from "../types/vendor.types.ts";
 
 const PAGE_SIZE = 10;
 
@@ -92,6 +94,9 @@ export function VendorPage() {
   const [selectedSpot, setSelectedSpot] = useState<VendorSpotItem | null>(null);
   const [rateDialogOpen, setRateDialogOpen] = useState(false);
 
+  const liveStatusMutation = useUpdateVendorLiveStatus();
+  const rateStatusMutation = useUpdateVendorRateStatus();
+
   const handleOpenCreate = () => {
     if (activeTab === "vendors") {
       setSelectedVendor(null);
@@ -112,6 +117,17 @@ export function VendorPage() {
   const handleOpenSpotEdit = (spot: VendorSpotItem) => {
     setSelectedSpot(spot);
     setSpotDialogOpen(true);
+  };
+
+  const nextRateStatus = (item: VendorRateProduct) =>
+    item.vendor_product_status === "Active" ? "Inactive" : "Active";
+
+  const handleToggleLiveStatus = async (item: VendorRateProduct) => {
+    await liveStatusMutation.mutateAsync({ id: item.id, status: nextRateStatus(item) });
+  };
+
+  const handleToggleRateStatus = async (item: VendorRateProduct) => {
+    await rateStatusMutation.mutateAsync({ id: item.id, status: nextRateStatus(item) });
   };
 
   const handleRefresh = () => {
@@ -319,7 +335,7 @@ export function VendorPage() {
         </button>
       </div>
 
-      {/* Tab Content */}
+      {/* Tab Content — vendor lists stay tables (no photos to preview). */}
       {activeTab === "vendors" ? (
         <VendorTable
           vendors={vendors}
@@ -345,6 +361,7 @@ export function VendorPage() {
           rates={liveRates}
           isLoading={loadingLive}
           type="live"
+          onToggleStatus={handleToggleLiveStatus}
           errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
           onRetry={() => void refetchLive()}
         />
@@ -353,6 +370,7 @@ export function VendorPage() {
           rates={standardRates}
           isLoading={loadingRates}
           type="standard"
+          onToggleStatus={handleToggleRateStatus}
           errorMessage={errorRates ? getApiErrorMessage(errorRates) : null}
           onRetry={() => void refetchRates()}
         />

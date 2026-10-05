@@ -11,15 +11,23 @@ import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { NewsFormDialog } from "../components/NewsFormDialog.tsx";
 import { NewsTable } from "../components/NewsTable.tsx";
+import { NewsCardGrid } from "../components/NewsCardGrid.tsx";
 import { useNewsPage } from "../hook/useNews.ts";
 import type { NewsItem } from "../types/news.types.ts";
+import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
+import { readViewMode, writeViewMode, type ListViewMode } from "@/lib/view-mode.ts";
+import { sortByRecency } from "@/lib/sort.ts";
 
 const PAGE_SIZE = 10;
+const VIEW_STORAGE_KEY = "kmr-news-view";
 
 export function NewsPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
+  const [view, setView] = useState<ListViewMode>(() =>
+    readViewMode(VIEW_STORAGE_KEY, "card"),
+  );
 
   useEffect(() => {
     setPage(1);
@@ -31,9 +39,17 @@ export function NewsPage() {
     search,
   );
 
-  const articles = data?.items ?? [];
+  // Latest updates first: the backend has no ?sort= param, so the loaded
+  // page is ordered client-side (updated_at → created_at → id). Applies to
+  // both List and Card views so daily workflows always see fresh items first.
+  const articles = sortByRecency(data?.items ?? [], "latest", ["news_created_date"]);
   const totalCount = data?.total ?? 0;
   const totalPages = data?.lastPage ?? 1;
+
+  const handleViewChange = (mode: ListViewMode) => {
+    setView(mode);
+    writeViewMode(VIEW_STORAGE_KEY, mode);
+  };
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
@@ -157,20 +173,50 @@ export function NewsPage() {
         </Card>
       </div>
 
-      {/* News Table */}
-      <NewsTable
-        articles={articles}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        page={page}
-        totalPages={totalPages}
-        total={totalCount}
-        perPage={PAGE_SIZE}
-        search={searchInput}
-        onSearchChange={setSearchInput}
-        onPageChange={setPage}
-        onEdit={handleOpenEdit}
-      />
+      {/* View switcher — pilot Card View (mobile parity), List preserved. */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          {isLoading
+            ? "Loading articles..."
+            : totalCount === 0
+              ? "No articles yet"
+              : `${totalCount} article${totalCount === 1 ? "" : "s"} • Latest updated first`}
+        </p>
+        <ListViewToggle mode={view} onChange={handleViewChange} />
+      </div>
+
+      {/* News Table (List) / News Cards (mobile-parity pilot) */}
+      {view === "card" ? (
+        <NewsCardGrid
+          articles={articles}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          errorMessage={error ? getApiErrorMessage(error, "Could not load news from server.") : null}
+          onRetry={() => refetch()}
+          page={page}
+          totalPages={totalPages}
+          total={totalCount}
+          perPage={PAGE_SIZE}
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          onPageChange={setPage}
+          onEdit={handleOpenEdit}
+        />
+      ) : (
+        <NewsTable
+          articles={articles}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          page={page}
+          totalPages={totalPages}
+          total={totalCount}
+          perPage={PAGE_SIZE}
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          onPageChange={setPage}
+          onEdit={handleOpenEdit}
+        />
+      )}
 
       {/* Add / Edit Dialog */}
       <NewsFormDialog

@@ -11,10 +11,15 @@ import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { CategoryFormDialog } from "../components/CategoryFormDialog.tsx";
 import { CategoryTable } from "../components/CategoryTable.tsx";
+import { CategoryCardGrid } from "../components/CategoryCardGrid.tsx";
 import { useCategories } from "../hook/useCategory.ts";
 import type { Category } from "../types/category.types.ts";
+import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
+import { readViewMode, writeViewMode, type ListViewMode } from "@/lib/view-mode.ts";
+import { sortByRecency } from "@/lib/sort.ts";
 
 const PAGE_SIZE = 10;
+const VIEW_STORAGE_KEY = "kmr-category-view";
 
 type CategoryTab = "parent" | "sub";
 
@@ -48,8 +53,19 @@ export function CategoryPage() {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
 
+  const [view, setView] = useState<ListViewMode>(() =>
+    readViewMode(VIEW_STORAGE_KEY, "card"),
+  );
+
+  const handleViewChange = (mode: ListViewMode) => {
+    setView(mode);
+    writeViewMode(VIEW_STORAGE_KEY, mode);
+  };
+
+  // Latest updates first over the loaded tab page (backend has no ?sort=).
+  const sorted = sortByRecency(filtered, "latest");
   const start = (page - 1) * PAGE_SIZE;
-  const paged = filtered.slice(start, start + PAGE_SIZE);
+  const paged = sorted.slice(start, start + PAGE_SIZE);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -190,20 +206,50 @@ export function CategoryPage() {
         </Button>
       </div>
 
-      {/* Categories Table */}
-      <CategoryTable
-        categories={paged}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        page={page}
-        totalPages={totalPages}
-        total={totalCount}
-        perPage={PAGE_SIZE}
-        search={searchInput}
-        onSearchChange={setSearchInput}
-        onPageChange={setPage}
-        onEdit={handleOpenEdit}
-      />
+      {/* View switcher — Card View shares the common feed design. */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          {isLoading
+            ? "Loading categories..."
+            : totalCount === 0
+              ? "No categories yet"
+              : `${totalCount} ${tab === "parent" ? "categories" : "sub-categories"} • Latest updated first`}
+        </p>
+        <ListViewToggle mode={view} onChange={handleViewChange} />
+      </div>
+
+      {view === "card" ? (
+        <CategoryCardGrid
+          categories={paged}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          errorMessage={error ? getApiErrorMessage(error, "Could not retrieve categories from server.") : null}
+          onRetry={() => refetch()}
+          page={page}
+          totalPages={totalPages}
+          total={totalCount}
+          perPage={PAGE_SIZE}
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          onPageChange={setPage}
+          onEdit={handleOpenEdit}
+          tabLabel={tab === "parent" ? "category" : "sub-category"}
+        />
+      ) : (
+        <CategoryTable
+          categories={paged}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          page={page}
+          totalPages={totalPages}
+          total={totalCount}
+          perPage={PAGE_SIZE}
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          onPageChange={setPage}
+          onEdit={handleOpenEdit}
+        />
+      )}
 
       {/* Add / Edit Dialog */}
       <CategoryFormDialog

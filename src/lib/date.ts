@@ -27,3 +27,42 @@ export function formatDateDMY(value?: string | number | null): string {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   return `${dd}-${mm}-${d.getFullYear()}`;
 }
+
+function toTimestamp(value?: string | number | null): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  const raw = value.trim();
+  if (!raw) return null;
+  // Plain `YYYY-MM-DD` parses as UTC midnight — fine for relative display.
+  const t = new Date(raw).getTime();
+  return Number.isNaN(t) ? null : t;
+}
+
+/**
+ * Relative freshness ("just now", "5m ago", "3h ago", "Yesterday", "4d ago").
+ * Returns null for empty/unparseable input or anything older than a week —
+ * callers fall back to `formatDateDMY` for absolute dates.
+ */
+export function timeAgo(value?: string | number | null): string | null {
+  const t = toTimestamp(value);
+  if (t === null) return null;
+  const diff = Date.now() - t;
+  if (diff < 0) return "just now";
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days}d ago`;
+  return null;
+}
+
+/** True when `value` is within the last `hours` hours (drives "Updated" pills). */
+export function isWithinHours(value?: string | number | null, hours = 24): boolean {
+  const t = toTimestamp(value);
+  if (t === null) return false;
+  const diff = Date.now() - t;
+  return diff >= 0 && diff <= hours * 3600 * 1000;
+}

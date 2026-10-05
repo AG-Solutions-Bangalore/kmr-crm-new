@@ -15,6 +15,8 @@ import {
   fetchVendorSpotById,
   fetchVendorSpots,
   updateVendor,
+  updateVendorLiveStatus,
+  updateVendorRateStatus,
   updateVendorSpot,
   updateVendorSpotStatus,
   updateVendorStatus,
@@ -238,6 +240,38 @@ export function useCreateVendorLive() {
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to create vendor live rate."));
+    },
+  });
+}
+
+export function useUpdateVendorLiveStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: number | string; status: string }) =>
+      updateVendorLiveStatus(id, status),
+    onSuccess: () => {
+      toast.success("Live rate status updated");
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.lives() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update live rate status."));
+    },
+  });
+}
+
+export function useUpdateVendorRateStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: number | string; status: string }) =>
+      updateVendorRateStatus(id, status),
+    onSuccess: () => {
+      toast.success("Standard rate status updated");
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.rates() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update rate status."));
     },
   });
 }

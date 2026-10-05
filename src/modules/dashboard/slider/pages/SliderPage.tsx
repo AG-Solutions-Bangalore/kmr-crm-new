@@ -11,15 +11,23 @@ import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { SliderFormDialog } from "../components/SliderFormDialog.tsx";
 import { SliderTable } from "../components/SliderTable.tsx";
+import { SliderCardGrid } from "../components/SliderCardGrid.tsx";
 import { useSlidersPage } from "../hook/useSlider.ts";
 import type { SliderItem } from "../types/slider.types.ts";
+import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
+import { readViewMode, writeViewMode, type ListViewMode } from "@/lib/view-mode.ts";
+import { sortByRecency } from "@/lib/sort.ts";
 
 const PAGE_SIZE = 10;
+const VIEW_STORAGE_KEY = "kmr-slider-view";
 
 export function SliderPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
+  const [view, setView] = useState<ListViewMode>(() =>
+    readViewMode(VIEW_STORAGE_KEY, "card"),
+  );
 
   useEffect(() => {
     setPage(1);
@@ -31,9 +39,15 @@ export function SliderPage() {
     search,
   );
 
-  const sliders = data?.items ?? [];
+  // Latest updates first over the loaded page (backend has no ?sort=).
+  const sliders = sortByRecency(data?.items ?? [], "latest");
   const totalCount = data?.total ?? 0;
   const totalPages = data?.lastPage ?? 1;
+
+  const handleViewChange = (mode: ListViewMode) => {
+    setView(mode);
+    writeViewMode(VIEW_STORAGE_KEY, mode);
+  };
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
@@ -172,20 +186,49 @@ export function SliderPage() {
         </Card>
       </div>
 
-      {/* Sliders Table */}
-      <SliderTable
-        sliders={sliders}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        page={page}
-        totalPages={totalPages}
-        total={totalCount}
-        perPage={PAGE_SIZE}
-        search={searchInput}
-        onSearchChange={setSearchInput}
-        onPageChange={setPage}
-        onEdit={handleOpenEdit}
-      />
+      {/* View switcher — Card View shares the common feed design. */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          {isLoading
+            ? "Loading banners..."
+            : totalCount === 0
+              ? "No banners yet"
+              : `${totalCount} banner${totalCount === 1 ? "" : "s"} • Latest updated first`}
+        </p>
+        <ListViewToggle mode={view} onChange={handleViewChange} />
+      </div>
+
+      {view === "card" ? (
+        <SliderCardGrid
+          sliders={sliders}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          errorMessage={error ? getApiErrorMessage(error, "Could not load sliders from server.") : null}
+          onRetry={() => refetch()}
+          page={page}
+          totalPages={totalPages}
+          total={totalCount}
+          perPage={PAGE_SIZE}
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          onPageChange={setPage}
+          onEdit={handleOpenEdit}
+        />
+      ) : (
+        <SliderTable
+          sliders={sliders}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          page={page}
+          totalPages={totalPages}
+          total={totalCount}
+          perPage={PAGE_SIZE}
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          onPageChange={setPage}
+          onEdit={handleOpenEdit}
+        />
+      )}
 
       {/* Add / Edit Dialog */}
       <SliderFormDialog
