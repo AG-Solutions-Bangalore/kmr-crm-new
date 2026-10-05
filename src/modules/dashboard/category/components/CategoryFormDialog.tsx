@@ -13,7 +13,9 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
 import {
+  useCategories,
   useCategory,
   useCreateCategory,
   useUpdateCategory,
@@ -49,6 +51,17 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
   const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
   const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { data: allCategories = [] } = useCategories();
+  const parentOptions = [
+    { value: "0", label: "Root (No Parent)" },
+    ...allCategories
+      .filter((c) => !category || String(c.id) !== String(category.id))
+      .map((c) => ({
+        value: String(c.id),
+        label: `${c.categories_name} (ID: ${c.id})`,
+      })),
+  ];
 
   const handleNameChange = (val: string) => {
     setName(val);
@@ -191,12 +204,13 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cat-parent">Parent Category ID (0 for root)</Label>
-          <Input
+          <Label htmlFor="cat-parent">Parent Category (0 for root)</Label>
+          <SearchableSelect
             id="cat-parent"
             value={parentId}
-            onChange={(e) => setParentId(e.target.value)}
-            placeholder="0"
+            onChange={setParentId}
+            options={parentOptions}
+            placeholder="Select parent — type to search..."
           />
         </div>
 

@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
 import { useActiveVendors, useCreateVendorLive, useCreateVendorRate } from "../hook/useVendor.ts";
 
 interface VendorRateFormDialogProps {
@@ -135,24 +136,21 @@ export function VendorRateFormDialog({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="vendor_select">Vendor (applies to all rows)</Label>
-            <select
+            <SearchableSelect
               id="vendor_select"
               value={vendorId || (vendors[0]?.id ? String(vendors[0].id) : "1")}
-              onChange={(e) => setVendorId(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              {vendors.length > 0 ? (
-                vendors.map((v) => (
-                  <option key={v.id} value={v.id} className="bg-popover text-popover-foreground">
-                    {v.vendor_name} (#{v.id})
-                  </option>
-                ))
-              ) : (
-                <option value="1" className="bg-popover text-popover-foreground">
-                  Default Vendor (#1)
-                </option>
-              )}
-            </select>
+              onChange={setVendorId}
+              options={
+                vendors.length > 0
+                  ? vendors.map((v) => ({
+                      value: String(v.id),
+                      label: `${v.vendor_name} (${v.vendor_city || "No City"})`,
+                    }))
+                  : [{ value: "1", label: "Default Vendor (#1)" }]
+              }
+              placeholder="Select vendor — type to search..."
+              required
+            />
           </div>
 
           <div className="flex flex-col gap-3">

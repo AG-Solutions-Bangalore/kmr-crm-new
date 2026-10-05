@@ -273,6 +273,15 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   ]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Default to first vendor once loaded (initial state mounts before fetch).
+  useEffect(() => {
+    if (activeVendors.length === 0) return;
+    setVendorId((prev) => {
+      if (prev && activeVendors.some((v) => String(v.id) === String(prev))) return prev;
+      return String(activeVendors[0].id);
+    });
+  }, [activeVendors]);
+
   // Default empty rows to the first real category once loaded.
   useEffect(() => {
     if (categories.length === 0) return;
@@ -372,22 +381,21 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
       <div className="grid gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="sp-vendor">Select Vendor (applies to all rows)</Label>
-          <select
+          <SearchableSelect
             id="sp-vendor"
             value={vendorId}
-            onChange={(e) => setVendorId(e.target.value)}
-            className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            {activeVendors.length > 0 ? (
-              activeVendors.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.vendor_name} ({v.vendor_city || "No City"})
-                </option>
-              ))
-            ) : (
-              <option value="1">Vendor #1</option>
-            )}
-          </select>
+            onChange={setVendorId}
+            options={
+              activeVendors.length > 0
+                ? activeVendors.map((v) => ({
+                    value: String(v.id),
+                    label: `${v.vendor_name} (${v.vendor_city || "No City"})`,
+                  }))
+                : [{ value: "1", label: "Vendor #1" }]
+            }
+            placeholder="Select vendor — type to search..."
+            required
+          />
         </div>
 
         <div className="flex flex-col gap-3">
