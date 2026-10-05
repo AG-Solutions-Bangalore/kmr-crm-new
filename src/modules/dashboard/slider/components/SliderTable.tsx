@@ -168,9 +168,6 @@ export function SliderTable({
                             <p className="font-medium text-foreground text-xs font-mono truncate max-w-[160px]">
                               {slider.slider_image || "—"}
                             </p>
-                            <span className="text-[11px] text-muted-foreground">
-                              ID: #{slider.id}
-                            </span>
                           </div>
                         </div>
                       </td>

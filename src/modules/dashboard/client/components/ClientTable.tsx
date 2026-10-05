@@ -62,7 +62,7 @@ export function ClientTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search clients by name or ID..."
+            placeholder="Search clients by name..."
             className="pl-8"
           />
         </div>
@@ -139,9 +139,6 @@ export function ClientTable({
                             <p className="font-medium text-foreground">
                               {item.clients_name}
                             </p>
-                            <span className="text-[11px] text-muted-foreground font-mono">
-                              ID: #{item.id}
-                            </span>
                           </div>
                         </div>
                       </td>

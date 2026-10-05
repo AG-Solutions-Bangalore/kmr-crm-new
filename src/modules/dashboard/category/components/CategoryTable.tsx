@@ -158,9 +158,6 @@ export function CategoryTable({
                             <p className="font-medium text-foreground">
                               {cat.categories_name}
                             </p>
-                            <span className="text-xs text-muted-foreground">
-                              ID: #{cat.id}
-                            </span>
                           </div>
                         </div>
                       </td>

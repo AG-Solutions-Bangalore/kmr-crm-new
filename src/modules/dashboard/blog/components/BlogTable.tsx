@@ -159,12 +159,11 @@ export function BlogTable({
                             <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                               {item.blog_short_description || "—"}
                             </p>
-                            <span className="text-[11px] text-muted-foreground font-mono">
-                              ID: #{item.id}
-                              {item.blog_created_date
-                                ? ` • ${item.blog_created_date}`
-                                : ""}
-                            </span>
+                            {item.blog_created_date ? (
+                              <span className="text-[11px] text-muted-foreground font-mono">
+                                {item.blog_created_date}
+                              </span>
+                            ) : null}
                           </div>
                         </div>
                       </td>

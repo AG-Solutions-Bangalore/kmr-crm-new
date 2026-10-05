@@ -235,9 +235,6 @@ export function EnquiryTable({
                             <p className="font-medium text-foreground">
                               {getName(item)}
                             </p>
-                            <span className="text-[11px] text-muted-foreground">
-                              ID: #{item.id}
-                            </span>
                           </div>
                         </div>
                       </td>
@@ -359,7 +356,7 @@ export function EnquiryTable({
             <AlertDialogDescription>
               This will permanently delete enquiry{" "}
               <span className="font-mono font-semibold text-foreground">
-                #{deleteTarget?.id} ({deleteTarget ? getName(deleteTarget) : ""})
+                {deleteTarget ? getName(deleteTarget) : ""}
               </span>
               . This action cannot be undone.
             </AlertDialogDescription>
@@ -400,7 +397,7 @@ function EnquiryDetailContent({ enquiryId }: { enquiryId: number }) {
   if (error || !data) {
     return (
       <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
-        Could not load enquiry #{enquiryId} details.
+        Could not load enquiry details.
       </div>
     );
   }
@@ -421,7 +418,7 @@ function EnquiryDetailContent({ enquiryId }: { enquiryId: number }) {
   return (
     <div className="flex flex-col gap-4">
       <DialogHeader>
-        <DialogTitle>Enquiry #{data.id}</DialogTitle>
+        <DialogTitle>Enquiry Details</DialogTitle>
         <DialogDescription>
           Full details fetched via GET /enquiry/{data.id}.
         </DialogDescription>

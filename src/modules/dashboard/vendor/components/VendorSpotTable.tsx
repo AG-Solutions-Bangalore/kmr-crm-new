@@ -144,9 +144,6 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                         <p className="font-medium text-foreground">
                           {item.vendor_spot_heading}
                         </p>
-                        <span className="text-[11px] text-muted-foreground font-mono">
-                          ID: #{item.id}
-                        </span>
                         <p className="line-clamp-2 text-xs text-muted-foreground">
                           {item.vendor_spot_details}
                         </p>

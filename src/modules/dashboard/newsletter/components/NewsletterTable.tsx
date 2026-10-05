@@ -89,7 +89,6 @@ export function NewsletterTable({
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
-                <th className="px-4 py-3">ID</th>
                 <th className="px-4 py-3">Subscriber Email</th>
                 <th className="px-4 py-3">Date Subscribed</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -98,7 +97,7 @@ export function NewsletterTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading newsletter subscribers...</span>
@@ -107,7 +106,7 @@ export function NewsletterTable({
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Users className="size-8 opacity-40" />
                       <p className="font-medium">No subscribers found</p>
@@ -130,10 +129,6 @@ export function NewsletterTable({
                     <td className="px-4 py-3.5 text-xs text-muted-foreground">
                       {slNo}
                     </td>
-                    <td className="px-4 py-3.5 font-mono text-xs font-semibold text-foreground">
-                      #{item.id}
-                    </td>
-
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -196,8 +191,7 @@ export function NewsletterTable({
             <AlertDialogDescription>
               This will permanently remove{" "}
               <span className="font-mono font-semibold text-foreground">
-                {deleteTarget ? getEmail(deleteTarget) : ""} (#
-                {deleteTarget?.id})
+                {deleteTarget ? getEmail(deleteTarget) : ""}
               </span>{" "}
               from newsletter distribution. This action cannot be undone.
             </AlertDialogDescription>

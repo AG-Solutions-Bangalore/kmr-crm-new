@@ -171,9 +171,6 @@ export function VendorTable({
                             <p className="font-medium text-foreground">
                               {vendor.vendor_name}
                             </p>
-                            <span className="text-xs text-muted-foreground">
-                              ID: #{vendor.id}
-                            </span>
                           </div>
                         </div>
                       </td>

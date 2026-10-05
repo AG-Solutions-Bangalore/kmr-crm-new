@@ -100,7 +100,6 @@ export function FaqTable({
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
-                <th className="px-4 py-3">ID</th>
                 <th className="px-4 py-3">Page Placement (faq_for)</th>
                 <th className="px-4 py-3">Status (faq_status)</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -109,7 +108,7 @@ export function FaqTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading FAQs...</span>
@@ -118,7 +117,7 @@ export function FaqTable({
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <HelpCircle className="size-8 opacity-40" />
                       <p className="font-medium">No FAQs found</p>
@@ -145,10 +144,6 @@ export function FaqTable({
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
                         {slNo}
                       </td>
-                      <td className="px-4 py-3.5 font-mono text-xs font-semibold text-foreground">
-                        #{item.id}
-                      </td>
-
                       <td className="px-4 py-3.5">
                         <Badge variant="outline" className="font-mono text-xs font-medium">
                           {item.faq_for}
@@ -241,7 +236,7 @@ export function FaqTable({
             <AlertDialogDescription>
               This will permanently delete{" "}
               <span className="font-mono font-semibold text-foreground">
-                #{deleteTarget?.id} ({deleteTarget?.faq_for})
+                {deleteTarget?.faq_for}
               </span>{" "}
               along with all its questions and answers. This action cannot be
               undone.

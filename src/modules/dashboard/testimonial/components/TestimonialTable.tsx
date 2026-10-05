@@ -126,9 +126,6 @@ export function TestimonialTable({
                         <p className="font-medium text-foreground">
                           {item.testimonial_client_name}
                         </p>
-                        <span className="text-[11px] text-muted-foreground font-mono">
-                          ID: #{item.id}
-                        </span>
                       </td>
 
                       <td className="px-4 py-3.5">

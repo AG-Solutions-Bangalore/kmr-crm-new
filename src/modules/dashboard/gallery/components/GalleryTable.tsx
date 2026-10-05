@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, Images, Power, Search } from "lucide-react";
+import { Check, Edit2, Images, Link2, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -45,6 +45,14 @@ function GalleryThumb({
   );
 }
 
+/** Full image URL — same resolution as the preview thumbnail. */
+function galleryImageUrl(item: GalleryItem): string {
+  if (item.gallery_url) {
+    return `${item.gallery_url.replace(/\/?$/, "/")}${(item.gallery_image || "").replace(/^\/+/, "")}`;
+  }
+  return resolveAssetImageUrl(item.gallery_image, "gallerys_images") ?? "";
+}
+
 interface GalleryTableProps {
   galleryItems: GalleryItem[];
   isLoading: boolean;
@@ -74,9 +82,30 @@ export function GalleryTable({
 }: GalleryTableProps) {
   const updateStatusMutation = useUpdateGalleryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   // Search is server-side (?search=); the loaded page is rendered as-is.
   const filtered = galleryItems;
+
+  const handleCopyUrl = async (item: GalleryItem) => {
+    const text = galleryImageUrl(item);
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Fallback for non-secure contexts (plain http).
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopiedId(item.id);
+    window.setTimeout(() => {
+      setCopiedId((current) => (current === item.id ? null : current));
+    }, 2000);
+  };
 
   const handleToggleStatus = async (item: GalleryItem) => {
     const nextStatus = item.gallery_status === "Active" ? "Inactive" : "Active";
@@ -100,7 +129,7 @@ export function GalleryTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search gallery images by name or ID..."
+            placeholder="Search gallery images by name..."
             className="pl-8"
           />
         </div>
@@ -167,12 +196,34 @@ export function GalleryTable({
                       </td>
 
                       <td className="px-4 py-3.5">
-                        <p className="font-medium text-foreground text-xs font-mono truncate max-w-[240px]">
-                          {item.gallery_image || "—"}
-                        </p>
-                        <span className="text-[11px] text-muted-foreground">
-                          ID: #{item.id}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <p
+                            className="font-medium text-foreground text-xs font-mono truncate max-w-[240px]"
+                            title={item.gallery_image || undefined}
+                          >
+                            {item.gallery_image || "—"}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => void handleCopyUrl(item)}
+                            disabled={!item.gallery_image}
+                            className="size-7 shrink-0 p-0"
+                            title="Copy image URL"
+                          >
+                            {copiedId === item.id ? (
+                              <Check className="size-3.5 text-emerald-600" />
+                            ) : (
+                              <Link2 className="size-3.5" />
+                            )}
+                            <span className="sr-only">Copy image URL</span>
+                          </Button>
+                        </div>
+                        {copiedId === item.id && (
+                          <p className="mt-0.5 text-[11px] font-medium text-emerald-600">
+                            URL copied!
+                          </p>
+                        )}
                       </td>
 
                       <td className="px-4 py-3.5">
