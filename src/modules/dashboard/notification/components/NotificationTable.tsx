@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { formatDateDMY } from "@/lib/date.ts";
 import { useUpdateNotificationStatus } from "../hook/useNotification.ts";
 import type { NotificationItem, NotificationStatus } from "../types/notification.types.ts";
 
@@ -159,7 +160,7 @@ export function NotificationTable({
                       <td className="px-4 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                         <div className="flex items-center gap-1 font-medium text-foreground">
                           <Calendar className="size-3 text-muted-foreground" />
-                          {item.notification_date || "—"}
+                          {formatDateDMY(item.notification_date)}
                         </div>
                       </td>
 

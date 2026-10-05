@@ -185,7 +185,6 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
             id="b-desc"
             value={description}
             onChange={setDescription}
-            placeholder="Write the full blog post text or HTML..."
           />
         </div>
         </div>

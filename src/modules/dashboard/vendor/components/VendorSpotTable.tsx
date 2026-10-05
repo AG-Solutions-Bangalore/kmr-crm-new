@@ -3,6 +3,7 @@ import { Edit2, Power, Search, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { formatDateDMY } from "@/lib/date.ts";
 import { useUpdateVendorSpotStatus } from "../hook/useVendor.ts";
 import type { VendorSpotItem } from "../types/vendor.types.ts";
 
@@ -115,10 +116,10 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                       <td className="px-4 py-3.5">
                         <div className="flex flex-col gap-0.5">
                           <p className="font-medium text-foreground">
-                            {item.vendor_name || `Vendor #${item.vendor_id}`}
+                            {item.vendor_name || "—"}
                           </p>
                           <span className="text-[11px] text-muted-foreground">
-                            {item.vendor_mobile || `#${item.vendor_id}`}
+                            {item.vendor_mobile || "—"}
                           </span>
                         </div>
                       </td>
@@ -126,15 +127,11 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                       <td className="px-4 py-3.5">
                         <div className="flex flex-col gap-0.5">
                           <span className="text-xs font-medium text-foreground">
-                            {item.categories_name || `Category #${item.category_id}`}
+                            {item.categories_name || "—"}
                           </span>
                           {item.sub_categories_name ? (
                             <span className="text-[11px] text-muted-foreground">
                               {item.sub_categories_name}
-                            </span>
-                          ) : item.sub_category_id ? (
-                            <span className="text-[11px] text-muted-foreground">
-                              Sub #{item.sub_category_id}
                             </span>
                           ) : null}
                         </div>
@@ -152,7 +149,7 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                       <td className="px-4 py-3.5 text-xs">
                         <div className="flex flex-col gap-0.5">
                           <span className="font-medium text-foreground">
-                            {item.vendor_spot_created_date || "—"}
+                            {formatDateDMY(item.vendor_spot_created_date)}
                           </span>
                           <span className="text-muted-foreground">
                             {item.vendor_spot_created_time || "—"}

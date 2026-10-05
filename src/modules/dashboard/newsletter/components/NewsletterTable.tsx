@@ -3,6 +3,7 @@ import { Calendar, Mail, Search, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { formatDateDMY } from "@/lib/date.ts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -143,7 +144,7 @@ export function NewsletterTable({
                     <td className="px-4 py-3.5 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5 font-medium text-foreground">
                         <Calendar className="size-3 text-muted-foreground" />
-                        {getCreated(item) || "—"}
+                        {formatDateDMY(getCreated(item))}
                       </div>
                     </td>
 

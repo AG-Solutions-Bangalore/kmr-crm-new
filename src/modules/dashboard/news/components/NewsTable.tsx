@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { formatDateDMY } from "@/lib/date.ts";
 import { useUpdateNewsStatus } from "../hook/useNews.ts";
 import type { NewsItem } from "../types/news.types.ts";
 
@@ -159,14 +160,14 @@ export function NewsTable({
 
                       <td className="px-4 py-3.5 text-xs">
                         <Badge variant="outline" className="font-normal">
-                          {item.categories_name || `Category #${item.category_id}`}
+                          {item.categories_name || "—"}
                         </Badge>
                       </td>
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <Calendar className="size-3 text-muted-foreground" />
-                          {item.news_created_date || "—"}
+                          {formatDateDMY(item.news_created_date)}
                         </div>
                         {item.news_created_time && (
                           <span className="text-[11px] opacity-75">

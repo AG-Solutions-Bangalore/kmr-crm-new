@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { formatDateDMY } from "@/lib/date.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateVendorStatus } from "../hook/useVendor.ts";
 import type { Vendor } from "../types/vendor.types.ts";
@@ -209,7 +210,7 @@ export function VendorTable({
                             {vendor.vendor_city || "—"}
                           </span>
                           <span className="text-muted-foreground">
-                            {vendor.vendor_register_date || "—"}
+                            {formatDateDMY(vendor.vendor_register_date)}
                           </span>
                         </div>
                       </td>

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { formatDateDMY } from "@/lib/date.ts";
 import { useUpdateBlogStatus } from "../hook/useBlog.ts";
 import type { BlogItem, BlogStatus } from "../types/blog.types.ts";
 
@@ -161,7 +162,7 @@ export function BlogTable({
                             </p>
                             {item.blog_created_date ? (
                               <span className="text-[11px] text-muted-foreground font-mono">
-                                {item.blog_created_date}
+                                {formatDateDMY(item.blog_created_date)}
                               </span>
                             ) : null}
                           </div>
@@ -175,11 +176,6 @@ export function BlogTable({
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground">—</span>
-                        )}
-                        {item.blog_categories_ids && (
-                          <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-                            Cat #{item.blog_categories_ids}
-                          </p>
                         )}
                       </td>
 

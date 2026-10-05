@@ -183,13 +183,10 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-28;
   }
 
-  /* CKEditor 5 editing surface — match app inputs, keep usable height. */
-  .rich-text-editor .ck-editor__editable_inline {
-    min-height: 280px;
-    border-radius: 0 0 0.375rem 0.375rem;
-  }
-  .rich-text-editor .ck.ck-toolbar {
-    border-radius: 0.375rem 0.375rem 0 0;
+  /* CKEditor 4 frame — match app rounding. */
+  .rich-text-editor .cke_chrome {
+    border-radius: 0.375rem;
+    overflow: hidden;
   }
 }
 

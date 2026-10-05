@@ -183,7 +183,7 @@ export function SliderTable({
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
                         {slider.slider_type === "Category"
-                          ? slider.categories_name || `Category #${slider.category_id}`
+                          ? slider.categories_name || "—"
                           : "All / Global"}
                       </td>
 
