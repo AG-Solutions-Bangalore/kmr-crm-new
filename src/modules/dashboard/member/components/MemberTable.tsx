@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Edit2, Power, Search, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
-import { useUpdateMemberStatus } from "../hook/useMember.ts";
+import {
+  useUpdateMemberStatus,
+  useUpdateMemberTrail,
+  useUpdateMemberValidity,
+} from "../hook/useMember.ts";
 import type { MemberItem, MemberStatus } from "../types/member.types.ts";
 
 interface MemberTableProps {
@@ -36,10 +40,82 @@ export function MemberTable({
   onEdit,
 }: MemberTableProps) {
   const updateStatusMutation = useUpdateMemberStatus();
+  const updateValidityMutation = useUpdateMemberValidity();
+  const updateTrailMutation = useUpdateMemberTrail();
   const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [bulkValidityDate, setBulkValidityDate] = useState("");
+  const [bulkTrail, setBulkTrail] = useState("Yes");
+  const [bulkError, setBulkError] = useState<string | null>(null);
 
   // Search + status filter are server-side (?search=&status=); render the loaded page directly.
 
+  // Selection belongs to the visible list — clear it when the list context changes.
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [search, page, total]);
+
+  const toggleOne = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const pageIds = members.map((m) => m.id);
+  const allPageSelected =
+    pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+
+  const togglePage = () => {
+    setSelectedIds((prev) => {
+      if (pageIds.every((id) => prev.has(id))) {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.delete(id));
+        return next;
+      }
+      return new Set([...prev, ...pageIds]);
+    });
+  };
+
+  const isBulkBusy =
+    updateValidityMutation.isPending || updateTrailMutation.isPending;
+
+  const handleBulkValidity = async () => {
+    setBulkError(null);
+    if (selectedIds.size === 0 || !bulkValidityDate) {
+      setBulkError("Select members and pick a validity date.");
+      return;
+    }
+    try {
+      await updateValidityMutation.mutateAsync(
+        [...selectedIds].map((id) => ({
+          id,
+          validity_date: bulkValidityDate,
+        })),
+      );
+      setSelectedIds(new Set());
+    } catch {
+      // Toast is handled by the mutation hook.
+    }
+  };
+
+  const handleBulkTrail = async () => {
+    setBulkError(null);
+    if (selectedIds.size === 0) {
+      setBulkError("Select members first.");
+      return;
+    }
+    try {
+      await updateTrailMutation.mutateAsync(
+        [...selectedIds].map((id) => ({ id, trail: bulkTrail })),
+      );
+      setSelectedIds(new Set());
+    } catch {
+      // Toast is handled by the mutation hook.
+    }
+  };
   const handleToggleStatus = async (item: MemberItem) => {
     const nextStatus = item.status === "Active" ? "Inactive" : "Active";
     setTogglingId(item.id);
@@ -69,12 +145,84 @@ export function MemberTable({
         </div>
       </div>
 
+      {/* Bulk actions */}
+      {selectedIds.size > 0 && (
+        <div className="flex flex-col gap-3 rounded-xl border border-border/80 bg-muted/30 p-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <p className="text-xs font-medium text-foreground sm:mr-2 sm:pb-2">
+            {selectedIds.size} selected
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-muted-foreground">Validity date</span>
+            <div className="flex items-center gap-2">
+              <Input
+                type="date"
+                value={bulkValidityDate}
+                onChange={(e) => setBulkValidityDate(e.target.value)}
+                className="h-9 w-auto"
+              />
+              <Button
+                size="sm"
+                onClick={() => void handleBulkValidity()}
+                disabled={isBulkBusy || !bulkValidityDate}
+              >
+                {updateValidityMutation.isPending ? "Saving..." : "Update Validity"}
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-muted-foreground">Trail</span>
+            <div className="flex items-center gap-2">
+              <select
+                value={bulkTrail}
+                onChange={(e) => setBulkTrail(e.target.value)}
+                className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void handleBulkTrail()}
+                disabled={isBulkBusy}
+              >
+                {updateTrailMutation.isPending ? "Saving..." : "Update Trail"}
+              </Button>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setSelectedIds(new Set());
+              setBulkError(null);
+            }}
+            disabled={isBulkBusy}
+            className="sm:ml-auto"
+          >
+            Clear
+          </Button>
+          {bulkError && (
+            <p className="w-full text-xs text-destructive">{bulkError}</p>
+          )}
+        </div>
+      )}
+
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                <th className="w-10 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={allPageSelected}
+                    onChange={togglePage}
+                    aria-label="Select all members on this page"
+                    className="size-4 accent-primary"
+                  />
+                </th>
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Member</th>
                 <th className="px-4 py-3">Contact</th>
@@ -87,7 +235,7 @@ export function MemberTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading members...</span>
@@ -96,7 +244,7 @@ export function MemberTable({
                 </tr>
               ) : members.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Users className="size-8 opacity-40" />
                       <p className="font-medium">No members found</p>
@@ -119,6 +267,15 @@ export function MemberTable({
                       key={item.id}
                       className="transition-colors hover:bg-muted/30"
                     >
+                      <td className="px-4 py-3.5">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(item.id)}
+                          onChange={() => toggleOne(item.id)}
+                          aria-label={`Select ${item.name}`}
+                          className="size-4 accent-primary"
+                        />
+                      </td>
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
                         {slNo}
                       </td>

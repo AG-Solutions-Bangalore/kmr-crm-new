@@ -39,3 +39,13 @@ export interface MemberMutationPayload {
   validity_date?: string;
   status?: MemberStatus | string;
 }
+
+export interface MemberValidityUpdate {
+  id: number | string;
+  validity_date: string;
+}
+
+export interface MemberTrailUpdate {
+  id: number | string;
+  trail: string;
+}

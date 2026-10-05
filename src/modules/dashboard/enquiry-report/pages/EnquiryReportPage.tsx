@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Clock, RefreshCw, MessageSquare, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, Download, RefreshCw, MessageSquare, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -60,6 +60,56 @@ export function EnquiryReportPage() {
   const completeCount = allItems.filter((i) => i.enquiryStatus === "Complete").length;
   const cancelledCount = allItems.filter((i) => i.enquiryStatus === "Cancel").length;
 
+  const handleDownload = () => {
+    if (filtered.length === 0) return;
+    const headers = [
+      "ID",
+      "Name",
+      "Mobile",
+      "Email",
+      "Service",
+      "From",
+      "Message",
+      "UTM Medium",
+      "UTM Source",
+      "UTM Campaign",
+      "Status",
+    ];
+    const escapeCell = (value: unknown) =>
+      `"${String(value ?? "").replace(/"/g, '""')}"`;
+    const lines = [
+      headers.join(","),
+      ...filtered.map((item) =>
+        [
+          item.id,
+          item.enquiryFullName,
+          item.enquiryMobile,
+          item.enquiryEmail,
+          item.enquiryService,
+          item.enquiryFrom,
+          item.enquiryMessage,
+          item.utm_medium,
+          item.utm_source,
+          item.utm_campaign,
+          item.enquiryStatus || "Pending",
+        ]
+          .map(escapeCell)
+          .join(","),
+      ),
+    ];
+    const blob = new Blob([lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `enquiry-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -85,6 +135,16 @@ export function EnquiryReportPage() {
               className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={handleDownload}
+            disabled={isLoading || filtered.length === 0}
+            className="gap-2"
+          >
+            <Download className="size-4" />
+            <span>Download</span>
           </Button>
         </div>
       </div>

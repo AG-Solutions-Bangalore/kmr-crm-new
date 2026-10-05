@@ -115,3 +115,31 @@ export async function fetchTrailMembersPage(
   );
   return parsePaginatedResponse<MemberItem>(data, page, perPage);
 }
+
+export interface MemberValidityUpdate {
+  id: number | string;
+  validity_date: string;
+}
+
+/** PUT /updateMemberValidity — Bulk update member validity dates (raw JSON). */
+export async function updateMemberValidity(
+  memberData: MemberValidityUpdate[],
+): Promise<unknown> {
+  const { data } = await api.put("/updateMemberValidity", { memberData });
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update member validity.");
+  return data;
+}
+
+export interface MemberTrailUpdate {
+  id: number | string;
+  trail: string;
+}
+
+/** PUT /updateMemberTrail — Bulk update member trail flags (raw JSON). */
+export async function updateMemberTrail(
+  memberData: MemberTrailUpdate[],
+): Promise<unknown> {
+  const { data } = await api.put("/updateMemberTrail", { memberData });
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update member trail.");
+  return data;
+}

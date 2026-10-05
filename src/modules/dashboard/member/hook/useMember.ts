@@ -9,8 +9,16 @@ import {
   fetchTrailMembersPage,
   updateMember,
   updateMemberStatus,
+  updateMemberTrail,
+  updateMemberValidity,
 } from "../api/member.api.ts";
-import type { MemberItem, MemberMutationPayload, MemberStatus } from "../types/member.types.ts";
+import type {
+  MemberItem,
+  MemberMutationPayload,
+  MemberStatus,
+  MemberTrailUpdate,
+  MemberValidityUpdate,
+} from "../types/member.types.ts";
 
 export const memberKeys = {
   all: ["members"] as const,
@@ -107,6 +115,46 @@ export function useUpdateMemberStatus() {
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Could not update member status."));
+    },
+  });
+}
+
+export function useUpdateMemberValidity() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (memberData: MemberValidityUpdate[]) =>
+      updateMemberValidity(memberData),
+    onSuccess: (_data, variables) => {
+      toast.success(
+        variables.length > 1
+          ? `Validity updated for ${variables.length} members.`
+          : "Member validity updated.",
+      );
+      void queryClient.invalidateQueries({ queryKey: memberKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not update member validity."));
+    },
+  });
+}
+
+export function useUpdateMemberTrail() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (memberData: MemberTrailUpdate[]) =>
+      updateMemberTrail(memberData),
+    onSuccess: (_data, variables) => {
+      toast.success(
+        variables.length > 1
+          ? `Trail updated for ${variables.length} members.`
+          : "Member trail updated.",
+      );
+      void queryClient.invalidateQueries({ queryKey: memberKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not update member trail."));
     },
   });
 }
