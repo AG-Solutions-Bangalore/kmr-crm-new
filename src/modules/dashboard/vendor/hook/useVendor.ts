@@ -46,10 +46,10 @@ export function useVendors() {
   });
 }
 
-export function useVendorsPage(page: number, perPage: number, search = "") {
+export function useVendorsPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...vendorKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchVendorsPage(page, perPage, search),
+    queryKey: [...vendorKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchVendorsPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

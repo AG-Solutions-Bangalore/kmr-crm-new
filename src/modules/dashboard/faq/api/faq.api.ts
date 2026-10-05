@@ -32,14 +32,15 @@ export async function fetchFaqs(): Promise<FaqItem[]> {
   return [];
 }
 
-/** GET /faq?page=N&per_page=M&search=Q — Server-side paginated FAQs. */
+/** GET /faq?page=N&per_page=M&search=Q&status=S — Server-side paginated FAQs. */
 export async function fetchFaqsPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<FaqItem>> {
   const { data } = await api.get<FaqListResponse | FaqItem[]>(
-    pageQuery("/faq", page, perPage, search),
+    pageQuery("/faq", page, perPage, search, status),
   );
   return parsePaginatedResponse<FaqItem>(data, page, perPage);
 }

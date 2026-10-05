@@ -62,13 +62,27 @@ export function parsePaginatedResponse<T>(
   return { items: [], total: 0, perPage, currentPage: page, lastPage: 1 };
 }
 
-/** Builds `?page=&per_page=` (+ optional `&search=`) for list endpoints. */
+/** Builds `?page=&per_page=` (+ optional `&search=` and `&status=`) for list endpoints. */
 export function pageQuery(
   path: string,
   page: number,
   perPage: number,
   search = "",
+  status = "all",
 ): string {
   const q = search.trim();
-  return `${path}?page=${page}&per_page=${perPage}${q ? `&search=${encodeURIComponent(q)}` : ""}`;
+  const s = status.trim();
+  const lower = s.toLowerCase();
+  const normStatus =
+    lower === "active"
+      ? "Active"
+      : lower === "inactive"
+        ? "Inactive"
+        : lower === "all" || !s
+          ? ""
+          : s.charAt(0).toUpperCase() + s.slice(1);
+  const statusPart = normStatus
+    ? `&status=${encodeURIComponent(normStatus)}`
+    : "";
+  return `${path}?page=${page}&per_page=${perPage}${q ? `&search=${encodeURIComponent(q)}` : ""}${statusPart}`;
 }

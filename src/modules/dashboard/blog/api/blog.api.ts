@@ -20,14 +20,15 @@ export async function fetchBlogs(): Promise<BlogItem[]> {
   return [];
 }
 
-/** GET /blog?page=N&per_page=M&search=Q — Server-side paginated blog posts. */
+/** GET /blog?page=N&per_page=M&search=Q&status=S — Server-side paginated blog posts. */
 export async function fetchBlogsPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<BlogItem>> {
   const { data } = await api.get<BlogListResponse | BlogItem[]>(
-    pageQuery("/blog", page, perPage, search),
+    pageQuery("/blog", page, perPage, search, status),
   );
   return parsePaginatedResponse<BlogItem>(data, page, perPage);
 }

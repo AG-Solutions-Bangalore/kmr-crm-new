@@ -20,14 +20,15 @@ export async function fetchNotifications(): Promise<NotificationItem[]> {
   return [];
 }
 
-/** GET /notification?page=N&per_page=M&search=Q — Server-side paginated notifications. */
+/** GET /notification?page=N&per_page=M&search=Q&status=S — Server-side paginated notifications. */
 export async function fetchNotificationsPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<NotificationItem>> {
   const { data } = await api.get<NotificationListResponse | NotificationItem[]>(
-    pageQuery("/notification", page, perPage, search),
+    pageQuery("/notification", page, perPage, search, status),
   );
   return parsePaginatedResponse<NotificationItem>(data, page, perPage);
 }

@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { normalizePageSlug } from "@/lib/page-slug.ts";
 import { useDeleteFaq, useUpdateFaqStatus } from "../hook/useFaq.ts";
 import type { FaqItem, FaqStatus } from "../types/faq.types.ts";
 
@@ -49,9 +50,6 @@ export function FaqTable({
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FaqItem | null>(null);
-
-  // Search is server-side (?search=); render the loaded page directly.
-  const filtered = faqs;
 
   const handleToggleStatus = async (item: FaqItem) => {
     const nextStatus = item.faq_status === "Active" ? "Inactive" : "Active";
@@ -115,7 +113,7 @@ export function FaqTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : faqs.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -130,7 +128,7 @@ export function FaqTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                faqs.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.faq_status === "Active";
                   const isToggling = togglingId === item.id;
@@ -146,7 +144,7 @@ export function FaqTable({
                       </td>
                       <td className="px-4 py-3.5">
                         <Badge variant="outline" className="font-mono text-xs font-medium">
-                          {item.faq_for}
+                          {normalizePageSlug(item.faq_for)}
                         </Badge>
                       </td>
 
@@ -235,9 +233,9 @@ export function FaqTable({
             <AlertDialogTitle>Delete FAQ group?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete{" "}
-              <span className="font-mono font-semibold text-foreground">
-                {deleteTarget?.faq_for}
-              </span>{" "}
+                <span className="font-mono font-semibold text-foreground">
+                  {normalizePageSlug(deleteTarget?.faq_for)}
+                </span>{" "}
               along with all its questions and answers. This action cannot be
               undone.
             </AlertDialogDescription>

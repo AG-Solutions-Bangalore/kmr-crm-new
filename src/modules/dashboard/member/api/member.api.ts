@@ -19,14 +19,15 @@ export async function fetchMembers(): Promise<MemberItem[]> {
   return [];
 }
 
-/** GET /member?page=N&per_page=M&search=Q — Server-side paginated members. */
+/** GET /member?page=N&per_page=M&search=Q&status=S — Server-side paginated members. */
 export async function fetchMembersPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<MemberItem>> {
   const { data } = await api.get<MemberListResponse | MemberItem[]>(
-    pageQuery("/member", page, perPage, search),
+    pageQuery("/member", page, perPage, search, status),
   );
   return parsePaginatedResponse<MemberItem>(data, page, perPage);
 }
@@ -102,14 +103,15 @@ export async function updateMemberStatus(
   });
 }
 
-/** GET /getTrailMember?page=N&per_page=M&search=Q — Trial members only. */
+/** GET /getTrailMember?page=N&per_page=M&search=Q&status=S — Trial members only. */
 export async function fetchTrailMembersPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<MemberItem>> {
   const { data } = await api.get<MemberListResponse | MemberItem[]>(
-    pageQuery("/getTrailMember", page, perPage, search),
+    pageQuery("/getTrailMember", page, perPage, search, status),
   );
   return parsePaginatedResponse<MemberItem>(data, page, perPage);
 }

@@ -41,10 +41,10 @@ export function useFaqs() {
   });
 }
 
-export function useFaqsPage(page: number, perPage: number, search = "") {
+export function useFaqsPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...faqKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchFaqsPage(page, perPage, search),
+    queryKey: [...faqKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchFaqsPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

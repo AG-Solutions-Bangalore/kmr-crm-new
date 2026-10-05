@@ -38,10 +38,10 @@ export function useTestimonials() {
   });
 }
 
-export function useTestimonialsPage(page: number, perPage: number, search = "") {
+export function useTestimonialsPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...testimonialKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchTestimonialsPage(page, perPage, search),
+    queryKey: [...testimonialKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchTestimonialsPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

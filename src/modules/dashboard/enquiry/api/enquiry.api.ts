@@ -19,14 +19,15 @@ export async function fetchEnquiries(): Promise<EnquiryItem[]> {
   return [];
 }
 
-/** GET /enquiry?page=N&per_page=M&search=Q — Server-side paginated enquiries. */
+/** GET /enquiry?page=N&per_page=M&search=Q&status=S — Server-side paginated enquiries. */
 export async function fetchEnquiriesPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<EnquiryItem>> {
   const { data } = await api.get<EnquiryListResponse | EnquiryItem[]>(
-    pageQuery("/enquiry", page, perPage, search),
+    pageQuery("/enquiry", page, perPage, search, status),
   );
   return parsePaginatedResponse<EnquiryItem>(data, page, perPage);
 }

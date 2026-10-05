@@ -20,14 +20,22 @@ export async function fetchSliders(): Promise<SliderItem[]> {
   return [];
 }
 
-/** GET /slider?page=N&per_page=M&search=Q — Server-side paginated sliders. */
+/** GET /slider?page=N&per_page=M&search=Q&status=S&type=T — Server-side paginated sliders. */
 export async function fetchSlidersPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
+  type = "all",
 ): Promise<PagedResult<SliderItem>> {
+  const base = pageQuery("/slider", page, perPage, search, status);
+  const t = type.trim();
+  const typePart =
+    t && t.toLowerCase() !== "all"
+      ? `&type=${encodeURIComponent(t)}&slider_type=${encodeURIComponent(t)}`
+      : "";
   const { data } = await api.get<SliderListResponse | SliderItem[]>(
-    pageQuery("/slider", page, perPage, search),
+    `${base}${typePart}`,
   );
   return parsePaginatedResponse<SliderItem>(data, page, perPage);
 }

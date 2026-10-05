@@ -73,14 +73,16 @@ export function NewsletterTable({
   return (
     <div className="flex flex-col gap-4">
       {/* Search */}
-      <div className="relative w-full max-w-sm">
-        <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search subscribers by email..."
-          className="pl-8"
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search subscribers by email..."
+            className="pl-8"
+          />
+        </div>
       </div>
 
       {/* Table */}

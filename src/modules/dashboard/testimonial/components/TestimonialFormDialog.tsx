@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { normalizePageSlug } from "@/lib/page-slug.ts";
 import {
   useCreateTestimonial,
   usePageOneOptions,
@@ -38,7 +39,9 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
   const { data: pageOptions = [] } = usePageOneOptions();
 
   const [testimonialFor, setTestimonialFor] = useState(
-    testimonial?.testimonial_for || pageOptions[0]?.page_url || "home",
+    normalizePageSlug(
+      testimonial?.testimonial_for || pageOptions[0]?.page_url || "home",
+    ),
   );
   const [clientName, setClientName] = useState(
     testimonial?.testimonial_client_name || "",
@@ -53,6 +56,26 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
     (testimonial?.testimonial_status as TestimonialStatus) || "Active",
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const pageSlugs = useMemo(
+    () =>
+      pageOptions.map((p) => ({
+        value: normalizePageSlug(p.page_url),
+        label: `${p.page_name} (${normalizePageSlug(p.page_url)})`,
+      })),
+    [pageOptions],
+  );
+
+  // Page options load after mount — default a new record to the first page.
+  useEffect(() => {
+    if (
+      !isEditing &&
+      pageSlugs.length > 0 &&
+      !pageSlugs.some((o) => o.value === testimonialFor)
+    ) {
+      setTestimonialFor(pageSlugs[0].value);
+    }
+  }, [pageSlugs, isEditing, testimonialFor]);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -74,7 +97,7 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
         await updateMutation.mutateAsync({
           id: testimonial.id,
           payload: {
-            testimonial_for: testimonialFor,
+            testimonial_for: normalizePageSlug(testimonialFor),
             testimonial_client_name: clientName.trim(),
             testimonial_description: description.trim(),
             testimonial_rating: Number(rating) || 5,
@@ -83,7 +106,7 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
         });
       } else {
         await createMutation.mutateAsync({
-          testimonial_for: testimonialFor,
+          testimonial_for: normalizePageSlug(testimonialFor),
           testimonial_client_name: clientName.trim(),
           testimonial_description: description.trim(),
           testimonial_rating: Number(rating) || 5,
@@ -125,10 +148,10 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
               onChange={(e) => setTestimonialFor(e.target.value)}
               className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              {pageOptions.length > 0 ? (
-                pageOptions.map((p) => (
-                  <option key={p.page_url} value={p.page_url}>
-                    {p.page_name} ({p.page_url})
+              {pageSlugs.length > 0 ? (
+                pageSlugs.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
                   </option>
                 ))
               ) : (

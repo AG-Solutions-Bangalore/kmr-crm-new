@@ -35,18 +35,8 @@ export function BlogTable({
   onPageChange,
   onEdit,
 }: BlogTableProps) {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateBlogStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
-
-  // Search is server-side (?search=); status filter applies to the loaded page.
-  const filtered = blogs.filter((b) => {
-    return (
-      statusFilter === "all" ||
-      (statusFilter === "active" && b.blog_status === "Active") ||
-      (statusFilter === "inactive" && b.blog_status !== "Active")
-    );
-  });
 
   const handleToggleStatus = async (item: BlogItem) => {
     const nextStatus = item.blog_status === "Active" ? "Inactive" : "Active";
@@ -74,19 +64,6 @@ export function BlogTable({
             className="pl-8"
           />
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Filter:</span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="all">All Posts</option>
-            <option value="active">Active Only</option>
-            <option value="inactive">Inactive Only</option>
-          </select>
-        </div>
       </div>
 
       {/* Table */}
@@ -113,7 +90,7 @@ export function BlogTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : blogs.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -128,7 +105,7 @@ export function BlogTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                blogs.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.blog_status === "Active";
                   const isFeatured = item.blog_featured === "1" || item.blog_featured === 1;

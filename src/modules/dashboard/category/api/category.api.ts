@@ -7,11 +7,17 @@ import type {
   CategoryStatus,
 } from "../types/category.types.ts";
 
-/** GET /category — Fetch all categories (full list for dropdowns). */
-export async function fetchCategories(): Promise<Category[]> {
+/** GET /category — Fetch all categories (full list for dropdowns, server-filtered). */
+export async function fetchCategories(search = "", status = "all"): Promise<Category[]> {
   // Backend paginates (10/page, 158 total) — ask for all for dropdowns.
+  const q = search.trim();
+  const s = status.trim().toLowerCase();
+  const statusPart =
+    s && s !== "all"
+      ? `&status=${encodeURIComponent(s === "active" ? "Active" : s === "inactive" ? "Inactive" : status.trim())}`
+      : "";
   const { data } = await api.get<CategoryListResponse | Category[]>(
-    "/category?per_page=500",
+    `/category?per_page=500${q ? `&search=${encodeURIComponent(q)}` : ""}${statusPart}`,
   );
 
   if (Array.isArray(data)) return data;
@@ -32,15 +38,21 @@ export interface CategoriesPage {
   lastPage: number;
 }
 
-/** GET /category?page=N&per_page=M&search=Q — Server-side paginated categories for the list. */
+/** GET /category?page=N&per_page=M&search=Q&status=S — Server-side paginated categories for the list. */
 export async function fetchCategoriesPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<CategoriesPage> {
   const q = search.trim();
+  const s = status.trim().toLowerCase();
+  const statusPart =
+    s && s !== "all"
+      ? `&status=${encodeURIComponent(s === "active" ? "Active" : s === "inactive" ? "Inactive" : status.trim())}`
+      : "";
   const { data } = await api.get<CategoryListResponse | Category[]>(
-    `/category?page=${page}&per_page=${perPage}${q ? `&search=${encodeURIComponent(q)}` : ""}`,
+    `/category?page=${page}&per_page=${perPage}${q ? `&search=${encodeURIComponent(q)}` : ""}${statusPart}`,
   );
 
   if (Array.isArray(data)) {

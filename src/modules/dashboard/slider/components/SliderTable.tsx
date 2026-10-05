@@ -52,17 +52,8 @@ export function SliderTable({
   onPageChange,
   onEdit,
 }: SliderTableProps) {
-  const [typeFilter, setTypeFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateSliderStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
-
-  // Search is server-side (?search=); type filter applies to the loaded page.
-  const filtered = sliders.filter((s) => {
-    return (
-      typeFilter === "all" ||
-      s.slider_type?.toLowerCase() === typeFilter.toLowerCase()
-    );
-  });
 
   const handleToggleStatus = async (item: SliderItem) => {
     const nextStatus = item.slider_status === "Active" ? "Inactive" : "Active";
@@ -89,19 +80,6 @@ export function SliderTable({
             placeholder="Search by image, URL, or type..."
             className="pl-8"
           />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Type:</span>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="all">All Banners</option>
-            <option value="Home">Home Banners</option>
-            <option value="Category">Category Banners</option>
-          </select>
         </div>
       </div>
 
@@ -131,7 +109,7 @@ export function SliderTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : sliders.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -146,7 +124,7 @@ export function SliderTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((slider, index) => {
+                sliders.map((slider, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = slider.slider_status === "Active";
                   const isToggling = togglingId === slider.id;

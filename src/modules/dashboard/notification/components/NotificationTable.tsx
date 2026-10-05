@@ -35,18 +35,8 @@ export function NotificationTable({
   onPageChange,
   onEdit,
 }: NotificationTableProps) {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateNotificationStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
-
-  // Search is server-side (?search=); status filter applies to the loaded page.
-  const filtered = notifications.filter((n) => {
-    return (
-      statusFilter === "all" ||
-      (statusFilter === "active" && n.notification_status === "Active") ||
-      (statusFilter === "inactive" && n.notification_status !== "Active")
-    );
-  });
 
   const handleToggleStatus = async (item: NotificationItem) => {
     const nextStatus = item.notification_status === "Active" ? "Inactive" : "Active";
@@ -74,19 +64,6 @@ export function NotificationTable({
             className="pl-8"
           />
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Filter:</span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="all">All Alerts</option>
-            <option value="active">Active Only</option>
-            <option value="inactive">Inactive Only</option>
-          </select>
-        </div>
       </div>
 
       {/* Table */}
@@ -113,7 +90,7 @@ export function NotificationTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : notifications.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -128,7 +105,7 @@ export function NotificationTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                notifications.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.notification_status === "Active";
                   const isToggling = togglingId === item.id;

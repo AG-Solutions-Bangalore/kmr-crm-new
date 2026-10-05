@@ -31,14 +31,15 @@ export async function fetchTestimonials(): Promise<TestimonialItem[]> {
   return [];
 }
 
-/** GET /testimonial?page=N&per_page=M&search=Q — Server-side paginated testimonials. */
+/** GET /testimonial?page=N&per_page=M&search=Q&status=S — Server-side paginated testimonials. */
 export async function fetchTestimonialsPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<TestimonialItem>> {
   const { data } = await api.get<TestimonialListResponse | TestimonialItem[]>(
-    pageQuery("/testimonial", page, perPage, search),
+    pageQuery("/testimonial", page, perPage, search, status),
   );
   return parsePaginatedResponse<TestimonialItem>(data, page, perPage);
 }

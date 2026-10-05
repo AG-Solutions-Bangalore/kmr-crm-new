@@ -77,7 +77,6 @@ export function EnquiryTable({
   onSearchChange,
   onPageChange,
 }: EnquiryTableProps) {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateEnquiryStatus();
   const deleteMutation = useDeleteEnquiry();
   const [updatingId, setUpdatingId] = useState<number | null>(null);
@@ -85,14 +84,7 @@ export function EnquiryTable({
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number | null>(null);
 
-  // Search is server-side (?search=); status filter applies to the loaded page.
-  const filtered = enquiries.filter((item) => {
-    const matchesStatus =
-      statusFilter === "all" ||
-      item.enquiryStatus?.toLowerCase() === statusFilter.toLowerCase();
-
-    return matchesStatus;
-  });
+  // Search + status filter are server-side (?search=&status=); render the loaded page directly.
 
   const handleStatusChange = async (item: EnquiryItem, newStatus: EnquiryStatus) => {
     setUpdatingId(item.id);
@@ -143,7 +135,7 @@ export function EnquiryTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Search & Filter */}
+      {/* Search */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -153,20 +145,6 @@ export function EnquiryTable({
             placeholder="Search by name, email, mobile, service..."
             className="pl-8"
           />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Status:</span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="all">All Enquiries</option>
-            <option value="pending">Pending</option>
-            <option value="complete">Complete</option>
-            <option value="cancel">Cancelled</option>
-          </select>
         </div>
       </div>
 
@@ -195,7 +173,7 @@ export function EnquiryTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : enquiries.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -210,7 +188,7 @@ export function EnquiryTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                enquiries.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isUpdating = updatingId === item.id;
                   const mobile = getMobile(item);

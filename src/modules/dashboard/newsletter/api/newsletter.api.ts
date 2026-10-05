@@ -18,14 +18,15 @@ export async function fetchNewsletterSubscribers(): Promise<NewsletterSubscriber
   return [];
 }
 
-/** GET /newsletter?page=N&per_page=M&search=Q — Server-side paginated subscribers. */
+/** GET /newsletter?page=N&per_page=M&search=Q&status=S — Server-side paginated subscribers. */
 export async function fetchNewsletterSubscribersPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<NewsletterSubscriber>> {
   const { data } = await api.get<NewsletterListResponse | NewsletterSubscriber[]>(
-    pageQuery("/newsletter", page, perPage, search),
+    pageQuery("/newsletter", page, perPage, search, status),
   );
   return parsePaginatedResponse<NewsletterSubscriber>(data, page, perPage);
 }

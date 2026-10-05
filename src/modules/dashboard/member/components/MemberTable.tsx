@@ -38,8 +38,7 @@ export function MemberTable({
   const updateStatusMutation = useUpdateMemberStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  // Search is server-side (?search=); render the loaded page directly.
-  const filtered = members;
+  // Search + status filter are server-side (?search=&status=); render the loaded page directly.
 
   const handleToggleStatus = async (item: MemberItem) => {
     const nextStatus = item.status === "Active" ? "Inactive" : "Active";
@@ -57,7 +56,7 @@ export function MemberTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -95,7 +94,7 @@ export function MemberTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : members.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -110,7 +109,7 @@ export function MemberTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                members.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.status === "Active";
                   const isToggling = togglingId === item.id;

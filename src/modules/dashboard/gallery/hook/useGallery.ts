@@ -25,10 +25,10 @@ export function useGalleryList() {
   });
 }
 
-export function useGalleryPage(page: number, perPage: number, search = "") {
+export function useGalleryPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...galleryKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchGalleryPage(page, perPage, search),
+    queryKey: [...galleryKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchGalleryPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

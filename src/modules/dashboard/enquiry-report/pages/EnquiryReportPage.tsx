@@ -25,11 +25,13 @@ export function EnquiryReportPage() {
 
   const { data: allItems = [], isLoading, error, refetch, isFetching } = useEnquiryReport();
 
-  // Report API returns the full list — filter + paginate client-side.
+  // Report API returns the full list — filter + paginate client-side as a
+  // fallback in case the backend ignores search params.
   const q = search.toLowerCase();
-  const filtered = q
-    ? allItems.filter((item) =>
-        [
+  const filtered = allItems.filter((item) => {
+    const matchesSearch = !q
+      ? true
+      : [
           item.enquiryFullName,
           item.enquiryMobile,
           item.enquiryEmail,
@@ -40,9 +42,9 @@ export function EnquiryReportPage() {
           .filter(Boolean)
           .join(" ")
           .toLowerCase()
-          .includes(q),
-      )
-    : allItems;
+          .includes(q);
+    return matchesSearch;
+  });
 
   const totalCount = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));

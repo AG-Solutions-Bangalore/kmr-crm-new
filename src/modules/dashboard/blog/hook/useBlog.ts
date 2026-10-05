@@ -25,10 +25,10 @@ export function useBlogs() {
   });
 }
 
-export function useBlogsPage(page: number, perPage: number, search = "") {
+export function useBlogsPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...blogKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchBlogsPage(page, perPage, search),
+    queryKey: [...blogKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchBlogsPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

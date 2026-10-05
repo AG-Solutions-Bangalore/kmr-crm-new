@@ -19,18 +19,18 @@ export const categoryKeys = {
   detail: (id: number | string) => [...categoryKeys.all, "detail", id] as const,
 };
 
-export function useCategories() {
+export function useCategories(search = "", status = "all") {
   return useQuery({
-    queryKey: categoryKeys.list(),
-    queryFn: fetchCategories,
+    queryKey: [...categoryKeys.all, "list", search, status] as const,
+    queryFn: () => fetchCategories(search, status),
     retry: 1,
   });
 }
 
-export function useCategoriesPage(page: number, perPage: number, search = "") {
+export function useCategoriesPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...categoryKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchCategoriesPage(page, perPage, search),
+    queryKey: [...categoryKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchCategoriesPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

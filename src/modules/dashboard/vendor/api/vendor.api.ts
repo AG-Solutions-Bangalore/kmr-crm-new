@@ -22,14 +22,15 @@ export async function fetchVendors(): Promise<Vendor[]> {
   return [];
 }
 
-/** GET /vendor?page=N&per_page=M&search=Q — Server-side paginated vendors. */
+/** GET /vendor?page=N&per_page=M&search=Q&status=S — Server-side paginated vendors. */
 export async function fetchVendorsPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<Vendor>> {
   const { data } = await api.get<VendorListResponse | Vendor[]>(
-    pageQuery("/vendor", page, perPage, search),
+    pageQuery("/vendor", page, perPage, search, status),
   );
   return parsePaginatedResponse<Vendor>(data, page, perPage);
 }

@@ -6,11 +6,11 @@ export const enquiryReportKeys = {
   list: () => [...enquiryReportKeys.all, "list"] as const,
 };
 
-/** Full enquiry report from GET /getEnquiryReport. */
-export function useEnquiryReport() {
+/** Full enquiry report from GET /getEnquiryReport (server-side search + status). */
+export function useEnquiryReport(search = "", status = "all") {
   return useQuery({
-    queryKey: enquiryReportKeys.list(),
-    queryFn: fetchEnquiryReport,
+    queryKey: [...enquiryReportKeys.all, "list", search, status] as const,
+    queryFn: () => fetchEnquiryReport(search, status),
     retry: 1,
   });
 }

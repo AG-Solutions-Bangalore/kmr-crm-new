@@ -24,10 +24,10 @@ export function useEnquiries() {
   });
 }
 
-export function useEnquiriesPage(page: number, perPage: number, search = "") {
+export function useEnquiriesPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...enquiryKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchEnquiriesPage(page, perPage, search),
+    queryKey: [...enquiryKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchEnquiriesPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

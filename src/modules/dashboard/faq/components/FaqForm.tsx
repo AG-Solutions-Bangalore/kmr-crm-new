@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { normalizePageSlug } from "@/lib/page-slug.ts";
 import {
   useCreateFaq,
   useDeleteFaqSub,
@@ -26,7 +27,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   const { data: pageOptions = [] } = usePageTwoOptions();
 
   const [faqFor, setFaqFor] = useState(
-    faq?.faq_for || pageOptions[0]?.page_two_url || "home",
+    normalizePageSlug(faq?.faq_for || pageOptions[0]?.page_two_url || "home"),
   );
   const [status, setStatus] = useState<FaqStatus>(
     (faq?.faq_status as FaqStatus) || "Active",
@@ -49,6 +50,26 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   // PUT /faq/:id does NOT auto-delete missing subs — they must be
   // explicitly removed via DELETE /faq-sub/:id on save.
   const [removedSubIds, setRemovedSubIds] = useState<(number | string)[]>([]);
+
+  const pageSlugs = useMemo(
+    () =>
+      pageOptions.map((p) => ({
+        value: normalizePageSlug(p.page_two_url),
+        label: `${p.page_two_name} (${normalizePageSlug(p.page_two_url)})`,
+      })),
+    [pageOptions],
+  );
+
+  // Page options load after mount — default a new record to the first page.
+  useEffect(() => {
+    if (
+      !isEditing &&
+      pageSlugs.length > 0 &&
+      !pageSlugs.some((o) => o.value === faqFor)
+    ) {
+      setFaqFor(pageSlugs[0].value);
+    }
+  }, [pageSlugs, isEditing, faqFor]);
 
   const isPending =
     createMutation.isPending ||
@@ -111,7 +132,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
         await updateMutation.mutateAsync({
           id: faq.id,
           payload: {
-            faq_for: faqFor,
+            faq_for: normalizePageSlug(faqFor),
             faq_status: status,
             subs: subs.map((s, idx) => ({
               id: s.id,
@@ -133,7 +154,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
         }
       } else {
         await createMutation.mutateAsync({
-          faq_for: faqFor,
+          faq_for: normalizePageSlug(faqFor),
           subs: subs.map((s, idx) => ({
             faq_sort: s.faq_sort ?? idx + 1,
             faq_heading: s.faq_heading || "General",
@@ -179,10 +200,10 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
               onChange={(e) => setFaqFor(e.target.value)}
               className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              {pageOptions.length > 0 ? (
-                pageOptions.map((p) => (
-                  <option key={p.page_two_url} value={p.page_two_url}>
-                    {p.page_two_name} ({p.page_two_url})
+              {pageSlugs.length > 0 ? (
+                pageSlugs.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
                   </option>
                 ))
               ) : (

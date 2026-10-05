@@ -20,14 +20,15 @@ export async function fetchGallery(): Promise<GalleryItem[]> {
   return [];
 }
 
-/** GET /gallery?page=N&per_page=M&search=Q — Server-side paginated gallery images. */
+/** GET /gallery?page=N&per_page=M&search=Q&status=S — Server-side paginated gallery images. */
 export async function fetchGalleryPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<GalleryItem>> {
   const { data } = await api.get<GalleryListResponse | GalleryItem[]>(
-    pageQuery("/gallery", page, perPage, search),
+    pageQuery("/gallery", page, perPage, search, status),
   );
   return parsePaginatedResponse<GalleryItem>(data, page, perPage);
 }

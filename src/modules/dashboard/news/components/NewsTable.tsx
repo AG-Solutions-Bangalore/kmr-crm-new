@@ -35,18 +35,10 @@ export function NewsTable({
   onPageChange,
   onEdit,
 }: NewsTableProps) {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateNewsStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  // Search is server-side (?search=); status filter applies to the loaded page.
-  const filtered = articles.filter((a) => {
-    return (
-      statusFilter === "all" ||
-      (statusFilter === "active" && a.news_status === "Active") ||
-      (statusFilter === "inactive" && a.news_status !== "Active")
-    );
-  });
+  // Search is server-side (?search=); render the loaded page directly.
 
   const handleToggleStatus = async (item: NewsItem) => {
     const nextStatus = item.news_status === "Active" ? "Inactive" : "Active";
@@ -73,19 +65,6 @@ export function NewsTable({
             placeholder="Search news by headline, details, or category..."
             className="pl-8"
           />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Filter:</span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="all">All Articles</option>
-            <option value="active">Active Only</option>
-            <option value="inactive">Inactive Only</option>
-          </select>
         </div>
       </div>
 
@@ -114,7 +93,7 @@ export function NewsTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : articles.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -129,7 +108,7 @@ export function NewsTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                articles.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.news_status === "Active";
                   const isToggling = togglingId === item.id;

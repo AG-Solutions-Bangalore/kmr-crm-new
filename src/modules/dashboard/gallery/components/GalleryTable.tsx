@@ -84,8 +84,7 @@ export function GalleryTable({
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
-  // Search is server-side (?search=); the loaded page is rendered as-is.
-  const filtered = galleryItems;
+  // Search + status filter are server-side (?search=&status=); the loaded page is rendered as-is.
 
   const handleCopyUrl = async (item: GalleryItem) => {
     const text = galleryImageUrl(item);
@@ -122,7 +121,7 @@ export function GalleryTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -158,7 +157,7 @@ export function GalleryTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : galleryItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -173,7 +172,7 @@ export function GalleryTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                galleryItems.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.gallery_status === "Active";
                   const isToggling = togglingId === item.id;

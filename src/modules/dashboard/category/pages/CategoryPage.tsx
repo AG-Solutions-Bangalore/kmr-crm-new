@@ -19,7 +19,7 @@ const PAGE_SIZE = 10;
 type CategoryTab = "parent" | "sub";
 
 function isRootCategory(c: Category): boolean {
-  return c.parent_id === null || c.parent_id === undefined || c.parent_id === "";
+  return c.parent_id === null || c.parent_id === undefined || c.parent_id === "" || c.parent_id === "0" || c.parent_id === 0;
 }
 
 export function CategoryPage() {
@@ -28,23 +28,14 @@ export function CategoryPage() {
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
 
-  const { data: allItems = [], isLoading, error, refetch, isFetching } = useCategories();
+  const { data: allItems = [], isLoading, error, refetch, isFetching } = useCategories(search);
 
   const parents = useMemo(() => allItems.filter(isRootCategory), [allItems]);
   const subs = useMemo(() => allItems.filter((c) => !isRootCategory(c)), [allItems]);
 
   const tabItems = tab === "parent" ? parents : subs;
 
-  const q = search.toLowerCase();
-  const filtered = q
-    ? tabItems.filter((c) =>
-        [c.categories_name, c.categories_slug, String(c.parent_id ?? "")]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(q),
-      )
-    : tabItems;
+  const filtered = tabItems;
 
   const totalCount = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { normalizePageSlug } from "@/lib/page-slug.ts";
 import { useUpdateTestimonialStatus } from "../hook/useTestimonial.ts";
 import type { TestimonialItem, TestimonialStatus } from "../types/testimonial.types.ts";
 
@@ -37,8 +38,7 @@ export function TestimonialTable({
   const updateStatusMutation = useUpdateTestimonialStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  // Search is server-side (?search=); render the loaded page directly.
-  const filtered = testimonials;
+  // Search + status filter are server-side (?search=&status=); render the loaded page directly.
 
   const handleToggleStatus = async (item: TestimonialItem) => {
     const nextStatus = item.testimonial_status === "Active" ? "Inactive" : "Active";
@@ -55,7 +55,7 @@ export function TestimonialTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -93,7 +93,7 @@ export function TestimonialTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : testimonials.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -108,7 +108,7 @@ export function TestimonialTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                testimonials.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.testimonial_status === "Active";
                   const isToggling = togglingId === item.id;
@@ -130,7 +130,7 @@ export function TestimonialTable({
 
                       <td className="px-4 py-3.5">
                         <Badge variant="outline" className="font-mono text-xs">
-                          {item.testimonial_for}
+                          {normalizePageSlug(item.testimonial_for)}
                         </Badge>
                       </td>
 

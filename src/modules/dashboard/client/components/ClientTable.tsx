@@ -38,7 +38,6 @@ export function ClientTable({
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
   // Search is server-side (?search=); render the loaded page directly.
-  const filtered = clients;
 
   const handleToggleStatus = async (item: ClientItem) => {
     const nextStatus = item.clients_status === "Active" ? "Inactive" : "Active";
@@ -91,7 +90,7 @@ export function ClientTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : clients.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -106,7 +105,7 @@ export function ClientTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
+                clients.map((item, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.clients_status === "Active";
                   const isToggling = togglingId === item.id;

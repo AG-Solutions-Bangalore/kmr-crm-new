@@ -20,14 +20,15 @@ export async function fetchNews(): Promise<NewsItem[]> {
   return [];
 }
 
-/** GET /news?page=N&per_page=M&search=Q — Server-side paginated news items. */
+/** GET /news?page=N&per_page=M&search=Q&status=S — Server-side paginated news items. */
 export async function fetchNewsPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<NewsItem>> {
   const { data } = await api.get<NewsListResponse | NewsItem[]>(
-    pageQuery("/news", page, perPage, search),
+    pageQuery("/news", page, perPage, search, status),
   );
   return parsePaginatedResponse<NewsItem>(data, page, perPage);
 }

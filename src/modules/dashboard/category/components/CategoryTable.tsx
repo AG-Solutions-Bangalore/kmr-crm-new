@@ -41,19 +41,10 @@ export function CategoryTable({
   onPageChange,
   onEdit,
 }: CategoryTableProps) {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  // Search is server-side (?search=); status filter applies to the loaded page.
-  const filtered = categories.filter((cat) => {
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && cat.categories_status === "Active") ||
-      (statusFilter === "inactive" && cat.categories_status !== "Active");
-
-    return matchesStatus;
-  });
+  // Search is server-side (?search=); render the categories prop directly.
 
   const handleToggleStatus = async (cat: Category) => {
     const nextStatus = cat.categories_status === "Active" ? "Inactive" : "Active";
@@ -80,19 +71,6 @@ export function CategoryTable({
             placeholder="Search categories by name or slug..."
             className="pl-8"
           />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Filter:</span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="all">All Categories</option>
-            <option value="active">Active Only</option>
-            <option value="inactive">Inactive Only</option>
-          </select>
         </div>
       </div>
 
@@ -121,7 +99,7 @@ export function CategoryTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : categories.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -136,7 +114,7 @@ export function CategoryTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((cat, index) => {
+                categories.map((cat, index) => {
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = cat.categories_status === "Active";
                   const isToggling = togglingId === cat.id;

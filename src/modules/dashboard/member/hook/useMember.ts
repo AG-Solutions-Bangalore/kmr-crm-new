@@ -26,19 +26,19 @@ export function useMembers() {
   });
 }
 
-export function useMembersPage(page: number, perPage: number, search = "") {
+export function useMembersPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...memberKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchMembersPage(page, perPage, search),
+    queryKey: [...memberKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchMembersPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });
 }
 
-export function useTrailMembersPage(page: number, perPage: number, search = "") {
+export function useTrailMembersPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...memberKeys.all, "trail", page, perPage, search] as const,
-    queryFn: () => fetchTrailMembersPage(page, perPage, search),
+    queryKey: [...memberKeys.all, "trail", page, perPage, search, status] as const,
+    queryFn: () => fetchTrailMembersPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

@@ -25,10 +25,10 @@ export function useNotifications() {
   });
 }
 
-export function useNotificationsPage(page: number, perPage: number, search = "") {
+export function useNotificationsPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...notificationKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchNotificationsPage(page, perPage, search),
+    queryKey: [...notificationKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchNotificationsPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

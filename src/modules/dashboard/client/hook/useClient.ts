@@ -25,10 +25,10 @@ export function useClients() {
   });
 }
 
-export function useClientsPage(page: number, perPage: number, search = "") {
+export function useClientsPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...clientKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchClientsPage(page, perPage, search),
+    queryKey: [...clientKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchClientsPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

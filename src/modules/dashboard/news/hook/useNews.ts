@@ -25,10 +25,10 @@ export function useNews() {
   });
 }
 
-export function useNewsPage(page: number, perPage: number, search = "") {
+export function useNewsPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...newsKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchNewsPage(page, perPage, search),
+    queryKey: [...newsKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchNewsPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

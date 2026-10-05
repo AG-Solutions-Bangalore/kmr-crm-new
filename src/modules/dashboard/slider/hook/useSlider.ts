@@ -25,10 +25,10 @@ export function useSliders() {
   });
 }
 
-export function useSlidersPage(page: number, perPage: number, search = "") {
+export function useSlidersPage(page: number, perPage: number, search = "", status = "all", type = "all") {
   return useQuery({
-    queryKey: [...sliderKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchSlidersPage(page, perPage, search),
+    queryKey: [...sliderKeys.all, "page", page, perPage, search, status, type] as const,
+    queryFn: () => fetchSlidersPage(page, perPage, search, status, type),
     retry: 1,
     placeholderData: keepPreviousData,
   });

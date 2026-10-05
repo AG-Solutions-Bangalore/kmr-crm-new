@@ -20,10 +20,10 @@ export function useNewsletterSubscribers() {
   });
 }
 
-export function useNewsletterSubscribersPage(page: number, perPage: number, search = "") {
+export function useNewsletterSubscribersPage(page: number, perPage: number, search = "", status = "all") {
   return useQuery({
-    queryKey: [...newsletterKeys.all, "page", page, perPage, search] as const,
-    queryFn: () => fetchNewsletterSubscribersPage(page, perPage, search),
+    queryKey: [...newsletterKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchNewsletterSubscribersPage(page, perPage, search, status),
     retry: 1,
     placeholderData: keepPreviousData,
   });

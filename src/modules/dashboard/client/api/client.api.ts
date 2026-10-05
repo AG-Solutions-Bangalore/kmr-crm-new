@@ -20,14 +20,15 @@ export async function fetchClients(): Promise<ClientItem[]> {
   return [];
 }
 
-/** GET /client?page=N&per_page=M&search=Q — Server-side paginated clients. */
+/** GET /client?page=N&per_page=M&search=Q&status=S — Server-side paginated clients. */
 export async function fetchClientsPage(
   page = 1,
   perPage = 10,
   search = "",
+  status = "all",
 ): Promise<PagedResult<ClientItem>> {
   const { data } = await api.get<ClientListResponse | ClientItem[]>(
-    pageQuery("/client", page, perPage, search),
+    pageQuery("/client", page, perPage, search, status),
   );
   return parsePaginatedResponse<ClientItem>(data, page, perPage);
 }
