@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, FolderTree, Plus, RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { AlertCircle, FolderTree, GitBranch, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -8,45 +8,57 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
 import { CategoryFormDialog } from "../components/CategoryFormDialog.tsx";
 import { CategoryTable } from "../components/CategoryTable.tsx";
-import { useCategoriesPage } from "../hook/useCategory.ts";
+import { useCategories } from "../hook/useCategory.ts";
 import type { Category } from "../types/category.types.ts";
 
 const PAGE_SIZE = 10;
 
+type CategoryTab = "parent" | "sub";
+
+function isRootCategory(c: Category): boolean {
+  return !c.parent_id || c.parent_id === 0 || c.parent_id === "0";
+}
+
 export function CategoryPage() {
+  const [tab, setTab] = useState<CategoryTab>("parent");
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  const search = useDebouncedValue(searchInput.trim(), 400);
 
-  // Debounce search → server query (avoids a request per keystroke).
+  const { data: allItems = [], isLoading, error, refetch, isFetching } = useCategories();
+
+  const parents = useMemo(() => allItems.filter(isRootCategory), [allItems]);
+  const subs = useMemo(() => allItems.filter((c) => !isRootCategory(c)), [allItems]);
+
+  const tabItems = tab === "parent" ? parents : subs;
+
+  const q = search.toLowerCase();
+  const filtered = q
+    ? tabItems.filter((c) =>
+        [c.categories_name, c.categories_slug, String(c.parent_id ?? "")]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(q),
+      )
+    : tabItems;
+
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
   useEffect(() => {
-    const t = setTimeout(() => {
-      setSearch(searchInput.trim());
-      setPage(1);
-    }, 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
+    setPage(1);
+  }, [search, tab]);
 
-  const {
-    data,
-    isLoading,
-    isFetching,
-    error,
-    refetch,
-  } = useCategoriesPage(page, PAGE_SIZE, search);
-
-  const categories = data?.items ?? [];
-  const totalCount = data?.total ?? 0;
-  const totalPages = data?.lastPage ?? 1;
-
-  // Clamp page if total shrinks (e.g. deleted last item on last page).
   useEffect(() => {
-    if (totalPages > 0 && page > totalPages) {
-      setPage(totalPages);
-    }
+    if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
+
+  const start = (page - 1) * PAGE_SIZE;
+  const paged = filtered.slice(start, start + PAGE_SIZE);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -60,9 +72,6 @@ export function CategoryPage() {
     setSelectedCategory(category);
     setDialogOpen(true);
   };
-
-  const activeCount = categories.filter((c) => c.categories_status === "Active").length;
-  const inactiveCount = categories.length - activeCount;
 
   return (
     <div className="flex flex-col gap-6">
@@ -138,7 +147,7 @@ export function CategoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : totalCount}
+              {isLoading ? "—" : allItems.length}
             </div>
           </CardContent>
         </Card>
@@ -146,35 +155,53 @@ export function CategoryPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              Active Categories
+              Parent Categories
             </CardTitle>
-            <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            <FolderTree className="size-4 text-emerald-600 dark:text-emerald-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : activeCount}
+              {isLoading ? "—" : parents.length}
             </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Inactive Categories
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-primary">
+              Sub Categories
             </CardTitle>
-            <FolderTree className="size-4 text-muted-foreground opacity-60" />
+            <GitBranch className="size-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : inactiveCount}
+              {isLoading ? "—" : subs.length}
             </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Tabs */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant={tab === "parent" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setTab("parent")}
+        >
+          Categories{isLoading ? "" : ` (${parents.length})`}
+        </Button>
+        <Button
+          variant={tab === "sub" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setTab("sub")}
+        >
+          Sub Categories{isLoading ? "" : ` (${subs.length})`}
+        </Button>
+      </div>
+
       {/* Categories Table */}
       <CategoryTable
-        categories={categories}
+        categories={paged}
         isLoading={isLoading}
         isFetching={isFetching}
         page={page}
