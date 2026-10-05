@@ -2,7 +2,6 @@ import {
   Bell,
   FileText,
   FolderTree,
-  Globe,
   HelpCircle,
   Images,
   LayoutDashboard,

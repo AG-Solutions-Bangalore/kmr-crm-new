@@ -27,7 +27,7 @@ export function RichTextEditor({ id, value, onChange }: RichTextEditorProps) {
           // so the check is disabled — the editor itself is unaffected.
           versionCheck: false,
         }}
-        onChange={({ editor }) => {
+        onChange={({ editor }: { editor: { getData: () => string } }) => {
           onChange(editor.getData());
         }}
       />
