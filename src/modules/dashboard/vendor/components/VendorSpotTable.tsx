@@ -65,6 +65,7 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Vendor</th>
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Spot</th>
@@ -76,7 +77,7 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading vendor spot quotes...</span>
@@ -85,7 +86,7 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Sparkles className="size-8 opacity-40 text-sky-500" />
                       <p className="font-medium">No spot quotes found</p>
@@ -98,7 +99,8 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => {
+                filtered.map((item, index) => {
+                  const slNo = index + 1;
                   const isActive = item.vendor_spot_status === "Active";
                   const isToggling = togglingId === item.id;
 
@@ -107,6 +109,9 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                       key={item.id}
                       className="transition-colors hover:bg-muted/30"
                     >
+                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
+                        {slNo}
+                      </td>
                       <td className="px-4 py-3.5">
                         <div className="flex flex-col gap-0.5">
                           <p className="font-medium text-foreground">

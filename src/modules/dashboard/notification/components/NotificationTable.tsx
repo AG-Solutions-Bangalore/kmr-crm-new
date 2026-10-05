@@ -94,6 +94,7 @@ export function NotificationTable({
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Notification Alert</th>
                 <th className="px-4 py-3">Schedule Date</th>
                 <th className="px-4 py-3">Attached Image</th>
@@ -104,7 +105,7 @@ export function NotificationTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading notifications...</span>
@@ -113,7 +114,7 @@ export function NotificationTable({
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Bell className="size-8 opacity-40" />
                       <p className="font-medium">No notifications found</p>
@@ -126,7 +127,8 @@ export function NotificationTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => {
+                filtered.map((item, index) => {
+                  const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.notification_status === "Active";
                   const isToggling = togglingId === item.id;
 
@@ -135,6 +137,9 @@ export function NotificationTable({
                       key={item.id}
                       className="transition-colors hover:bg-muted/30"
                     >
+                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
+                        {slNo}
+                      </td>
                       <td className="px-4 py-3.5 max-w-sm">
                         <div className="flex items-start gap-3">
                           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">

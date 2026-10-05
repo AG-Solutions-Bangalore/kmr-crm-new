@@ -117,6 +117,7 @@ export function VendorTable({
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Vendor</th>
                 <th className="px-4 py-3">Trade</th>
                 <th className="px-4 py-3">Contact</th>
@@ -128,7 +129,7 @@ export function VendorTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading vendors...</span>
@@ -137,7 +138,7 @@ export function VendorTable({
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Store className="size-8 opacity-40" />
                       <p className="font-medium">No vendors found</p>
@@ -150,7 +151,8 @@ export function VendorTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((vendor) => {
+                filtered.map((vendor, index) => {
+                  const slNo = (page - 1) * perPage + index + 1;
                   const isActive = vendor.vendor_status === "Active";
                   const isToggling = togglingId === vendor.id;
 
@@ -159,6 +161,9 @@ export function VendorTable({
                       key={vendor.id}
                       className="transition-colors hover:bg-muted/30"
                     >
+                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
+                        {slNo}
+                      </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <VendorThumb filename={vendor.vendor_image} name={vendor.vendor_name} />

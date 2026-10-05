@@ -102,6 +102,7 @@ export function CategoryTable({
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Slug</th>
                 <th className="px-4 py-3">Parent ID</th>
@@ -113,7 +114,7 @@ export function CategoryTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading categories...</span>
@@ -122,7 +123,7 @@ export function CategoryTable({
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FolderTree className="size-8 opacity-40" />
                       <p className="font-medium">No categories found</p>
@@ -135,7 +136,8 @@ export function CategoryTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((cat) => {
+                filtered.map((cat, index) => {
+                  const slNo = (page - 1) * perPage + index + 1;
                   const isActive = cat.categories_status === "Active";
                   const isToggling = togglingId === cat.id;
 
@@ -144,6 +146,9 @@ export function CategoryTable({
                       key={cat.id}
                       className="transition-colors hover:bg-muted/30"
                     >
+                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
+                        {slNo}
+                      </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">

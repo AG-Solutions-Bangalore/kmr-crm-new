@@ -82,6 +82,7 @@ export function VendorRateTable({
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Product Name</th>
                 <th className="px-4 py-3">Size / Unit</th>
                 <th className="px-4 py-3">Rate</th>
@@ -93,7 +94,7 @@ export function VendorRateTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading {type === "live" ? "live" : "standard"} rates...</span>
@@ -102,7 +103,7 @@ export function VendorRateTable({
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <IndianRupee className="size-8 text-muted-foreground/40" />
                       <p className="font-medium text-foreground">
@@ -117,7 +118,8 @@ export function VendorRateTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => {
+                filtered.map((item, index) => {
+                  const slNo = index + 1;
                   const isActive =
                     item.vendor_product_status === "Active" ||
                     (item as { status?: string }).status === "Active" ||
@@ -128,6 +130,9 @@ export function VendorRateTable({
                       key={item.id}
                       className="transition-colors hover:bg-muted/30"
                     >
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {slNo}
+                      </td>
                       <td className="px-4 py-3 font-medium text-foreground">
                         {item.vendor_product}
                       </td>
