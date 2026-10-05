@@ -4,10 +4,12 @@ import { ChangePasswordPage } from "./modules/auth/login/pages/ChangePasswordPag
 import { ForgotPasswordPage } from "./modules/auth/login/pages/ForgotPasswordPage.tsx";
 import { LoginPage } from "./modules/auth/login/pages/LoginPage.tsx";
 import { BlogPage } from "./modules/dashboard/blog/pages/BlogPage.tsx";
+import { BlogFormPage } from "./modules/dashboard/blog/pages/BlogFormPage.tsx";
 import { CategoryPage } from "./modules/dashboard/category/pages/CategoryPage.tsx";
 import { ClientPage } from "./modules/dashboard/client/pages/ClientPage.tsx";
 import { EnquiryPage } from "./modules/dashboard/enquiry/pages/EnquiryPage.tsx";
 import { FaqPage } from "./modules/dashboard/faq/pages/FaqPage.tsx";
+import { FaqFormPage } from "./modules/dashboard/faq/pages/FaqFormPage.tsx";
 import { GalleryPage } from "./modules/dashboard/gallery/pages/GalleryPage.tsx";
 import { NewsPage } from "./modules/dashboard/news/pages/NewsPage.tsx";
 import { NewsletterPage } from "./modules/dashboard/newsletter/pages/NewsletterPage.tsx";
@@ -65,6 +67,16 @@ export const dashboardRoutes: AppRoute[] = [
     element: <BlogPage />,
   },
   {
+    path: PATHS.blogNew,
+    title: "Create Blog Post",
+    element: <BlogFormPage />,
+  },
+  {
+    path: PATHS.blogEdit,
+    title: "Edit Blog Post",
+    element: <BlogFormPage />,
+  },
+  {
     path: PATHS.gallery,
     title: "Gallery",
     element: <GalleryPage />,
@@ -88,6 +100,16 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.faq,
     title: "FAQs",
     element: <FaqPage />,
+  },
+  {
+    path: PATHS.faqNew,
+    title: "Create FAQ",
+    element: <FaqFormPage />,
+  },
+  {
+    path: PATHS.faqEdit,
+    title: "Edit FAQ",
+    element: <FaqFormPage />,
   },
   {
     path: PATHS.testimonial,

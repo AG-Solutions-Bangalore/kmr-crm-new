@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AlertCircle, CheckCircle2, HelpCircle, Plus, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
-import { FaqFormDialog } from "../components/FaqFormDialog.tsx";
+import { PATHS } from "@/constants/paths.ts";
 import { FaqTable } from "../components/FaqTable.tsx";
 import { useFaqsPage } from "../hook/useFaq.ts";
 import type { FaqItem } from "../types/faq.types.ts";
@@ -17,6 +18,7 @@ import type { FaqItem } from "../types/faq.types.ts";
 const PAGE_SIZE = 10;
 
 export function FaqPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -39,17 +41,12 @@ export function FaqPage() {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedFaq, setSelectedFaq] = useState<FaqItem | null>(null);
-
   const handleOpenCreate = () => {
-    setSelectedFaq(null);
-    setDialogOpen(true);
+    navigate(PATHS.faqNew);
   };
 
   const handleOpenEdit = (faq: FaqItem) => {
-    setSelectedFaq(faq);
-    setDialogOpen(true);
+    navigate(`${PATHS.faq}/${faq.id}/edit`);
   };
 
   const totalFaqs = totalCount;
@@ -186,13 +183,6 @@ export function FaqPage() {
         onSearchChange={setSearchInput}
         onPageChange={setPage}
         onEdit={handleOpenEdit}
-      />
-
-      {/* Add / Edit Dialog */}
-      <FaqFormDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        faq={selectedFaq}
       />
     </div>
   );

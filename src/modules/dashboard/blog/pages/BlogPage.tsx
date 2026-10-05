@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AlertCircle, CheckCircle2, FileText, Plus, RefreshCw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
-import { BlogFormDialog } from "../components/BlogFormDialog.tsx";
+import { PATHS } from "@/constants/paths.ts";
 import { BlogTable } from "../components/BlogTable.tsx";
 import { useBlogsPage } from "../hook/useBlog.ts";
 import type { BlogItem } from "../types/blog.types.ts";
@@ -17,6 +18,7 @@ import type { BlogItem } from "../types/blog.types.ts";
 const PAGE_SIZE = 10;
 
 export function BlogPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -35,17 +37,12 @@ export function BlogPage() {
   const totalCount = data?.total ?? 0;
   const totalPages = data?.lastPage ?? 1;
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedBlog, setSelectedBlog] = useState<BlogItem | null>(null);
-
   const handleOpenCreate = () => {
-    setSelectedBlog(null);
-    setDialogOpen(true);
+    navigate(PATHS.blogNew);
   };
 
   const handleOpenEdit = (blog: BlogItem) => {
-    setSelectedBlog(blog);
-    setDialogOpen(true);
+    navigate(`${PATHS.blog}/${blog.id}/edit`);
   };
 
   const activeCount = blogs.filter((b) => b.blog_status === "Active").length;
@@ -166,13 +163,6 @@ export function BlogPage() {
         onSearchChange={setSearchInput}
         onPageChange={setPage}
         onEdit={handleOpenEdit}
-      />
-
-      {/* Add / Edit Dialog */}
-      <BlogFormDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        blog={selectedBlog}
       />
     </div>
   );

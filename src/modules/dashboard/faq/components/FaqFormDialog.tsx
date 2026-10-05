@@ -319,7 +319,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   );
 }
 
-function FaqFormContainer({
+export function FaqFormContainer({
   faqId,
   initialFaq,
   onClose,

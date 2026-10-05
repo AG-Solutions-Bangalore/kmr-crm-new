@@ -417,7 +417,7 @@ export function BlogFormDialog({
   );
 }
 
-function BlogFormContainer({
+export function BlogFormContainer({
   blogId,
   initialBlog,
   onClose,
