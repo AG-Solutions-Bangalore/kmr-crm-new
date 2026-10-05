@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
 import {
   useActiveVendors,
   useCreateVendorSpot,
@@ -186,25 +187,20 @@ function VendorSpotFormContent({ spot, onClose }: InnerFormProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="sp-cat">Category</Label>
-            <select
+            <SearchableSelect
               id="sp-cat"
               value={categoryId}
-              onChange={(e) => {
-                setCategoryId(e.target.value);
+              onChange={(val) => {
+                setCategoryId(val);
                 setSubCategoryId("");
               }}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              options={categories.map((c) => ({
+                value: String(c.id),
+                label: `${c.categories_name} (ID: ${c.id})`,
+              }))}
+              placeholder="Select category"
               required
-            >
-              <option value="" disabled>
-                Select category
-              </option>
-              {categories.map((c) => (
-                <option key={c.id} value={String(c.id)}>
-                  {c.categories_name} (ID: {c.id})
-                </option>
-              ))}
-            </select>
+            />
             {spot?.categories_name && (
               <p className="text-xs text-muted-foreground">
                 Current: {spot.categories_name} (ID: {spot.category_id})
@@ -214,25 +210,28 @@ function VendorSpotFormContent({ spot, onClose }: InnerFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="sp-subcat">Sub-Category</Label>
-            <select
+            <SearchableSelect
               id="sp-subcat"
               value={subCategoryId}
-              onChange={(e) => setSubCategoryId(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="">None</option>
-              {subCategoryId &&
-                !subCategories.some((c) => String(c.id) === String(subCategoryId)) && (
-                  <option value={subCategoryId}>
-                    Current: {spot?.sub_categories_name || `#${subCategoryId}`} (ID: {subCategoryId})
-                  </option>
-                )}
-              {subCategories.map((c) => (
-                <option key={c.id} value={String(c.id)}>
-                  {c.categories_name} (ID: {c.id})
-                </option>
-              ))}
-            </select>
+              onChange={setSubCategoryId}
+              options={[
+                { value: "", label: "None" },
+                ...(subCategoryId &&
+                !subCategories.some((c) => String(c.id) === String(subCategoryId))
+                  ? [
+                      {
+                        value: subCategoryId,
+                        label: `Current: ${spot?.sub_categories_name || `#${subCategoryId}`} (ID: ${subCategoryId})`,
+                      },
+                    ]
+                  : []),
+                ...subCategories.map((c) => ({
+                  value: String(c.id),
+                  label: `${c.categories_name} (ID: ${c.id})`,
+                })),
+              ]}
+              placeholder="Select sub-category"
+            />
           </div>
         </div>
 

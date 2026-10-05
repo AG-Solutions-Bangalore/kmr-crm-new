@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
 import { useCreateNews, useNewsItem, useUpdateNews } from "../hook/useNews.ts";
 import {
   useActiveCategories,
@@ -155,22 +156,17 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
         <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="n-cat">Category</Label>
-            <select
+            <SearchableSelect
               id="n-cat"
               value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              onChange={setCategoryId}
+              options={categories.map((c) => ({
+                value: String(c.id),
+                label: `${c.categories_name} (ID: ${c.id})`,
+              }))}
+              placeholder="Select category"
               required
-            >
-              <option value="" disabled>
-                Select category
-              </option>
-              {categories.map((c) => (
-                <option key={c.id} value={String(c.id)}>
-                  {c.categories_name} (ID: {c.id})
-                </option>
-              ))}
-            </select>
+            />
             {news?.categories_name && (
               <p className="text-xs text-muted-foreground">
                 Current: {news.categories_name} (ID: {news.category_id})
