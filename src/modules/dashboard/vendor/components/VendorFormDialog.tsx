@@ -264,7 +264,6 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-foreground">Currently uploaded</p>
-                  <p className="truncate text-xs text-muted-foreground">{vendor?.vendor_image}</p>
                   <p className="text-[11px] text-muted-foreground/80">
                     Upload a new file to replace it.
                   </p>

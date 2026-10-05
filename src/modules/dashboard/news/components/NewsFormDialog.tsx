@@ -264,9 +264,6 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
                     <p className="text-xs font-medium text-foreground">
                       Currently uploaded
                     </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {news?.news_image}
-                    </p>
                     <p className="text-[11px] text-muted-foreground/80">
                       Upload a new file to replace it.
                     </p>

@@ -289,7 +289,7 @@ export function VendorPage() {
           }`}
         >
           <Sparkles className="size-4" />
-          <span>Spot Quotes ({spots.length})</span>
+          <span>Spot Rates ({spots.length})</span>
         </button>
 
         <button
@@ -302,7 +302,7 @@ export function VendorPage() {
           }`}
         >
           <Radio className="size-4" />
-          <span>Live Rates ({liveRates.length})</span>
+          <span>Live ({liveRates.length})</span>
         </button>
 
         <button
@@ -315,7 +315,7 @@ export function VendorPage() {
           }`}
         >
           <IndianRupee className="size-4" />
-          <span>Standard Rates ({standardRates.length})</span>
+          <span>Rates ({standardRates.length})</span>
         </button>
       </div>
 

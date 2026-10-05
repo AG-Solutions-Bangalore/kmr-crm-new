@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-import { Mail, MessageSquare, type LucideIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,7 +7,8 @@ import {
 } from "@/components/ui/card.tsx";
 import { APP_NAME, APP_TAGLINE } from "@/constants/app.ts";
 import { PATHS } from "@/constants/paths.ts";
-import { CompanyStatusCard } from "../components/CompanyStatusCard.tsx";
+import { Mail, MessageSquare, type LucideIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useDashboardCounts } from "../hook/useDashboard.ts";
 
 interface StatItem {
@@ -61,8 +60,6 @@ export function OverviewPage() {
         </CardContent>
       </Card>
 
-      {/* Company Info */}
-      <CompanyStatusCard />
       {/* Live Metrics Grid */}
       <div className="flex flex-col gap-3">
         <h2 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">

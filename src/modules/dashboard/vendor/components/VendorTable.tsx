@@ -185,9 +185,6 @@ export function VendorTable({
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
-                          <span className="font-mono text-muted-foreground">
-                            {vendor.vendor_trade || "—"}
-                          </span>
                         </div>
                       </td>
 

@@ -185,16 +185,13 @@ function GalleryFormContent({ galleryItem, onClose }: InnerFormProps) {
                   <p className="text-xs font-medium text-foreground">
                     Currently uploaded
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {galleryItem?.gallery_image}
-                  </p>
                   <a
                     href={existingImageUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="block truncate text-[11px] text-primary underline"
                   >
-                    {existingImageUrl}
+                    View full image
                   </a>
                   {existingImgError && (
                     <p className="text-[11px] text-destructive">

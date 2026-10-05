@@ -252,9 +252,6 @@ function NotificationFormContent({ notification, onClose }: InnerFormProps) {
                   <p className="text-xs font-medium text-foreground">
                     Currently uploaded
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {notification?.notification_image}
-                  </p>
                   {existingImgError && (
                     <p className="text-[11px] text-destructive">
                       File not found at this URL — check folder/filename.
