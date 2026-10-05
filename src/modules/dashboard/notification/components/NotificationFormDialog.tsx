@@ -105,7 +105,7 @@ function NotificationFormContent({ notification, onClose }: InnerFormProps) {
           notification_heading: heading.trim(),
           notification_description: description.trim(),
           notification_date: date,
-          notification_status: status,
+          notification_status: "Active",
           notification_image: imageFile ?? undefined,
         });
       }
@@ -148,7 +148,7 @@ function NotificationFormContent({ notification, onClose }: InnerFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="notif-date">
               Broadcast Date <span className="text-destructive">*</span>
@@ -163,18 +163,20 @@ function NotificationFormContent({ notification, onClose }: InnerFormProps) {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="notif-status">Status</Label>
-            <select
-              id="notif-status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as NotificationStatus)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="Active">Active (Publish)</option>
-              <option value="Inactive">Inactive (Draft)</option>
-            </select>
-          </div>
+          {isEditing && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="notif-status">Status</Label>
+              <select
+                id="notif-status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as NotificationStatus)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="Active">Active (Publish)</option>
+                <option value="Inactive">Inactive (Draft)</option>
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">

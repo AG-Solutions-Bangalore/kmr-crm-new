@@ -135,7 +135,7 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
           blog_featured: featured,
           blog_front: front,
           blog_index: blogIndex,
-          blog_status: status,
+          blog_status: "Active",
           blog_banner_image: imageFile ?? undefined,
         });
       }
@@ -236,18 +236,20 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="b-status">Status</Label>
-            <select
-              id="b-status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as BlogStatus)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
+          {isEditing && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="b-status">Status</Label>
+              <select
+                id="b-status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as BlogStatus)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="b-index">Blog Index (Yes/No)</Label>

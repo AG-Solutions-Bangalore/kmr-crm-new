@@ -87,7 +87,7 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
           testimonial_client_name: clientName.trim(),
           testimonial_description: description.trim(),
           testimonial_rating: Number(rating) || 5,
-          testimonial_status: status,
+          testimonial_status: "Active",
         });
       }
       onClose();
@@ -159,7 +159,7 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="t-client">
               Client Name <span className="text-destructive">*</span>
@@ -173,18 +173,20 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="t-status">Status</Label>
-            <select
-              id="t-status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as TestimonialStatus)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
+          {isEditing && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="t-status">Status</Label>
+              <select
+                id="t-status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as TestimonialStatus)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">

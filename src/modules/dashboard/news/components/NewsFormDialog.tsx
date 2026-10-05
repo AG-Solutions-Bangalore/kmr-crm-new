@@ -108,7 +108,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
           category_id: categoryId,
           news_heading: heading.trim(),
           news_details: details.trim(),
-          news_status: status,
+          news_status: "Active",
           news_image: imageFile ?? undefined,
           news_other_image: otherImageFile ?? undefined,
         });
@@ -152,7 +152,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="n-cat">Category</Label>
             <select
@@ -178,18 +178,20 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="n-status">Status</Label>
-            <select
-              id="n-status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as NewsStatus)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
+          {isEditing && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="n-status">Status</Label>
+              <select
+                id="n-status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as NewsStatus)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">

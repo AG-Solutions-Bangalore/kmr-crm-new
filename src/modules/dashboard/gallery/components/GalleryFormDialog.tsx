@@ -81,7 +81,7 @@ function GalleryFormContent({ galleryItem, onClose }: InnerFormProps) {
         });
       } else {
         await createMutation.mutateAsync({
-          gallery_status: status,
+          gallery_status: "Active",
           gallery_image: imageFile ?? undefined,
         });
       }
@@ -109,18 +109,20 @@ function GalleryFormContent({ galleryItem, onClose }: InnerFormProps) {
       )}
 
       <div className="grid gap-3">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="g-status">Status</Label>
-          <select
-            id="g-status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as GalleryStatus)}
-            className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-        </div>
+        {isEditing && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="g-status">Status</Label>
+            <select
+              id="g-status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as GalleryStatus)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="g-image">
