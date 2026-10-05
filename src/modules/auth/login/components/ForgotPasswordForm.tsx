@@ -36,7 +36,7 @@ export function ForgotPasswordForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="fp-username">Username / Mobile</Label>
+            <Label htmlFor="fp-username"> Mobile</Label>
             <Input
               id="fp-username"
               autoComplete="username"

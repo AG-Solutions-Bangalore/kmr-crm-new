@@ -36,7 +36,7 @@ export function ChangePasswordForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="cp-username">Username / Mobile</Label>
+        <Label htmlFor="cp-username"> Mobile</Label>
         <Input
           id="cp-username"
           autoComplete="username"

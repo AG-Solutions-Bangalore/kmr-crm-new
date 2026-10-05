@@ -50,7 +50,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="username">Username / Mobile</Label>
+            <Label htmlFor="username"> Mobile</Label>
             <Input
               id="username"
               autoComplete="username"
@@ -75,10 +75,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
           {login.isError ? (
             <p className="text-sm text-destructive">
-              {getApiErrorMessage(
-                login.error,
-                "Invalid username or password.",
-              )}
+              {getApiErrorMessage(login.error, "Invalid username or password.")}
             </p>
           ) : null}
 
