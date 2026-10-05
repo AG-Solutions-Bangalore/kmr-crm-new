@@ -167,9 +167,11 @@ export function CategoryTable({
                       </td>
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {cat.parent_id === 0 || cat.parent_id === "0"
-                          ? "Root (0)"
-                          : cat.parent_id ?? "0"}
+                        {cat.parent_id === null ||
+                        cat.parent_id === undefined ||
+                        cat.parent_id === ""
+                          ? "—"
+                          : String(cat.parent_id)}
                       </td>
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">

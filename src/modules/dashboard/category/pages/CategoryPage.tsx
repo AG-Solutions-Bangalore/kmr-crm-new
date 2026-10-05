@@ -19,7 +19,7 @@ const PAGE_SIZE = 10;
 type CategoryTab = "parent" | "sub";
 
 function isRootCategory(c: Category): boolean {
-  return !c.parent_id || c.parent_id === 0 || c.parent_id === "0";
+  return c.parent_id === null || c.parent_id === undefined || c.parent_id === "";
 }
 
 export function CategoryPage() {
