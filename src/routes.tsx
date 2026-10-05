@@ -1,22 +1,21 @@
 import type { ReactNode } from "react";
 import { PATHS } from "./constants/paths.ts";
-import { LoginPage } from "./modules/auth/login/pages/LoginPage.tsx";
-import { ForgotPasswordPage } from "./modules/auth/login/pages/ForgotPasswordPage.tsx";
 import { ChangePasswordPage } from "./modules/auth/login/pages/ChangePasswordPage.tsx";
-import { OverviewPage } from "./modules/dashboard/overview/pages/OverviewPage.tsx";
-import { CategoryPage } from "./modules/dashboard/category/pages/CategoryPage.tsx";
-import { VendorPage } from "./modules/dashboard/vendor/pages/VendorPage.tsx";
-import { NewsPage } from "./modules/dashboard/news/pages/NewsPage.tsx";
-import { ClientPage } from "./modules/dashboard/client/pages/ClientPage.tsx";
-import { TestimonialPage } from "./modules/dashboard/testimonial/pages/TestimonialPage.tsx";
-import { FaqPage } from "./modules/dashboard/faq/pages/FaqPage.tsx";
-import { SliderPage } from "./modules/dashboard/slider/pages/SliderPage.tsx";
-import { PagesPage } from "./modules/dashboard/pages/pages/PagesPage.tsx";
-import { NotificationPage } from "./modules/dashboard/notification/pages/NotificationPage.tsx";
-import { EnquiryPage } from "./modules/dashboard/enquiry/pages/EnquiryPage.tsx";
-import { NewsletterPage } from "./modules/dashboard/newsletter/pages/NewsletterPage.tsx";
+import { ForgotPasswordPage } from "./modules/auth/login/pages/ForgotPasswordPage.tsx";
+import { LoginPage } from "./modules/auth/login/pages/LoginPage.tsx";
 import { BlogPage } from "./modules/dashboard/blog/pages/BlogPage.tsx";
+import { CategoryPage } from "./modules/dashboard/category/pages/CategoryPage.tsx";
+import { ClientPage } from "./modules/dashboard/client/pages/ClientPage.tsx";
+import { EnquiryPage } from "./modules/dashboard/enquiry/pages/EnquiryPage.tsx";
+import { FaqPage } from "./modules/dashboard/faq/pages/FaqPage.tsx";
 import { GalleryPage } from "./modules/dashboard/gallery/pages/GalleryPage.tsx";
+import { NewsPage } from "./modules/dashboard/news/pages/NewsPage.tsx";
+import { NewsletterPage } from "./modules/dashboard/newsletter/pages/NewsletterPage.tsx";
+import { NotificationPage } from "./modules/dashboard/notification/pages/NotificationPage.tsx";
+import { OverviewPage } from "./modules/dashboard/overview/pages/OverviewPage.tsx";
+import { SliderPage } from "./modules/dashboard/slider/pages/SliderPage.tsx";
+import { TestimonialPage } from "./modules/dashboard/testimonial/pages/TestimonialPage.tsx";
+import { VendorPage } from "./modules/dashboard/vendor/pages/VendorPage.tsx";
 
 export interface AppRoute {
   path: string;
@@ -104,10 +103,5 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.slider,
     title: "Sliders",
     element: <SliderPage />,
-  },
-  {
-    path: PATHS.pages,
-    title: "Site Pages",
-    element: <PagesPage />,
   },
 ];

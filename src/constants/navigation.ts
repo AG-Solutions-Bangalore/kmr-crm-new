@@ -126,12 +126,6 @@ export const NAV_SECTIONS: NavSection[] = [
         path: PATHS.client,
         icon: Users,
       },
-      {
-        title: "Site Pages",
-        description: "Configure site page routes.",
-        path: PATHS.pages,
-        icon: Globe,
-      },
     ],
   },
 ];

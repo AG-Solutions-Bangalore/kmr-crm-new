@@ -22,8 +22,6 @@ export const PATHS = {
   faq: "/faq",
   testimonial: "/testimonial",
   client: "/client",
-  pages: "/pages",
-
   // Account
   profile: "/profile",
 } as const;
