@@ -194,6 +194,7 @@ export function CategoryPage() {
           variant={tab === "parent" ? "default" : "outline"}
           size="sm"
           onClick={() => setTab("parent")}
+          className="cursor-pointer"
         >
           Categories{isLoading ? "" : ` (${parents.length})`}
         </Button>
@@ -201,6 +202,7 @@ export function CategoryPage() {
           variant={tab === "sub" ? "default" : "outline"}
           size="sm"
           onClick={() => setTab("sub")}
+          className="cursor-pointer"
         >
           Sub Categories{isLoading ? "" : ` (${subs.length})`}
         </Button>

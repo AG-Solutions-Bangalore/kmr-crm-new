@@ -305,7 +305,7 @@ export function VendorPage() {
         <button
           type="button"
           onClick={() => setActiveTab("vendors")}
-          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "vendors"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -321,7 +321,7 @@ export function VendorPage() {
         <button
           type="button"
           onClick={() => setActiveTab("spots")}
-          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "spots"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -337,7 +337,7 @@ export function VendorPage() {
         <button
           type="button"
           onClick={() => setActiveTab("live")}
-          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "live"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -348,7 +348,7 @@ export function VendorPage() {
             <span className="relative inline-flex size-2 rounded-full bg-rose-500" />
           </span>
           <Radio className="size-4" />
-          <span>Live Rates</span>
+          <span>Live</span>
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
             {liveRates.length}
           </span>
@@ -357,14 +357,14 @@ export function VendorPage() {
         <button
           type="button"
           onClick={() => setActiveTab("rates")}
-          className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
             activeTab === "rates"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
           <IndianRupee className="size-4" />
-          <span>Standard Rates</span>
+          <span>Rates</span>
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
             {standardRates.length}
           </span>
