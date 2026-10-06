@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Check, Edit2, Images, Link2, Power, Search } from "lucide-react";
+import { Check, Copy, Edit2, Images, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveGalleryImageUrl } from "@/lib/image.ts";
 import { useUpdateGalleryStatus } from "../hook/useGallery.ts";
 import type { GalleryItem, GalleryStatus } from "../types/gallery.types.ts";
 
@@ -16,11 +16,9 @@ function GalleryThumb({
   baseUrl?: string | null;
 }) {
   const [failed, setFailed] = useState(false);
-  // Prefer server-provided base (e.g. .../gallerys_images/) — actual folder
-  // is `gallerys_images`, not `gallery_images`.
-  const url = baseUrl
-    ? `${baseUrl.replace(/\/?$/, "/")}${(filename || "").replace(/^\/+/, "")}`
-    : resolveAssetImageUrl(filename, "gallerys_images");
+  // Exact URL coming from the API (or local assets fallback) — the copy
+  // button copies this same value.
+  const url = resolveGalleryImageUrl(filename, baseUrl);
   if (!url || failed) {
     return (
       <div
@@ -45,23 +43,9 @@ function GalleryThumb({
   );
 }
 
-/** Full image URL — prefers the exact URL coming from the API.
- *  If `gallery_url` is already a complete file URL it is used as-is;
- *  if it is only a base folder, the filename is joined to it. */
+/** Full image URL — prefers the exact URL coming from the API. */
 function galleryImageUrl(item: GalleryItem): string {
-  const apiUrl = (item.gallery_url || "").trim();
-  const file = (item.gallery_image || "").trim();
-  if (apiUrl) {
-    const lower = apiUrl.toLowerCase();
-    const isCompleteUrl =
-      /\.(jpg|jpeg|png|webp|gif|svg|avif|bmp|mp4|pdf)(\?.*)?$/.test(lower) ||
-      (file !== "" && lower.endsWith(file.toLowerCase()));
-    if (isCompleteUrl) return apiUrl;
-    if (!file) return apiUrl;
-    return `${apiUrl.replace(/\/?$/, "/")}${file.replace(/^\/+/, "")}`;
-  }
-  if (!file) return "";
-  return resolveAssetImageUrl(file, "gallerys_images") ?? "";
+  return resolveGalleryImageUrl(item.gallery_image, item.gallery_url) ?? "";
 }
 
 interface GalleryTableProps {
@@ -217,21 +201,21 @@ export function GalleryTable({
                             variant="ghost"
                             size="sm"
                             onClick={() => void handleCopyUrl(item)}
-                            disabled={!item.gallery_image}
+                            disabled={!item.gallery_image && !item.gallery_url}
                             className="size-7 shrink-0 p-0"
                             title="Copy image URL"
                           >
                             {copiedId === item.id ? (
                               <Check className="size-3.5 text-emerald-600" />
                             ) : (
-                              <Link2 className="size-3.5" />
+                              <Copy className="size-3.5" />
                             )}
                             <span className="sr-only">Copy image URL</span>
                           </Button>
                         </div>
                         {copiedId === item.id && (
                           <p className="mt-0.5 text-[11px] font-medium text-emerald-600">
-                            URL copied!
+                            Copied!
                           </p>
                         )}
                       </td>

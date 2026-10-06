@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ImagePlus, Loader2, Plus, RotateCcw, Settings2, X } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Settings2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -73,8 +73,8 @@ export function QuickCreateCategoryDialog({
   const [tab, setTab] = useState<QuickTab>(defaultTab);
 
   const [name, setName] = useState(initialName);
-  const [slug, setSlug] = useState(initialName ? slugifyName(initialName) : "");
-  const [slugTouched, setSlugTouched] = useState(false);
+  // Slug is fully auto-generated from the name — never hand-edited.
+  const slug = slugifyName(name);
   const [parentId, setParentId] = useState(defaultParentId);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -89,8 +89,6 @@ export function QuickCreateCategoryDialog({
     if (open) {
       const trimmed = initialName.trim();
       setName(trimmed);
-      setSlug(trimmed ? slugifyName(trimmed) : "");
-      setSlugTouched(false);
       const startTab: QuickTab =
         defaultParentId && defaultParentId !== "0" ? "sub" : "category";
       setTab(startTab);
@@ -123,8 +121,6 @@ export function QuickCreateCategoryDialog({
 
   const reset = () => {
     setName("");
-    setSlug("");
-    setSlugTouched(false);
     setTab(defaultTab);
     setParentId(defaultParentId);
     setImageFile(null);
@@ -155,12 +151,6 @@ export function QuickCreateCategoryDialog({
 
   const handleNameChange = (val: string) => {
     setName(val);
-    if (!slugTouched) setSlug(slugifyName(val));
-  };
-
-  const handleSlugReset = () => {
-    setSlug(slugifyName(name));
-    setSlugTouched(false);
   };
 
   const resolveNewId = async (res: unknown, finalSlug: string, finalName: string): Promise<string | null> => {
@@ -299,29 +289,14 @@ export function QuickCreateCategoryDialog({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="qc-slug">Slug</Label>
-                {slugTouched && (
-                  <button
-                    type="button"
-                    onClick={handleSlugReset}
-                    className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
-                    title="Reset slug to auto-match category name"
-                  >
-                    <RotateCcw className="size-3" />
-                    <span>Auto-sync</span>
-                  </button>
-                )}
-              </div>
+              <Label htmlFor="qc-slug">Slug (auto-generated)</Label>
               <Input
                 id="qc-slug"
                 value={slug}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSlug(val);
-                  setSlugTouched(Boolean(val.trim()));
-                }}
-                placeholder="auto-generated"
+                readOnly
+                tabIndex={-1}
+                placeholder="auto-generated from name"
+                className="bg-muted/40 text-muted-foreground"
               />
             </div>
 

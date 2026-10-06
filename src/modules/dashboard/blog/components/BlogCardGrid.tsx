@@ -9,8 +9,10 @@ import {
 } from "@/components/common/CardStates.tsx";
 import { sortByRecency, type LatestFirstOrder } from "@/lib/sort.ts";
 import { useHighlightFromHash } from "@/hooks/useHighlightFromHash.ts";
+import { useFeedDeepLink } from "@/hooks/useFeedDeepLink.ts";
 import { cn } from "@/lib/utils.ts";
 import { useUpdateBlogStatus } from "../hook/useBlog.ts";
+import { fetchBlogsPage } from "../api/blog.api.ts";
 import type { BlogItem, BlogStatus } from "../types/blog.types.ts";
 import { BlogCard } from "./BlogCard.tsx";
 
@@ -92,7 +94,21 @@ export function BlogCardGrid({
 
   // Search is server-side (?search=); sort the loaded page latest-first.
   const visible = sortByRecency(blogs, order, ["blog_updated_date", "blog_created_date"]);
-  const highlight = useHighlightFromHash();
+  const highlight = useHighlightFromHash({ paused: isLoading });
+
+  // Deep link (#feed-<id>): jump to the page holding the item, even when it
+  // isn't on the current server page. Clears a hiding search filter first.
+  useFeedDeepLink({
+    highlight,
+    pageIds: blogs.map((b) => b.id),
+    totalPages,
+    isLoading,
+    fetchPageIds: (p) =>
+      fetchBlogsPage(p, perPage, "", "all").then((r) => r.items.map((b) => b.id)),
+    onPageChange,
+    hasActiveSearch: search.trim() !== "",
+    onClearSearch: () => onSearchChange(""),
+  });
 
   const handleToggleStatus = async (item: BlogItem) => {
     const nextStatus = item.blog_status === "Active" ? "Inactive" : "Active";

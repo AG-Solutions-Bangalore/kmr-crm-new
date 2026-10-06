@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
+import { useHighlightFromHash } from "@/hooks/useHighlightFromHash.ts";
 import { PATHS } from "@/constants/paths.ts";
 import { BlogTable } from "../components/BlogTable.tsx";
 import { BlogCardGrid } from "../components/BlogCardGrid.tsx";
@@ -30,6 +31,13 @@ export function BlogPage() {
   const [view, setView] = useState<ListViewMode>(() =>
     readViewMode(VIEW_STORAGE_KEY, "card"),
   );
+
+  // Deep links (#feed-<id>) target cards — table view can't show them,
+  // so switch to card view for this session (stored preference untouched).
+  const deepLink = useHighlightFromHash();
+  useEffect(() => {
+    if (deepLink) setView("card");
+  }, [deepLink]);
 
   useEffect(() => {
     setPage(1);

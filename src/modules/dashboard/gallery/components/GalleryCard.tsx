@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveGalleryImageUrl } from "@/lib/image.ts";
 import { categoryAccent } from "@/lib/category-color.ts";
 import type { GalleryItem } from "../types/gallery.types.ts";
 
@@ -14,22 +14,17 @@ interface GalleryCardProps {
   onToggleStatus: (item: GalleryItem) => void;
 }
 
-/** Full image URL — same resolution rule as the table preview thumbnail. */
-function galleryImageUrl(item: GalleryItem): string | null {
-  if (item.gallery_url) {
-    return `${item.gallery_url.replace(/\/?$/, "/")}${(item.gallery_image || "").replace(/^\/+/, "")}`;
-  }
-  return resolveAssetImageUrl(item.gallery_image, "gallerys_images");
-}
-
 /**
  * Gallery adapter over the shared AppFeedCard — full-bleed image cover,
- * filename preview, dates in the footer.
+ * filename preview, dates in the footer. The copy-link button copies the
+ * full image file URL (not the page deep link).
  */
 export function GalleryCard({ item, isToggling, compact = false, highlighted = false, onEdit, onToggleStatus }: GalleryCardProps) {
   const [imgError, setImgError] = useState(false);
   const isActive = item.gallery_status === "Active";
-  const imageUrl = imgError ? null : galleryImageUrl(item);
+  const imageUrl = imgError ? null : resolveGalleryImageUrl(item.gallery_image, item.gallery_url);
+  // Card copy button: the full image URL only.
+  const shareText = imageUrl ?? "";
 
   useEffect(() => {
     setImgError(false);
@@ -61,6 +56,8 @@ export function GalleryCard({ item, isToggling, compact = false, highlighted = f
       compact={compact}
       isToggling={isToggling}
       highlighted={highlighted}
+      showShare={shareText !== ""}
+      shareUrl={shareText || null}
       onEdit={() => onEdit(item)}
       onToggleStatus={() => onToggleStatus(item)}
     />

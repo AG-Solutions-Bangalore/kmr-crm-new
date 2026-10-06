@@ -7,7 +7,7 @@ import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { RichTextEditor } from "@/components/common/RichTextEditor.tsx";
 import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
-import { mergeCategories } from "@/lib/category-tree.ts";
+import { mergeCategories, getParentCategories } from "@/lib/category-tree.ts";
 import {
   useActiveCategories,
   useCategories,
@@ -50,6 +50,8 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
   const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
   const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
   const categories = mergeCategories(activeCategories, allCategories);
+  // Blog takes only parent categories — never sub-categories.
+  const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
 
   // Selected IDs as an array for chips.
@@ -244,7 +246,7 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
               id="b-cat"
               value=""
               onChange={appendCategoryId}
-              options={categories.map((c) => ({
+              options={parentCategories.map((c) => ({
                 value: String(c.id),
                 label: `${c.categories_name} (ID: ${c.id})`,
               }))}
