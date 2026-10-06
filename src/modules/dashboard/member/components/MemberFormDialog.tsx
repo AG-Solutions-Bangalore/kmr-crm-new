@@ -206,11 +206,13 @@ function MemberFormContent({ member, onClose }: InnerFormProps) {
         <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="m-address">Address</Label>
-            <Input
+            <textarea
               id="m-address"
+              rows={2}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Full address"
+              className="w-full resize-y rounded-md border border-input bg-background p-2.5 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 
