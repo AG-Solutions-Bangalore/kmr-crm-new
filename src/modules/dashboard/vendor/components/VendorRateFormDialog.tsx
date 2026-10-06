@@ -496,7 +496,7 @@ function VendorRateCreateContent({
           </Button>
         </div>
 
-        <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto pr-1">
+        <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto pr-1 pb-28">
           {rows.map((row, idx) => {
             const subCats = subsFor(row.categoryId);
             return (

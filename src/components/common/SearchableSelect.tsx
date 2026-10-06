@@ -22,10 +22,24 @@ interface SearchableSelectProps {
   createLabel?: (query: string) => string;
 }
 
+function getScrollParents(node: HTMLElement | null): HTMLElement[] {
+  const parents: HTMLElement[] = [];
+  let parent = node?.parentElement ?? null;
+  while (parent && parent !== document.body && parent !== document.documentElement) {
+    const style = window.getComputedStyle(parent);
+    const overflowY = style.overflowY;
+    if (overflowY === "auto" || overflowY === "scroll" || overflowY === "hidden") {
+      parents.push(parent);
+    }
+    parent = parent.parentElement;
+  }
+  return parents;
+}
+
 /**
- * Searchable dropdown — type to filter options with keyboard arrow navigation,
- * Enter to select, and an inline "+ Create" action when no exact match exists.
- * Automatically flips upwards when space below is tight to prevent cut-offs.
+ * Searchable dropdown — in-tree relative positioning.
+ * Automatically avoids upward flipping inside scroll containers so the
+ * search input and top items are never clipped or hidden.
  */
 export function SearchableSelect({
   id,
@@ -43,6 +57,7 @@ export function SearchableSelect({
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [openUp, setOpenUp] = useState(false);
+
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -70,7 +85,7 @@ export function SearchableSelect({
     setHighlightedIndex(0);
   }, [query, open]);
 
-  // Keep the highlighted item visible inside the list only (never the page).
+  // Keep the highlighted item visible inside the list only
   useEffect(() => {
     if (!open) return;
     const list = listRef.current;
@@ -85,7 +100,7 @@ export function SearchableSelect({
     }
   }, [highlightedIndex, open]);
 
-  // Dynamically check whether to open upward or downward based on viewport space
+  // Dynamically check whether to open upward or downward based on viewport and scroll container space
   useEffect(() => {
     if (!open) return;
 
@@ -95,8 +110,27 @@ export function SearchableSelect({
       const rect = el.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
-      // Flip up if room below is tighter than preferred (280px) and there's more room above
-      setOpenUp(spaceBelow < 280 && spaceAbove > spaceBelow);
+
+      // Check all scroll parent containers (modal / card / rows list)
+      const scrollParents = getScrollParents(el);
+      let minSpaceAbove = spaceAbove;
+      for (const p of scrollParents) {
+        const pRect = p.getBoundingClientRect();
+        const aboveInP = rect.top - pRect.top;
+        if (aboveInP < minSpaceAbove) {
+          minSpaceAbove = aboveInP;
+        }
+      }
+
+      // If room above in any scroll container is less than 240px, NEVER flip up
+      // because the search input and top items would be cut off!
+      if (minSpaceAbove < 240) {
+        setOpenUp(false);
+        return;
+      }
+
+      // Flip up only when room below is tight (< 220px) and there's ample room above
+      setOpenUp(spaceBelow < 220 && spaceAbove > spaceBelow);
     };
 
     checkDirection();
@@ -183,7 +217,7 @@ export function SearchableSelect({
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors",
+          "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           "disabled:cursor-not-allowed disabled:opacity-50",
           !selected && "text-muted-foreground",
@@ -214,17 +248,19 @@ export function SearchableSelect({
           <ChevronDown className="size-4 opacity-50" />
         </div>
       </button>
+
       {required && !value ? (
         <input required className="sr-only" value="" onChange={() => {}} tabIndex={-1} />
       ) : null}
+
       {open && (
         <div
           className={cn(
-            "absolute z-50 w-full rounded-md border border-border bg-popover text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95 duration-100",
+            "absolute z-50 w-full min-w-[200px] rounded-md border border-border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 duration-100",
             openUp ? "bottom-full mb-1" : "top-full mt-1",
           )}
         >
-          <div className="flex items-center gap-2 border-b border-border/60 px-2">
+          <div className="flex items-center gap-2 border-b border-border/60 px-2 shrink-0 bg-popover">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input
               ref={searchRef}
@@ -283,7 +319,9 @@ export function SearchableSelect({
                   }}
                   className={cn(
                     "flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm font-medium text-primary transition-colors cursor-pointer",
-                    highlightedIndex === filtered.length ? "bg-primary/10 text-primary" : "hover:bg-primary/5",
+                    highlightedIndex === filtered.length
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-primary/5",
                   )}
                 >
                   <Plus className="size-4 shrink-0" />
