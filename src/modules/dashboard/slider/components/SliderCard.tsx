@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link2 } from "lucide-react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
@@ -17,7 +16,7 @@ interface SliderCardProps {
 
 /**
  * Slider adapter over the shared AppFeedCard — banner cover, type chip,
- * target URL preview, sort order in the footer.
+ * target URL preview, and action buttons inline with the title.
  */
 export function SliderCard({ slider, isToggling, compact = false, highlighted = false, onEdit, onToggleStatus }: SliderCardProps) {
   const [imgError, setImgError] = useState(false);
@@ -52,16 +51,7 @@ export function SliderCard({ slider, isToggling, compact = false, highlighted = 
       ageLabel={ago ?? (slider.created_at ? formatDateDMY(slider.created_at) : null)}
       updatedPill={justUpdated ? `Updated${ago ? ` • ${ago}` : ""}` : null}
       justUpdated={justUpdated}
-      metaSecondary={
-        slider.slider_url ? (
-          <span title={slider.slider_url} className="inline-flex max-w-[180px] items-center gap-1">
-            <Link2 className="size-3 shrink-0 text-primary" />
-            <span className="truncate font-mono">{slider.slider_url}</span>
-          </span>
-        ) : (
-          ago ? <span className="text-muted-foreground/70">{`Updated ${ago}`}</span> : null
-        )
-      }
+      actionPlacement="title"
       compact={compact}
       isToggling={isToggling}
       highlighted={highlighted}

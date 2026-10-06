@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Copy, IndianRupee, Loader2, Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button.tsx";
 import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog.tsx";
+  AlertCircle,
+  Copy,
+  IndianRupee,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button.tsx";
+import { Dialog, DialogContent } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
@@ -76,10 +80,13 @@ function VendorRateEditContent({
 }) {
   const updateLiveMutation = useUpdateVendorLive();
   const updateRateMutation = useUpdateVendorRate();
-  const updateMutation = type === "live" ? updateLiveMutation : updateRateMutation;
+  const updateMutation =
+    type === "live" ? updateLiveMutation : updateRateMutation;
 
-  const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
+  const { data: activeCategories = [], isLoading: activeCatsLoading } =
+    useActiveCategories();
+  const { data: allCategories = [], isLoading: allCatsLoading } =
+    useCategories();
   const categories = mergeCategories(activeCategories, allCategories);
   const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
@@ -89,8 +96,12 @@ function VendorRateEditContent({
     rate.sub_category_id ? String(rate.sub_category_id) : "",
   );
   const [productName, setProductName] = useState(rate.vendor_product || "");
-  const [productSize, setProductSize] = useState(rate.vendor_product_size || "");
-  const [productRate, setProductRate] = useState(String(rate.vendor_product_rate ?? ""));
+  const [productSize, setProductSize] = useState(
+    rate.vendor_product_size || "",
+  );
+  const [productRate, setProductRate] = useState(
+    String(rate.vendor_product_rate ?? ""),
+  );
   const [status, setStatus] = useState(rate.vendor_product_status || "Active");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -166,11 +177,14 @@ function VendorRateEditContent({
       <div className="flex flex-col space-y-1.5 text-center sm:text-left">
         <h2 className="flex items-center gap-2 text-lg font-semibold leading-none tracking-tight">
           <IndianRupee className="size-5 text-primary" />
-          <span>Edit {type === "live" ? "Live Rate" : "Standard Rate"} #{rate.id}</span>
+          <span>Edit {type === "live" ? "Live Rate" : "Standard Rate"}</span>
         </h2>
         <p className="text-sm text-muted-foreground">
           Update product, size, rate, category and status. Sends{" "}
-          <code className="font-mono">PUT /{type === "live" ? "vendor-live" : "vendor-rate"}/{rate.id}</code>.
+          <code className="font-mono">
+            PUT /{type === "live" ? "vendor-live" : "vendor-rate"}/{rate.id}
+          </code>
+          .
         </p>
       </div>
 
@@ -204,7 +218,7 @@ function VendorRateEditContent({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="edit-rate-size">Size / Unit</Label>
           <Input
@@ -231,6 +245,7 @@ function VendorRateEditContent({
           <Label htmlFor="edit-rate-cat">Category</Label>
           <CategorySelectWithCreate
             id="edit-rate-cat"
+            direction="up"
             value={categoryId}
             onChange={(val) => {
               setCategoryId(val);
@@ -248,17 +263,18 @@ function VendorRateEditContent({
           )}
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="edit-rate-subcat">
-            Sub-Category {hasDirectChildren ? `(${directChildren.length})` : ""}
-          </Label>
+          <Label htmlFor="edit-rate-subcat">Sub-Category</Label>
           <SearchableSelect
             id="edit-rate-subcat"
+            direction="up"
             value={subCategoryId}
             onChange={setSubCategoryId}
+            clearable
             options={[
-              { value: "", label: hasDirectChildren ? "None" : "(No sub-categories)" },
               ...(subCategoryId &&
-              !subOptionsBase.some((c) => String(c.id) === String(subCategoryId))
+              !subOptionsBase.some(
+                (c) => String(c.id) === String(subCategoryId),
+              )
                 ? [
                     {
                       value: subCategoryId,
@@ -277,7 +293,7 @@ function VendorRateEditContent({
                 : catsLoading
                   ? "Loading sub-categories..."
                   : hasDirectChildren
-                    ? `Select sub-category (${directChildren.length}) — type to search`
+                    ? "Select sub-category — type to search"
                     : "No sub-categories for this category"
             }
             disabled={!categoryId || catsLoading}
@@ -314,8 +330,14 @@ function VendorRateEditContent({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={updateMutation.isPending} className="gap-2">
-            {updateMutation.isPending && <Loader2 className="size-4 animate-spin" />}
+          <Button
+            type="submit"
+            disabled={updateMutation.isPending}
+            className="gap-2"
+          >
+            {updateMutation.isPending && (
+              <Loader2 className="size-4 animate-spin" />
+            )}
             <span>Update Rate</span>
           </Button>
         </div>
@@ -336,8 +358,10 @@ function VendorRateCreateContent({
   onClose: () => void;
 }) {
   const { data: vendors = [] } = useActiveVendors();
-  const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
+  const { data: activeCategories = [], isLoading: activeCatsLoading } =
+    useActiveCategories();
+  const { data: allCategories = [], isLoading: allCatsLoading } =
+    useCategories();
   const categories = mergeCategories(activeCategories, allCategories);
   const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
@@ -352,10 +376,17 @@ function VendorRateCreateContent({
   const keyRef = useRef(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const isSubmitting = createLiveMutation.isPending || createRateMutation.isPending;
+  const isSubmitting =
+    createLiveMutation.isPending || createRateMutation.isPending;
 
-  const updateRow = (key: number, field: keyof Omit<RateRow, "key">, val: string) => {
-    setRows((prev) => prev.map((r) => (r.key === key ? { ...r, [field]: val } : r)));
+  const updateRow = (
+    key: number,
+    field: keyof Omit<RateRow, "key">,
+    val: string,
+  ) => {
+    setRows((prev) =>
+      prev.map((r) => (r.key === key ? { ...r, [field]: val } : r)),
+    );
   };
 
   const handleAddRow = () => {
@@ -411,7 +442,9 @@ function VendorRateCreateContent({
       products: rows.map((r) => ({
         vendor_id: Number(vId),
         category_id: Number(r.categoryId),
-        ...(r.subCategoryId ? { sub_category_id: Number(r.subCategoryId) } : {}),
+        ...(r.subCategoryId
+          ? { sub_category_id: Number(r.subCategoryId) }
+          : {}),
         vendor_product: r.productName.trim(),
         vendor_product_size: r.productSize.trim() || "Unit",
         vendor_product_rate: r.productRate.trim(),
@@ -428,7 +461,12 @@ function VendorRateCreateContent({
       // Reset form
       setRows([blankRow(keyRef.current++)]);
     } catch (err) {
-      setErrorMessage(getApiErrorMessage(err, `Failed to create ${type === "live" ? "live" : "standard"} rate.`));
+      setErrorMessage(
+        getApiErrorMessage(
+          err,
+          `Failed to create ${type === "live" ? "live" : "standard"} rate.`,
+        ),
+      );
     }
   };
 
@@ -449,7 +487,8 @@ function VendorRateCreateContent({
           <span>Add {type === "live" ? "Live Rate" : "Standard Rate"}</span>
         </h2>
         <p className="text-sm text-muted-foreground">
-          Add one or more products — all rows are submitted together in a single API call.
+          Add one or more products — all rows are submitted together in a single
+          API call.
         </p>
       </div>
 
@@ -496,13 +535,14 @@ function VendorRateCreateContent({
           </Button>
         </div>
 
-        <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto pr-1 pb-28">
+        <div className="flex flex-col gap-3">
           {rows.map((row, idx) => {
             const subCats = subsFor(row.categoryId);
             return (
               <div
                 key={row.key}
-                className="flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 transition-colors hover:border-border"
+                style={{ zIndex: rows.length - idx }}
+                className="relative flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 transition-colors hover:border-border focus-within:z-30"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-foreground">
@@ -542,19 +582,23 @@ function VendorRateCreateContent({
                     id={`rate-product-${row.key}`}
                     placeholder="e.g. Sunflower Oil, Mustard Refined..."
                     value={row.productName}
-                    onChange={(e) => updateRow(row.key, "productName", e.target.value)}
+                    onChange={(e) =>
+                      updateRow(row.key, "productName", e.target.value)
+                    }
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor={`rate-size-${row.key}`}>Size / Unit</Label>
                     <Input
                       id={`rate-size-${row.key}`}
                       placeholder="e.g. 15 kg Tin, 1 Ltr Pouch"
                       value={row.productSize}
-                      onChange={(e) => updateRow(row.key, "productSize", e.target.value)}
+                      onChange={(e) =>
+                        updateRow(row.key, "productSize", e.target.value)
+                      }
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -566,7 +610,9 @@ function VendorRateCreateContent({
                       type="number"
                       placeholder="e.g. 1450"
                       value={row.productRate}
-                      onChange={(e) => updateRow(row.key, "productRate", e.target.value)}
+                      onChange={(e) =>
+                        updateRow(row.key, "productRate", e.target.value)
+                      }
                       required
                     />
                   </div>
@@ -574,6 +620,7 @@ function VendorRateCreateContent({
                     <Label htmlFor={`rate-cat-${row.key}`}>Category</Label>
                     <CategorySelectWithCreate
                       id={`rate-cat-${row.key}`}
+                      direction="up"
                       value={row.categoryId}
                       onChange={(val) => {
                         updateRow(row.key, "categoryId", val);
@@ -587,25 +634,28 @@ function VendorRateCreateContent({
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`rate-subcat-${row.key}`}>Sub-Category</Label>
+                    <Label htmlFor={`rate-subcat-${row.key}`}>
+                      Sub-Category
+                    </Label>
                     <SearchableSelect
                       id={`rate-subcat-${row.key}`}
+                      direction="up"
                       value={row.subCategoryId}
-                      onChange={(val) => updateRow(row.key, "subCategoryId", val)}
-                      options={[
-                        { value: "", label: subCats.length > 0 ? "None" : "(No sub-categories)" },
-                        ...subCats.map((c) => ({
-                          value: String(c.id),
-                          label: c.categories_name,
-                        })),
-                      ]}
+                      onChange={(val) =>
+                        updateRow(row.key, "subCategoryId", val)
+                      }
+                      clearable
+                      options={subCats.map((c) => ({
+                        value: String(c.id),
+                        label: c.categories_name,
+                      }))}
                       placeholder={
                         !row.categoryId
                           ? "Select category first"
                           : catsLoading
                             ? "Loading sub-categories..."
                             : subCats.length > 0
-                              ? `Select sub-category (${subCats.length}) — type to search`
+                              ? "Select sub-category — type to search"
                               : "No sub-categories for this category"
                       }
                       disabled={!row.categoryId || catsLoading}
@@ -654,7 +704,9 @@ export function VendorRateFormDialog({
 }: VendorRateFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-h-[90vh] overflow-y-auto ${rate ? "max-w-md" : "max-w-2xl"}`}>
+      <DialogContent
+        className={`max-h-[90vh] overflow-y-auto ${rate ? "max-w-md" : "max-w-2xl"}`}
+      >
         {open && (
           <VendorRateFormContainer
             rateId={rate?.id}
@@ -697,9 +749,16 @@ export function VendorRateFormContainer({
     );
   }
 
-  const effectiveRate = (type === "live" ? detailedLive : detailedRate) || initialRate;
+  const effectiveRate =
+    (type === "live" ? detailedLive : detailedRate) || initialRate;
   if (!effectiveRate) {
-    return <VendorRateCreateContent key={`new-${type}`} type={type} onClose={onClose} />;
+    return (
+      <VendorRateCreateContent
+        key={`new-${type}`}
+        type={type}
+        onClose={onClose}
+      />
+    );
   }
   return (
     <VendorRateEditContent

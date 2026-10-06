@@ -233,6 +233,7 @@ export function CategoryPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         category={selectedCategory}
+        defaultType={tab}
       />
     </div>
   );
