@@ -45,12 +45,23 @@ function GalleryThumb({
   );
 }
 
-/** Full image URL — same resolution as the preview thumbnail. */
+/** Full image URL — prefers the exact URL coming from the API.
+ *  If `gallery_url` is already a complete file URL it is used as-is;
+ *  if it is only a base folder, the filename is joined to it. */
 function galleryImageUrl(item: GalleryItem): string {
-  if (item.gallery_url) {
-    return `${item.gallery_url.replace(/\/?$/, "/")}${(item.gallery_image || "").replace(/^\/+/, "")}`;
+  const apiUrl = (item.gallery_url || "").trim();
+  const file = (item.gallery_image || "").trim();
+  if (apiUrl) {
+    const lower = apiUrl.toLowerCase();
+    const isCompleteUrl =
+      /\.(jpg|jpeg|png|webp|gif|svg|avif|bmp|mp4|pdf)(\?.*)?$/.test(lower) ||
+      (file !== "" && lower.endsWith(file.toLowerCase()));
+    if (isCompleteUrl) return apiUrl;
+    if (!file) return apiUrl;
+    return `${apiUrl.replace(/\/?$/, "/")}${file.replace(/^\/+/, "")}`;
   }
-  return resolveAssetImageUrl(item.gallery_image, "gallerys_images") ?? "";
+  if (!file) return "";
+  return resolveAssetImageUrl(file, "gallerys_images") ?? "";
 }
 
 interface GalleryTableProps {
