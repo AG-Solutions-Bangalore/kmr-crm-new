@@ -56,6 +56,11 @@ export interface AppFeedCardProps {
   domId?: string;
   /** Emphasizes the card + scrolls it into view (deep-link landing). */
   highlighted?: boolean;
+  /**
+   * Action buttons placement: "title" (default, inline on the right side of the card title)
+   * or "footer" (bottom-right of card).
+   */
+  actionPlacement?: "title" | "footer";
   onEdit?: () => void;
   onToggleStatus?: () => void;
 }
@@ -93,6 +98,7 @@ export function AppFeedCard({
   shareUrl,
   domId,
   highlighted = false,
+  actionPlacement = "title",
   onEdit,
   onToggleStatus,
 }: AppFeedCardProps) {
@@ -290,6 +296,81 @@ export function AppFeedCard({
     </>
   );
 
+  const hasActions = canEdit || canToggle || showShare;
+  const hasMeta = Boolean(metaPrimary || metaSecondary);
+  const showFooter =
+    actionPlacement === "title" ? hasMeta : (hasMeta || hasActions);
+
+  const renderActions = () => {
+    if (!hasActions) return null;
+    return (
+      <div className="flex shrink-0 items-center gap-1.5">
+        {showShare && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              void handleShare();
+            }}
+            title={shareUrl ? "Copy image URL" : "Copy link to this item"}
+            aria-label={
+              shareUrl ? "Copy image URL" : "Copy link to this item"
+            }
+            className="size-8 shrink-0 p-0"
+          >
+            <Copy className="size-4 text-muted-foreground" />
+          </Button>
+        )}
+        {canEdit && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.();
+            }}
+            title="Edit"
+            className={cn(
+              "gap-1.5 font-semibold",
+              compact ? "h-7 px-2.5 text-[11px]" : "h-8 px-3 text-xs",
+            )}
+          >
+            <Edit2 className="size-3.5" />
+            Edit
+          </Button>
+        )}
+        {canToggle && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={isToggling}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleStatus?.();
+            }}
+            title={statusActive ? "Hide" : "Publish"}
+            aria-label={statusActive ? "Hide" : "Publish"}
+            className="size-8 shrink-0 p-0"
+          >
+            <Power
+              className={cn(
+                "size-4",
+                statusActive
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-muted-foreground",
+                isToggling && "animate-pulse",
+              )}
+            />
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Card
       ref={cardRef}
@@ -338,7 +419,25 @@ export function AppFeedCard({
           compact ? "gap-1.5 p-3" : "gap-2 p-4",
         )}
       >
-        {canEdit ? (
+        {actionPlacement === "title" ? (
+          <div className="flex items-center justify-between gap-2">
+            {canEdit ? (
+              <button
+                type="button"
+                onClick={() => onEdit?.()}
+                title={title}
+                className="min-w-0 flex-1 cursor-pointer text-left"
+              >
+                <CardTitle title={title} compact={compact} fixedHeight={false} />
+              </button>
+            ) : (
+              <div className="min-w-0 flex-1">
+                <CardTitle title={title} compact={compact} fixedHeight={false} />
+              </div>
+            )}
+            {renderActions()}
+          </div>
+        ) : canEdit ? (
           <button
             type="button"
             onClick={() => onEdit?.()}
@@ -375,86 +474,41 @@ export function AppFeedCard({
           </p>
         ) : null}
 
-        {/* Footer: meta on the left, actions on the right. */}
-        <div
-          className={cn(
-            "mt-auto flex items-end justify-between gap-2 border-t border-border/60",
-            compact ? "pt-2" : "pt-3",
-          )}
-        >
-          <div className="flex min-w-0 flex-col gap-1 text-[11px] text-muted-foreground">
-            {metaPrimary && <span className="truncate">{metaPrimary}</span>}
-            {metaSecondary}
-          </div>
-          {(canEdit || canToggle || showShare) && (
-            <div className="flex shrink-0 items-center gap-1.5">
-              {showShare && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleShare}
-                  title={shareUrl ? "Copy image URL" : "Copy link to this item"}
-                  aria-label={
-                    shareUrl ? "Copy image URL" : "Copy link to this item"
-                  }
-                  className="size-8 shrink-0 p-0"
-                >
-                  <Copy className="size-4 text-muted-foreground" />
-                </Button>
-              )}
-              {canEdit && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEdit?.()}
-                  title="Edit"
-                  className={cn(
-                    "gap-1.5 font-semibold",
-                    compact ? "h-7 px-2.5 text-[11px]" : "h-8 px-3 text-xs",
-                  )}
-                >
-                  <Edit2 className="size-3.5" />
-                  Edit
-                </Button>
-              )}
-              {canToggle && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={isToggling}
-                  onClick={() => onToggleStatus?.()}
-                  title={statusActive ? "Hide" : "Publish"}
-                  aria-label={statusActive ? "Hide" : "Publish"}
-                  className="size-8 shrink-0 p-0"
-                >
-                  <Power
-                    className={cn(
-                      "size-4",
-                      statusActive
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-muted-foreground",
-                      isToggling && "animate-pulse",
-                    )}
-                  />
-                </Button>
-              )}
+        {/* Footer: meta on the left, actions on the right (if not placed in title). */}
+        {showFooter && (
+          <div
+            className={cn(
+              "mt-auto flex items-end justify-between gap-2 border-t border-border/60",
+              compact ? "pt-2" : "pt-3",
+            )}
+          >
+            <div className="flex min-w-0 flex-col gap-1 text-[11px] text-muted-foreground">
+              {metaPrimary && <span className="truncate">{metaPrimary}</span>}
+              {metaSecondary}
             </div>
-          )}
-        </div>
+            {actionPlacement !== "title" && renderActions()}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-function CardTitle({ title, compact }: { title: string; compact: boolean }) {
+function CardTitle({
+  title,
+  compact,
+  fixedHeight = true,
+}: {
+  title: string;
+  compact: boolean;
+  fixedHeight?: boolean;
+}) {
   return (
     <h3
       className={cn(
         "line-clamp-2 font-bold leading-snug tracking-tight text-foreground transition-colors hover:text-primary",
-        compact ? "min-h-[2.4em] text-sm" : "min-h-[2.6em] text-[15px]",
+        fixedHeight && (compact ? "min-h-[2.4em]" : "min-h-[2.6em]"),
+        compact ? "text-sm" : "text-[15px]",
       )}
     >
       {title}

@@ -49,9 +49,12 @@ export function GalleryCard({ item, isToggling, compact = false, highlighted = f
       ageLabel={ago ?? (item.created_at ? formatDateDMY(item.created_at) : null)}
       updatedPill={justUpdated ? `Updated${ago ? ` • ${ago}` : ""}` : null}
       justUpdated={justUpdated}
-      metaPrimary={item.created_at ? formatDateDMY(item.created_at) : "—"}
+      actionPlacement="title"
+      metaPrimary={item.created_at ? formatDateDMY(item.created_at) : null}
       metaSecondary={
-        <span className="text-muted-foreground/70">{ago ? `Updated ${ago}` : "—"}</span>
+        ago ? (
+          <span className="text-muted-foreground/70">{`Updated ${ago}`}</span>
+        ) : null
       }
       compact={compact}
       isToggling={isToggling}
