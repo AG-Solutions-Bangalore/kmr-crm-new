@@ -20,21 +20,32 @@ import {
   useCreateCategory,
   useUpdateCategory,
 } from "../hook/useCategory.ts";
+import { isRootCategory } from "@/lib/category-tree.ts";
 import type { Category, CategoryStatus } from "../types/category.types.ts";
 
 interface CategoryFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   category?: Category | null;
+  defaultType?: "parent" | "sub";
 }
 
 interface InnerFormProps {
   category?: Category | null;
+  defaultType?: "parent" | "sub";
   onClose: () => void;
 }
 
-function CategoryFormContent({ category, onClose }: InnerFormProps) {
+function CategoryFormContent({
+  category,
+  defaultType = "parent",
+  onClose,
+}: InnerFormProps) {
   const isEditing = Boolean(category);
+  const isSub = isEditing
+    ? Boolean(category && !isRootCategory(category))
+    : defaultType === "sub";
+
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
 
@@ -42,7 +53,9 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
   // Slug is fully auto-generated and never hand-edited: live from the name
   // when creating, frozen to the saved value when editing.
   const [slug, setSlug] = useState(category?.categories_slug || "");
-  const [parentId, setParentId] = useState(String(category?.parent_id ?? "0"));
+  const [parentId, setParentId] = useState(
+    category?.parent_id ? String(category.parent_id) : "",
+  );
   const [sortOrder, setSortOrder] = useState(
     String(category?.categories_sort_order ?? "1"),
   );
@@ -55,15 +68,17 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: allCategories = [] } = useCategories();
-  const parentOptions = [
-    { value: "0", label: "Root (No Parent)" },
-    ...allCategories
-      .filter((c) => !category || String(c.id) !== String(category.id))
-      .map((c) => ({
-        value: String(c.id),
-        label: c.categories_name,
-      })),
-  ];
+  // In Parent Category only root categories (parent_id is null / 0) should appear
+  const parentOptions = allCategories
+    .filter(
+      (c) =>
+        isRootCategory(c) &&
+        (!category || String(c.id) !== String(category.id)),
+    )
+    .map((c) => ({
+      value: String(c.id),
+      label: c.categories_name,
+    }));
 
   const slugifyName = (val: string) =>
     val
@@ -103,20 +118,28 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
     setErrorMessage(null);
 
     if (!name.trim()) {
-      setErrorMessage("Category name is required.");
+      setErrorMessage(
+        isSub ? "Sub-category name is required." : "Category name is required.",
+      );
+      return;
+    }
+
+    if (isSub && (!parentId || parentId === "0")) {
+      setErrorMessage("Please select a parent category.");
       return;
     }
 
     try {
       // A hand-typed slug is always respected; a blank one falls back to the name.
       const finalSlug = slug.trim() || slugifyName(name);
+      const finalParentId = isSub ? parentId : "0";
       if (isEditing && category) {
         await updateMutation.mutateAsync({
           id: category.id,
           payload: {
             categories_name: name.trim(),
             categories_slug: finalSlug,
-            parent_id: parentId,
+            parent_id: finalParentId,
             categories_sort_order: sortOrder,
             categories_status: status,
             categories_image: imageFile ?? undefined,
@@ -126,7 +149,7 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
         await createMutation.mutateAsync({
           categories_name: name.trim(),
           categories_slug: finalSlug,
-          parent_id: parentId,
+          parent_id: finalParentId,
           categories_sort_order: sortOrder,
           categories_status: "Active",
           categories_image: imageFile ?? undefined,
@@ -142,12 +165,22 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <DialogHeader>
         <DialogTitle>
-          {isEditing ? "Edit Category" : "Add New Category"}
+          {isEditing
+            ? isSub
+              ? "Edit Sub Category"
+              : "Edit Category"
+            : isSub
+              ? "Add New Sub Category"
+              : "Add New Category"}
         </DialogTitle>
         <DialogDescription>
           {isEditing
-            ? "Update category details and publication status."
-            : "Create a new product category for your catalog."}
+            ? isSub
+              ? "Update sub-category details and publication status."
+              : "Update category details and publication status."
+            : isSub
+              ? "Create a new sub-category linked to a primary category."
+              : "Create a new product category for your catalog."}
         </DialogDescription>
       </DialogHeader>
 
@@ -211,17 +244,23 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cat-parent">Parent Category (0 for root)</Label>
-          <CategorySelectWithCreate
-            id="cat-parent"
-            value={parentId}
-            onChange={setParentId}
-            options={parentOptions}
-            placeholder="Select parent — or + to create one"
-            defaultParentId="0"
-          />
-        </div>
+        {isSub && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cat-parent">
+              Parent Category <span className="text-destructive">*</span>
+            </Label>
+            <CategorySelectWithCreate
+              id="cat-parent"
+              direction="up"
+              value={parentId === "0" ? "" : parentId}
+              onChange={setParentId}
+              options={parentOptions}
+              placeholder="Select parent category — or + to create one"
+              defaultParentId="0"
+              required
+            />
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="cat-image">Category Image</Label>
@@ -304,8 +343,12 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
           {isPending
             ? "Saving..."
             : isEditing
-              ? "Update Category"
-              : "Create Category"}
+              ? isSub
+                ? "Update Sub Category"
+                : "Update Category"
+              : isSub
+                ? "Create Sub Category"
+                : "Create Category"}
         </Button>
       </DialogFooter>
     </form>
@@ -316,6 +359,7 @@ export function CategoryFormDialog({
   open,
   onOpenChange,
   category,
+  defaultType,
 }: CategoryFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -324,6 +368,7 @@ export function CategoryFormDialog({
           <CategoryFormContainer
             categoryId={category?.id}
             initialCategory={category}
+            defaultType={defaultType}
             onClose={() => onOpenChange(false)}
           />
         )}
@@ -335,10 +380,12 @@ export function CategoryFormDialog({
 function CategoryFormContainer({
   categoryId,
   initialCategory,
+  defaultType,
   onClose,
 }: {
   categoryId?: number;
   initialCategory?: Category | null;
+  defaultType?: "parent" | "sub";
   onClose: () => void;
 }) {
   // GET /category/:id — fetch fresh details for edit.
@@ -359,9 +406,10 @@ function CategoryFormContainer({
       key={
         effectiveCategory?.id
           ? `${effectiveCategory.id}-${effectiveCategory.updated_at ?? ""}-${effectiveCategory.categories_image?.length ?? 0}`
-          : "new-category"
+          : `new-${defaultType ?? "parent"}`
       }
       category={effectiveCategory}
+      defaultType={defaultType}
       onClose={onClose}
     />
   );

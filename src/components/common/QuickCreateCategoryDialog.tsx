@@ -307,6 +307,7 @@ export function QuickCreateCategoryDialog({
                 </Label>
                 <SearchableSelect
                   id="qc-parent"
+                  direction="up"
                   value={parentId}
                   onChange={setParentId}
                   options={parentOptions}
