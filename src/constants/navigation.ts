@@ -10,6 +10,7 @@ import {
   IndianRupee,
   LayoutDashboard,
   Mail,
+  MessageSquare,
   Newspaper,
   Quote,
   Radio,
@@ -124,10 +125,21 @@ export const SIDEBAR_ITEMS: NavEntry[] = [
     userTypes: [2, 3],
   },
   {
-    title: "Enquiry->Download",
-    path: PATHS.enquiryReport,
-    icon: Download,
+    title: "Enquiry",
+    icon: MessageSquare,
     userTypes: [2, 3],
+    children: [
+      {
+        title: "Enquiry",
+        path: PATHS.enquiry,
+        icon: MessageSquare,
+      },
+      {
+        title: "Download",
+        path: PATHS.enquiryReport,
+        icon: Download,
+      },
+    ],
   },
   // Superadmin only (user_type = 3)
   {

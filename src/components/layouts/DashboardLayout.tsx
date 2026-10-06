@@ -22,7 +22,7 @@ const SIDEBAR_EXPANDED_STORAGE_KEY = "kmr_sidebar_expanded_groups";
 
 function getInitialOpenGroups(): Record<string, boolean> {
   if (typeof window === "undefined") {
-    return { Members: true, "APP Rates": true };
+    return { Members: true, "APP Rates": true, Enquiry: true };
   }
   try {
     const raw = localStorage.getItem(SIDEBAR_EXPANDED_STORAGE_KEY);
@@ -38,6 +38,7 @@ function getInitialOpenGroups(): Record<string, boolean> {
   return {
     Members: true,
     "APP Rates": true,
+    Enquiry: true,
   };
 }
 
