@@ -69,7 +69,8 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   );
 
   const placementOptions = useMemo(() => {
-    const list = pageSlugs.length > 0 ? [...pageSlugs] : [...FALLBACK_PAGE_OPTIONS];
+    const list =
+      pageSlugs.length > 0 ? [...pageSlugs] : [...FALLBACK_PAGE_OPTIONS];
     if (faqFor && !list.some((o) => o.value === faqFor)) {
       list.unshift({ value: faqFor, label: `${faqFor} (${faqFor})` });
     }
@@ -139,7 +140,9 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
 
     const hasEmpty = subs.some((s) => !s.faq_que.trim() || !s.faq_ans.trim());
     if (hasEmpty) {
-      setErrorMessage("Please fill out both the question and answer for all entries.");
+      setErrorMessage(
+        "Please fill out both the question and answer for all entries.",
+      );
       return;
     }
 
@@ -157,7 +160,9 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
               faq_que: s.faq_que.trim(),
               faq_ans: s.faq_ans.trim(),
               faq_status:
-                s.faq_status === "Inactive" || s.faq_status === 0 || s.faq_status === "0"
+                s.faq_status === "Inactive" ||
+                s.faq_status === 0 ||
+                s.faq_status === "0"
                   ? 0
                   : 1,
             })),
@@ -206,9 +211,18 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
 
       {/* Page placement & status */}
       <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
-        <div className={isEditing ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : "grid grid-cols-1 gap-4"}>
+        <div
+          className={
+            isEditing
+              ? "grid grid-cols-1 sm:grid-cols-2 gap-4"
+              : "grid grid-cols-1 gap-4"
+          }
+        >
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="faq-for" className="text-xs font-semibold text-foreground">
+            <Label
+              htmlFor="faq-for"
+              className="text-xs font-semibold text-foreground"
+            >
               Page Placement
             </Label>
             <SearchableSelect
@@ -220,13 +234,17 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
               className="h-10 text-sm"
             />
             <p className="text-[11px] text-muted-foreground">
-              Select which website page displays this FAQ group. Type to search by page name or URL slug.
+              Select which website page displays this FAQ group. Type to search
+              by page name or URL slug.
             </p>
           </div>
 
           {isEditing && (
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="faq-status" className="text-xs font-semibold text-foreground">
+              <Label
+                htmlFor="faq-status"
+                className="text-xs font-semibold text-foreground"
+              >
                 Status
               </Label>
               <select
@@ -254,7 +272,8 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
               Questions & Answers ({subs.length})
             </Label>
             <p className="text-xs text-muted-foreground">
-              Organize your FAQs with optional subheadings, questions, and detailed answers.
+              Organize your FAQs with optional subheadings, questions, and
+              detailed answers.
             </p>
           </div>
           <Button
@@ -301,17 +320,18 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
                 )}
               </div>
 
-              {/* Subheading / Topic (Big, dedicated space!) */}
+              {/* heading  (Big, dedicated space!) */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <Label
                     htmlFor={`faq-heading-${index}`}
                     className="text-xs font-semibold text-foreground"
                   >
-                    Subheading / Topic
+                    Heading
                   </Label>
                   <span className="text-[11px] text-muted-foreground">
-                    Optional section heading (e.g. General, Account & Billing, Orders & Shipping)
+                    Optional section heading (e.g. General, Account & Billing,
+                    Orders & Shipping)
                   </span>
                 </div>
                 <Input
@@ -430,7 +450,11 @@ export function FaqFormContainer({
   const effectiveFaq = detailedFaq || initialFaq;
   return (
     <FaqFormContent
-      key={effectiveFaq?.id ? `${effectiveFaq.id}-${effectiveFaq.subs?.length ?? 0}` : "new"}
+      key={
+        effectiveFaq?.id
+          ? `${effectiveFaq.id}-${effectiveFaq.subs?.length ?? 0}`
+          : "new"
+      }
       faq={effectiveFaq}
       onClose={onClose}
     />
