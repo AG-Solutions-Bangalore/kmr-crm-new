@@ -248,7 +248,7 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
               onChange={appendCategoryId}
               options={parentCategories.map((c) => ({
                 value: String(c.id),
-                label: `${c.categories_name} (ID: ${c.id})`,
+                label: c.categories_name,
               }))}
               placeholder={
                 catsLoading ? "Loading categories..." : "Search category — or + to create one"

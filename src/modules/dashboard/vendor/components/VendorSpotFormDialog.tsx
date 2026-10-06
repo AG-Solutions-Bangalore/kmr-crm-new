@@ -168,14 +168,14 @@ function VendorSpotEditContent({
               }}
               options={parentCategories.map((c) => ({
                 value: String(c.id),
-                label: `${c.categories_name} (ID: ${c.id})`,
+                label: c.categories_name,
               }))}
               placeholder="Search category — or + to create one"
               required
             />
             {spot?.categories_name && (
               <p className="text-xs text-muted-foreground">
-                Current: {spot.categories_name} (ID: {spot.category_id})
+                Current: {spot.categories_name}
               </p>
             )}
           </div>
@@ -195,13 +195,13 @@ function VendorSpotEditContent({
                   ? [
                       {
                         value: subCategoryId,
-                        label: `Current: ${spot?.sub_categories_name || `#${subCategoryId}`} (ID: ${subCategoryId})`,
+                        label: `Current: ${spot?.sub_categories_name || `#${subCategoryId}`}`,
                       },
                     ]
                   : []),
                 ...subOptionsBase.map((c) => ({
                   value: String(c.id),
-                  label: `${c.categories_name} (ID: ${c.id})`,
+                  label: c.categories_name,
                 })),
               ]}
               placeholder={
@@ -470,7 +470,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
             </Button>
           </div>
 
-          <div className="flex max-h-[320px] flex-col gap-3 overflow-y-auto pr-1">
+          <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto pr-1">
             {rows.map((row, idx) => (
               <div
                 key={row.key}
@@ -515,7 +515,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                       onChange={(val) => updateRow(row.key, "categoryId", val)}
                       options={parentCategories.map((c) => ({
                         value: String(c.id),
-                        label: `${c.categories_name} (ID: ${c.id})`,
+                        label: c.categories_name,
                       }))}
                       placeholder="Search category — or +"
                     />
@@ -533,7 +533,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                           { value: "", label: list.length > 0 ? "None" : "(No sub-categories)" },
                           ...list.map((c) => ({
                             value: String(c.id),
-                            label: `${c.categories_name} (ID: ${c.id})`,
+                            label: c.categories_name,
                           })),
                         ];
                       })()}

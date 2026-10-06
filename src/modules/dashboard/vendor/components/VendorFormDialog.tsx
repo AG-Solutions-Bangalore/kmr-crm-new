@@ -48,6 +48,13 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
+  function handleMobileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let digits = e.target.value.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+    else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+    setMobile(digits.slice(0, 10));
+  }
+
   useEffect(() => {
     if (!imageFile) {
       setNewPreviewUrl(null);
@@ -70,6 +77,10 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
     }
     if (!mobile.trim()) {
       setErrorMessage("Vendor mobile is required.");
+      return;
+    }
+    if (mobile.trim().length !== 10) {
+      setErrorMessage("Please enter a valid 10-digit mobile number.");
       return;
     }
 
@@ -144,8 +155,11 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
             </Label>
             <Input
               id="v-mobile"
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
               value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
+              onChange={handleMobileChange}
               placeholder="e.g. 9876543210"
               required
             />

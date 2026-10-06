@@ -204,7 +204,7 @@ function VendorRateEditContent({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="edit-rate-size">Size / Unit</Label>
           <Input
@@ -227,9 +227,6 @@ function VendorRateEditContent({
             required
           />
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="edit-rate-cat">Category</Label>
           <CategorySelectWithCreate
@@ -240,13 +237,13 @@ function VendorRateEditContent({
             }}
             options={parentCategories.map((c) => ({
               value: String(c.id),
-              label: `${c.categories_name} (ID: ${c.id})`,
+              label: c.categories_name,
             }))}
             placeholder="Search category — or +"
           />
           {rate.categories_name && (
             <p className="text-xs text-muted-foreground">
-              Current: {rate.categories_name} (ID: {rate.category_id})
+              Current: {rate.categories_name}
             </p>
           )}
         </div>
@@ -265,13 +262,13 @@ function VendorRateEditContent({
                 ? [
                     {
                       value: subCategoryId,
-                      label: `Current: ${rate.sub_categories_name || `#${subCategoryId}`} (ID: ${subCategoryId})`,
+                      label: `Current: ${rate.sub_categories_name || `#${subCategoryId}`}`,
                     },
                   ]
                 : []),
               ...subOptionsBase.map((c) => ({
                 value: String(c.id),
-                label: `${c.categories_name} (ID: ${c.id})`,
+                label: c.categories_name,
               })),
             ]}
             placeholder={
@@ -499,7 +496,7 @@ function VendorRateCreateContent({
           </Button>
         </div>
 
-        <div className="flex max-h-[340px] flex-col gap-3 overflow-y-auto pr-1">
+        <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto pr-1">
           {rows.map((row, idx) => {
             const subCats = subsFor(row.categoryId);
             return (
@@ -550,7 +547,7 @@ function VendorRateCreateContent({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor={`rate-size-${row.key}`}>Size / Unit</Label>
                     <Input
@@ -573,9 +570,6 @@ function VendorRateCreateContent({
                       required
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor={`rate-cat-${row.key}`}>Category</Label>
                     <CategorySelectWithCreate
@@ -587,7 +581,7 @@ function VendorRateCreateContent({
                       }}
                       options={parentCategories.map((c) => ({
                         value: String(c.id),
-                        label: `${c.categories_name} (ID: ${c.id})`,
+                        label: c.categories_name,
                       }))}
                       placeholder="Search category — or +"
                     />
@@ -602,7 +596,7 @@ function VendorRateCreateContent({
                         { value: "", label: subCats.length > 0 ? "None" : "(No sub-categories)" },
                         ...subCats.map((c) => ({
                           value: String(c.id),
-                          label: `${c.categories_name} (ID: ${c.id})`,
+                          label: c.categories_name,
                         })),
                       ]}
                       placeholder={

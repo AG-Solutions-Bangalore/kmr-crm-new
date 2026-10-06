@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, SlidersHorizontal, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -56,6 +56,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
       setCategoryId(String(categories[0].id));
     }
   }, [categories, categoryId]);
+
   const [sortOrder, setSortOrder] = useState(String(slider?.slider_sort_order ?? "1"));
   const [url, setUrl] = useState(slider?.slider_url || "");
   const [status, setStatus] = useState<SliderStatus>(
@@ -116,7 +117,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
           category_id: sliderType === "Category" ? categoryId : undefined,
           slider_sort_order: sortOrder,
           slider_url: url.trim(),
-          slider_status: "Active",
+          slider_status: status,
           slider_image: imageFile ?? undefined,
         });
       }
@@ -127,14 +128,32 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <DialogHeader>
-        <DialogTitle>{isEditing ? "Edit Slider" : "Add Slider Banner"}</DialogTitle>
-        <DialogDescription>
-          {isEditing
-            ? "Update slider banner image and target link."
-            : "Upload a home screen or category hero banner."}
-        </DialogDescription>
+    <form
+      onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          void handleSubmit(e);
+        }
+      }}
+      className="flex flex-col gap-5"
+    >
+      <DialogHeader className="gap-1 border-b border-border/60 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
+            <SlidersHorizontal className="size-4" />
+          </div>
+          <div>
+            <DialogTitle className="text-lg font-semibold">
+              {isEditing ? "Edit Slider Banner" : "Add Slider Banner"}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              {isEditing
+                ? "Update slider banner image, display order, and target redirection link."
+                : "Upload and configure a hero banner for the home screen or category page."}
+            </DialogDescription>
+          </div>
+        </div>
       </DialogHeader>
 
       {errorMessage && (
@@ -143,8 +162,9 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
         </div>
       )}
 
-      <div className="grid gap-3">
-        <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
+      <div className="flex flex-col gap-4">
+        {/* Row 1: Type + Status */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="s-type">Slider Type</Label>
             <select
@@ -154,49 +174,57 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
               className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="Category">Category Banner</option>
-              <option value="Home">Home Screen</option>
+              <option value="Home">Home Screen Hero</option>
             </select>
           </div>
 
-          {isEditing && (
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="s-status">Status</Label>
-              <select
-                id="s-status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value as SliderStatus)}
-                className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-          )}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="s-status">Status</Label>
+            <select
+              id="s-status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as SliderStatus)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
         </div>
 
+        {/* Row 2: Category (only when Category type) */}
         {sliderType === "Category" && (
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="s-cat">Category</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="s-cat">
+                Target Category <span className="text-destructive">*</span>
+              </Label>
+              {slider?.categories_name && (
+                <span className="text-[11px] text-muted-foreground">
+                  Current: {slider.categories_name}
+                </span>
+              )}
+            </div>
             <CategorySelectWithCreate
               id="s-cat"
               value={categoryId}
               onChange={setCategoryId}
               options={categories.map((c) => ({
                 value: String(c.id),
-                label: `${c.categories_name} (ID: ${c.id})`,
+                label: c.categories_name,
               }))}
-              placeholder={categoriesLoading ? "Loading categories..." : "Select category — or + to create one"}
+              placeholder={
+                categoriesLoading
+                  ? "Loading categories..."
+                  : "Select category — or + to create one"
+              }
               required
             />
-            {slider?.categories_name && (
-              <p className="text-xs text-muted-foreground">
-                Current: {slider.categories_name} (ID: {slider.category_id})
-              </p>
-            )}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        {/* Row 3: Sort Order + Target URL */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="s-sort">Sort Order</Label>
             <Input
@@ -205,24 +233,105 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
               min="0"
+              placeholder="e.g. 1"
             />
+            <p className="text-[11px] text-muted-foreground">
+              Lower numbers appear first in the banner carousel
+            </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="s-url">Target / Redirect URL</Label>
+            <Label htmlFor="s-url">Target / Redirect URL (optional)</Label>
             <Input
               id="s-url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
+              placeholder="https://example.com/promo or /category/12"
             />
+            <p className="text-[11px] text-muted-foreground">
+              URL opened when users tap or click this banner
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="s-image">
-            Banner Image {!isEditing && <span className="text-destructive">*</span>}
-          </Label>
+        {/* Row 4: Banner Image Upload & Wide Preview */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="s-image">
+              Banner Image {!isEditing && <span className="text-destructive">*</span>}
+            </Label>
+            <span className="text-[11px] text-muted-foreground">
+              Landscape recommended (e.g. 1200 × 500 px or 16:9)
+            </span>
+          </div>
+
+          {newPreviewUrl ? (
+            <div className="flex flex-col overflow-hidden rounded-xl border border-border/80 bg-muted/20">
+              <div className="relative aspect-[16/7] w-full overflow-hidden bg-black/10">
+                <img
+                  src={newPreviewUrl}
+                  alt="New banner preview"
+                  className="size-full object-cover"
+                />
+                <div className="absolute right-2 top-2">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setImageFile(null)}
+                    className="size-7 p-0 shadow-sm"
+                    title="Remove selected image"
+                  >
+                    <X className="size-3.5" />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between px-3 py-2 text-xs border-t border-border/60">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                    New Selection
+                  </span>
+                  <span className="truncate text-muted-foreground font-mono">
+                    {imageFile?.name}
+                  </span>
+                </div>
+                <span className="text-[11px] text-muted-foreground shrink-0">
+                  {imageFile ? `${(imageFile.size / 1024).toFixed(0)} KB` : ""}
+                </span>
+              </div>
+            </div>
+          ) : existingImageUrl ? (
+            <div className="flex flex-col overflow-hidden rounded-xl border border-border/80 bg-muted/20">
+              <div className="relative aspect-[16/7] w-full overflow-hidden bg-black/10">
+                {existingImgError ? (
+                  <div className="flex size-full flex-col items-center justify-center p-4 text-center">
+                    <span className="text-xs font-medium text-destructive">
+                      Preview not available at current URL
+                    </span>
+                    <span className="text-[11px] text-muted-foreground mt-1">
+                      Upload a new file below to replace it.
+                    </span>
+                  </div>
+                ) : (
+                  <img
+                    src={existingImageUrl}
+                    alt="Currently uploaded banner"
+                    className="size-full object-cover"
+                    onError={() => setExistingImgError(true)}
+                  />
+                )}
+              </div>
+              <div className="flex items-center justify-between border-t border-border/60 bg-muted/30 px-3 py-2 text-xs">
+                <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                  Currently Live Banner
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  Select a new file below to replace
+                </span>
+              </div>
+            </div>
+          ) : null}
+
           <Input
             id="s-image"
             type="file"
@@ -231,82 +340,41 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
               const file = e.target.files?.[0] ?? null;
               setImageFile(file);
             }}
-            required={!isEditing}
+            required={!isEditing && !newPreviewUrl}
+            className="cursor-pointer file:cursor-pointer"
           />
-          {newPreviewUrl ? (
-            <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
-              <img
-                src={newPreviewUrl}
-                alt="New banner preview"
-                className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-foreground">
-                  New banner preview
-                </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {imageFile?.name}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setImageFile(null)}
-                className="size-7 shrink-0 p-0"
-                title="Remove selected image"
-              >
-                <X className="size-3.5" />
-              </Button>
-            </div>
-          ) : (
-            existingImageUrl && (
-              <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
-                {existingImgError ? (
-                  <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 p-1 text-center">
-                    <span className="text-[10px] font-medium leading-tight text-destructive">
-                      Preview not available
-                    </span>
-                  </div>
-                ) : (
-                  <img
-                    src={existingImageUrl}
-                    alt="Currently uploaded banner"
-                    className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
-                    onError={() => setExistingImgError(true)}
-                  />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-foreground">
-                    Currently uploaded
-                  </p>
-                  {existingImgError && (
-                    <p className="text-[11px] text-destructive">
-                      File not found at this URL — check folder/filename.
-                    </p>
-                  )}
-                  <p className="text-[11px] text-muted-foreground/80">
-                    Upload a new file to replace it.
-                  </p>
-                </div>
-              </div>
-            )
-          )}
         </div>
       </div>
 
-      <DialogFooter className="pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-          disabled={isPending}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update Banner" : "Upload Banner"}
-        </Button>
+      <DialogFooter className="pt-2 flex-row items-center justify-between sm:justify-between border-t border-border/60">
+        <span className="hidden text-xs text-muted-foreground sm:inline">
+          <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+            Ctrl+Enter
+          </kbd>{" "}
+          to {isEditing ? "update" : "upload"}
+        </span>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin mr-1.5" />
+                <span>Saving...</span>
+              </>
+            ) : isEditing ? (
+              "Update Banner"
+            ) : (
+              "Upload Banner"
+            )}
+          </Button>
+        </div>
       </DialogFooter>
     </form>
   );
@@ -319,7 +387,7 @@ export function SliderFormDialog({
 }: SliderFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
+      <DialogContent className="max-h-[92vh] sm:min-h-[580px] w-full max-w-xl md:max-w-2xl overflow-y-auto">
         {open && (
           <SliderFormContainer
             sliderId={slider?.id}

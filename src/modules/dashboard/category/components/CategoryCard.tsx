@@ -14,19 +14,9 @@ interface CategoryCardProps {
   onToggleStatus: (category: Category) => void;
 }
 
-function isRoot(c: Category): boolean {
-  return (
-    c.parent_id === null ||
-    c.parent_id === undefined ||
-    c.parent_id === "" ||
-    c.parent_id === "0" ||
-    c.parent_id === 0
-  );
-}
-
 /**
  * Category adapter over the shared AppFeedCard — image cover, slug preview,
- * Main/Sub chip, sort order in the footer.
+ * Main/Sub chip, dates in the footer.
  */
 export function CategoryCard({
   category,
@@ -56,10 +46,7 @@ export function CategoryCard({
     <AppFeedCard
       cover={{ imageUrl, accent }}
       title={category.categories_name}
-      snippet={
-        category.categories_slug ||
-        `Sort order #${category.categories_sort_order ?? "—"}`
-      }
+      snippet={category.categories_slug || null}
       snippetClamp={2}
       statusActive={isActive}
       statusText={category.categories_status || "Active"}
@@ -70,7 +57,6 @@ export function CategoryCard({
       }
       updatedPill={justUpdated ? `Updated${ago ? ` • ${ago}` : ""}` : null}
       justUpdated={justUpdated}
-      metaPrimary={`Order #${category.categories_sort_order ?? "—"}`}
       metaSecondary={
         <span className="text-muted-foreground/70">
           {category.categories_slug ? `/${category.categories_slug}` : ""}

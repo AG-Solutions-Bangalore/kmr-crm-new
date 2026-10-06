@@ -25,6 +25,7 @@ interface SearchableSelectProps {
 /**
  * Searchable dropdown — type to filter options with keyboard arrow navigation,
  * Enter to select, and an inline "+ Create" action when no exact match exists.
+ * Automatically flips upwards when space below is tight to prevent cut-offs.
  */
 export function SearchableSelect({
   id,
@@ -41,7 +42,9 @@ export function SearchableSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [openUp, setOpenUp] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -67,26 +70,56 @@ export function SearchableSelect({
     setHighlightedIndex(0);
   }, [query, open]);
 
-  // Scroll active item into view
+  // Keep the highlighted item visible inside the list only (never the page).
   useEffect(() => {
-    if (!open || !listRef.current) return;
-    const activeEl = listRef.current.children[highlightedIndex] as HTMLElement | undefined;
-    if (activeEl) {
-      activeEl.scrollIntoView({ block: "nearest" });
+    if (!open) return;
+    const list = listRef.current;
+    if (!list) return;
+    const activeEl = list.children[highlightedIndex] as HTMLElement | undefined;
+    if (!activeEl) return;
+    const top = activeEl.offsetTop;
+    const bottom = top + activeEl.offsetHeight;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (bottom > list.scrollTop + list.clientHeight) {
+      list.scrollTop = bottom - list.clientHeight;
     }
   }, [highlightedIndex, open]);
 
+  // Dynamically check whether to open upward or downward based on viewport space
   useEffect(() => {
     if (!open) return;
-    searchRef.current?.focus();
+
+    const checkDirection = () => {
+      const el = triggerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      // Flip up if room below is tighter than preferred (280px) and there's more room above
+      setOpenUp(spaceBelow < 280 && spaceAbove > spaceBelow);
+    };
+
+    checkDirection();
+    window.addEventListener("resize", checkDirection);
+    window.addEventListener("scroll", checkDirection, true);
+
+    const focusTimer = setTimeout(() => {
+      searchRef.current?.focus();
+    }, 10);
+
     const onDown = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+      const t = e.target as Node;
+      if (rootRef.current && !rootRef.current.contains(t)) {
         setOpen(false);
         setQuery("");
       }
     };
     document.addEventListener("mousedown", onDown);
+
     return () => {
+      clearTimeout(focusTimer);
+      window.removeEventListener("resize", checkDirection);
+      window.removeEventListener("scroll", checkDirection, true);
       document.removeEventListener("mousedown", onDown);
     };
   }, [open]);
@@ -144,6 +177,7 @@ export function SearchableSelect({
   return (
     <div ref={rootRef} className="relative w-full" onKeyDown={handleKeyDown}>
       <button
+        ref={triggerRef}
         id={id}
         type="button"
         disabled={disabled}
@@ -184,7 +218,12 @@ export function SearchableSelect({
         <input required className="sr-only" value="" onChange={() => {}} tabIndex={-1} />
       ) : null}
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 duration-100">
+        <div
+          className={cn(
+            "absolute z-50 w-full rounded-md border border-border bg-popover text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95 duration-100",
+            openUp ? "bottom-full mb-1" : "top-full mt-1",
+          )}
+        >
           <div className="flex items-center gap-2 border-b border-border/60 px-2">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input
@@ -195,7 +234,10 @@ export function SearchableSelect({
               className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
-          <ul ref={listRef} className="max-h-56 overflow-y-auto p-1">
+          <ul
+            ref={listRef}
+            className="max-h-56 overflow-x-hidden overflow-y-auto overscroll-contain p-1 touch-pan-y"
+          >
             {filtered.length === 0 && !showCreateOption ? (
               <li className="px-2 py-4 text-center text-xs text-muted-foreground">
                 No matches found
@@ -215,12 +257,12 @@ export function SearchableSelect({
                         setQuery("");
                       }}
                       className={cn(
-                        "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors",
+                        "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors cursor-pointer",
                         isHighlighted && "bg-accent text-accent-foreground",
                         isSelected && !isHighlighted && "bg-accent/50",
                       )}
                     >
-                      <span className="flex-1 truncate">{o.label}</span>
+                      <span className="min-w-0 flex-1 truncate">{o.label}</span>
                       {isSelected && <Check className="size-3.5 shrink-0 text-primary" />}
                     </button>
                   </li>
@@ -240,12 +282,12 @@ export function SearchableSelect({
                     onCreateNew?.(q);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm font-medium text-primary transition-colors",
+                    "flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm font-medium text-primary transition-colors cursor-pointer",
                     highlightedIndex === filtered.length ? "bg-primary/10 text-primary" : "hover:bg-primary/5",
                   )}
                 >
                   <Plus className="size-4 shrink-0" />
-                  <span className="truncate">
+                  <span className="min-w-0 truncate">
                     {createLabel ? createLabel(query.trim()) : `Create "${query.trim()}"`}
                   </span>
                 </button>

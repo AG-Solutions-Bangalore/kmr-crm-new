@@ -61,7 +61,7 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
       .filter((c) => !category || String(c.id) !== String(category.id))
       .map((c) => ({
         value: String(c.id),
-        label: `${c.categories_name} (ID: ${c.id})`,
+        label: c.categories_name,
       })),
   ];
 

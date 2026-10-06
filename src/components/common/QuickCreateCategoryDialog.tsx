@@ -210,7 +210,7 @@ export function QuickCreateCategoryDialog({
   const parentOptions = useMemo(() => {
     return parentCategories.map((c) => ({
       value: String(c.id),
-      label: `${c.categories_name} (ID: ${c.id})`,
+      label: c.categories_name,
     }));
   }, [parentCategories]);
 
