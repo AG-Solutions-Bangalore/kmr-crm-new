@@ -3,12 +3,21 @@ import { AlertCircle, Edit2, IndianRupee, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import type { VendorRateProduct } from "../types/vendor.types.ts";
 
 interface VendorRateTableProps {
   rates: VendorRateProduct[];
   isLoading: boolean;
+  isFetching?: boolean;
   type: "live" | "standard";
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onToggleStatus?: (item: VendorRateProduct) => Promise<void>;
   onEdit?: (item: VendorRateProduct) => void;
   errorMessage?: string | null;
@@ -18,27 +27,23 @@ interface VendorRateTableProps {
 export function VendorRateTable({
   rates,
   isLoading,
+  isFetching = false,
   type,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
   onToggleStatus,
   onEdit,
   errorMessage,
   onRetry,
 }: VendorRateTableProps) {
-  const [search, setSearch] = useState("");
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  const filtered = rates.filter((r) => {
-    const q = search.toLowerCase();
-    return (
-      r.vendor_product?.toLowerCase().includes(q) ||
-      r.vendor_product_size?.toLowerCase().includes(q) ||
-      r.vendor_name?.toLowerCase().includes(q) ||
-      r.categories_name?.toLowerCase().includes(q) ||
-      r.sub_categories_name?.toLowerCase().includes(q) ||
-      String(r.vendor_product_rate).includes(q) ||
-      String(r.id).includes(q)
-    );
-  });
+  // Search + pagination are server-side (?search=&page=); render the loaded page directly.
 
   const handleToggle = async (item: VendorRateProduct) => {
     if (!onToggleStatus) return;
@@ -74,7 +79,7 @@ export function VendorRateTable({
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder={`Search ${type === "live" ? "live" : "standard"} rates by product or size...`}
             className="pl-8"
           />
@@ -106,7 +111,7 @@ export function VendorRateTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : rates.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -115,7 +120,7 @@ export function VendorRateTable({
                         No {type === "live" ? "live" : "standard"} rates found
                       </p>
                       <p className="text-xs">
-                        {rates.length === 0
+                        {total === 0
                           ? `No rates have been created yet. Click "+ Add ${type === "live" ? "Live" : "Standard"} Rate" to add one.`
                           : "Try adjusting your search filter."}
                       </p>
@@ -123,8 +128,8 @@ export function VendorRateTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
-                  const slNo = index + 1;
+                rates.map((item, index) => {
+                  const slNo = (page - 1) * perPage + index + 1;
                   const isActive =
                     item.vendor_product_status === "Active" ||
                     (item as { status?: string }).status === "Active" ||
@@ -211,6 +216,16 @@ export function VendorRateTable({
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import {
   Bell,
   Clock,
-  Download,
   FileText,
   FolderTree,
   GitBranch,
@@ -39,7 +38,7 @@ export interface NavEntry {
 
 /**
  * Sidebar navigation matching role access:
- * - Admin (user_type = 2): Dashboard through Enquiry->Download
+ * - Admin (user_type = 2): Dashboard through Enquiry
  * - Superadmin (user_type = 3): All modules including Sliders, Clients, Blog, Gallery, FAQs, Testimonials
  */
 export const SIDEBAR_ITEMS: NavEntry[] = [
@@ -126,20 +125,9 @@ export const SIDEBAR_ITEMS: NavEntry[] = [
   },
   {
     title: "Enquiry",
+    path: PATHS.enquiry,
     icon: MessageSquare,
     userTypes: [2, 3],
-    children: [
-      {
-        title: "Enquiry",
-        path: PATHS.enquiry,
-        icon: MessageSquare,
-      },
-      {
-        title: "Download",
-        path: PATHS.enquiryReport,
-        icon: Download,
-      },
-    ],
   },
   // Superadmin only (user_type = 3)
   {

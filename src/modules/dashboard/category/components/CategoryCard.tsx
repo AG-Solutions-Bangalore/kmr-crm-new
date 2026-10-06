@@ -45,8 +45,6 @@ export function CategoryCard({
     <AppFeedCard
       cover={{ imageUrl, accent }}
       title={category.categories_name}
-      snippet={category.categories_slug || null}
-      snippetClamp={2}
       statusActive={isActive}
       statusText={category.categories_status || "Active"}
       recordId={category.id}

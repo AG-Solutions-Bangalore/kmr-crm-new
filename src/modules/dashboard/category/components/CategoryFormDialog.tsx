@@ -191,15 +191,39 @@ function CategoryFormContent({
       )}
 
       <div className="grid gap-3">
+        {isSub && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cat-parent">
+              Parent Category <span className="text-destructive">*</span>
+            </Label>
+            <CategorySelectWithCreate
+              id="cat-parent"
+              direction="down"
+              value={parentId === "0" ? "" : parentId}
+              onChange={setParentId}
+              options={parentOptions}
+              placeholder="Select parent category — or + to create one"
+              defaultParentId="0"
+              disabled={isEditing}
+              required
+            />
+          </div>
+        )}
+
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="cat-name">
-            Category Name <span className="text-destructive">*</span>
+            {isSub ? "Sub Category Name" : "Category Name"}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <Input
             id="cat-name"
             value={name}
             onChange={(e) => handleNameChange(e.target.value)}
-            placeholder="e.g. Edible Oil, Rice, Pulses"
+            placeholder={
+              isSub
+                ? "e.g. 1st Grade Refined Rice Bran Oil, Copra"
+                : "e.g. Edible Oil, Rice, Pulses"
+            }
             required
           />
         </div>
@@ -244,26 +268,10 @@ function CategoryFormContent({
           )}
         </div>
 
-        {isSub && (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cat-parent">
-              Parent Category <span className="text-destructive">*</span>
-            </Label>
-            <CategorySelectWithCreate
-              id="cat-parent"
-              direction="up"
-              value={parentId === "0" ? "" : parentId}
-              onChange={setParentId}
-              options={parentOptions}
-              placeholder="Select parent category — or + to create one"
-              defaultParentId="0"
-              required
-            />
-          </div>
-        )}
-
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cat-image">Category Image</Label>
+          <Label htmlFor="cat-image">
+            {isSub ? "Sub Category Image" : "Category Image"}
+          </Label>
           <Input
             id="cat-image"
             type="file"

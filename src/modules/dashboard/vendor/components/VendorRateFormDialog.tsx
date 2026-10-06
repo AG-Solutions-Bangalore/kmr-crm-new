@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   Copy,
@@ -17,6 +17,7 @@ import {
   CategorySelectWithCreate,
   VendorSelectWithCreate,
 } from "@/components/common/EntitySelectWithCreate.tsx";
+import { filterVendorsByTrade, type VendorTradeType } from "../lib/vendor-trade.ts";
 import {
   useActiveVendors,
   useCreateVendorLive,
@@ -371,10 +372,27 @@ function VendorRateCreateContent({
   // Strict linking: no category -> no sub-categories.
   const subsFor = (catId: string) => getSubCategories(categories, catId);
 
+  const tradeKey: VendorTradeType = type === "live" ? "live" : "rate";
+  const defaultTradeId = type === "live" ? "1" : "2";
+  const filteredVendors = useMemo(
+    () => filterVendorsByTrade(vendors, tradeKey),
+    [vendors, tradeKey],
+  );
+
   const [vendorId, setVendorId] = useState<string>("");
   const [rows, setRows] = useState<RateRow[]>([blankRow(0)]);
   const keyRef = useRef(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (filteredVendors.length === 0) return;
+    setVendorId((prev) => {
+      if (prev && filteredVendors.some((v) => String(v.id) === String(prev))) {
+        return prev;
+      }
+      return String(filteredVendors[0].id);
+    });
+  }, [filteredVendors]);
 
   const isSubmitting =
     createLiveMutation.isPending || createRateMutation.isPending;
@@ -421,7 +439,9 @@ function VendorRateCreateContent({
     e.preventDefault();
     setErrorMessage(null);
 
-    const vId = vendorId || (vendors[0]?.id ? String(vendors[0].id) : "1");
+    const vId =
+      vendorId ||
+      (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "1");
 
     for (let i = 0; i < rows.length; i++) {
       if (!rows[i].categoryId) {
@@ -503,17 +523,22 @@ function VendorRateCreateContent({
         <Label htmlFor="vendor_select">Vendor (applies to all rows)</Label>
         <VendorSelectWithCreate
           id="vendor_select"
-          value={vendorId || (vendors[0]?.id ? String(vendors[0].id) : "1")}
+          value={vendorId || (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "")}
           onChange={setVendorId}
+          defaultTrade={defaultTradeId}
           options={
-            vendors.length > 0
-              ? vendors.map((v) => ({
+            filteredVendors.length > 0
+              ? filteredVendors.map((v) => ({
                   value: String(v.id),
                   label: `${v.vendor_name} (${v.vendor_city || "No City"})`,
                 }))
-              : [{ value: "1", label: "Default Vendor (#1)" }]
+              : []
           }
-          placeholder="Select vendor — or + to create one"
+          placeholder={
+            filteredVendors.length > 0
+              ? `Select ${type === "live" ? "live" : "rate"} vendor — or + to create`
+              : `No ${type === "live" ? "live" : "rate"} vendors available — click + to create`
+          }
           required
         />
       </div>
@@ -574,53 +599,15 @@ function VendorRateCreateContent({
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor={`rate-product-${row.key}`}>
-                    Product Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id={`rate-product-${row.key}`}
-                    placeholder="e.g. Sunflower Oil, Mustard Refined..."
-                    value={row.productName}
-                    onChange={(e) =>
-                      updateRow(row.key, "productName", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`rate-size-${row.key}`}>Size / Unit</Label>
-                    <Input
-                      id={`rate-size-${row.key}`}
-                      placeholder="e.g. 15 kg Tin, 1 Ltr Pouch"
-                      value={row.productSize}
-                      onChange={(e) =>
-                        updateRow(row.key, "productSize", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`rate-price-${row.key}`}>
-                      Rate (₹) <span className="text-destructive">*</span>
+                <div className="grid grid-cols-1 items-start gap-2.5 md:grid-cols-12">
+                  {/* 1. Category */}
+                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-3">
+                    <Label htmlFor={`rate-cat-${row.key}`}>
+                      Category <span className="text-destructive">*</span>
                     </Label>
-                    <Input
-                      id={`rate-price-${row.key}`}
-                      type="number"
-                      placeholder="e.g. 1450"
-                      value={row.productRate}
-                      onChange={(e) =>
-                        updateRow(row.key, "productRate", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`rate-cat-${row.key}`}>Category</Label>
                     <CategorySelectWithCreate
                       id={`rate-cat-${row.key}`}
-                      direction="up"
+                      direction="auto"
                       value={row.categoryId}
                       onChange={(val) => {
                         updateRow(row.key, "categoryId", val);
@@ -633,13 +620,15 @@ function VendorRateCreateContent({
                       placeholder="Search category — or +"
                     />
                   </div>
-                  <div className="flex flex-col gap-1.5">
+
+                  {/* 2. Sub-Category */}
+                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
                     <Label htmlFor={`rate-subcat-${row.key}`}>
                       Sub-Category
                     </Label>
                     <SearchableSelect
                       id={`rate-subcat-${row.key}`}
-                      direction="up"
+                      direction="auto"
                       value={row.subCategoryId}
                       onChange={(val) =>
                         updateRow(row.key, "subCategoryId", val)
@@ -653,12 +642,58 @@ function VendorRateCreateContent({
                         !row.categoryId
                           ? "Select category first"
                           : catsLoading
-                            ? "Loading sub-categories..."
+                            ? "Loading..."
                             : subCats.length > 0
-                              ? "Select sub-category — type to search"
-                              : "No sub-categories for this category"
+                              ? "Search sub-category"
+                              : "No sub-categories"
                       }
                       disabled={!row.categoryId || catsLoading}
+                    />
+                  </div>
+
+                  {/* 3. Product Name */}
+                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-3">
+                    <Label htmlFor={`rate-product-${row.key}`}>
+                      Product Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id={`rate-product-${row.key}`}
+                      placeholder="e.g. Sunflower Oil, Mustard..."
+                      value={row.productName}
+                      onChange={(e) =>
+                        updateRow(row.key, "productName", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* 4. Size / Unit */}
+                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
+                    <Label htmlFor={`rate-size-${row.key}`}>Size / Unit</Label>
+                    <Input
+                      id={`rate-size-${row.key}`}
+                      placeholder="e.g. 15 kg Tin, 1 Ltr"
+                      value={row.productSize}
+                      onChange={(e) =>
+                        updateRow(row.key, "productSize", e.target.value)
+                      }
+                    />
+                  </div>
+
+                  {/* 5. Rate (₹) */}
+                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
+                    <Label htmlFor={`rate-price-${row.key}`}>
+                      Rate (₹) <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id={`rate-price-${row.key}`}
+                      type="number"
+                      placeholder="e.g. 1450"
+                      value={row.productRate}
+                      onChange={(e) =>
+                        updateRow(row.key, "productRate", e.target.value)
+                      }
+                      required
                     />
                   </div>
                 </div>
@@ -705,7 +740,7 @@ export function VendorRateFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`max-h-[90vh] overflow-y-auto ${rate ? "max-w-md" : "max-w-2xl"}`}
+        className={`max-h-[90vh] overflow-y-auto ${rate ? "max-w-md" : "sm:max-w-5xl lg:max-w-6xl"}`}
       >
         {open && (
           <VendorRateFormContainer

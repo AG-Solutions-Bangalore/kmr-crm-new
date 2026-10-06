@@ -44,17 +44,19 @@ export function CategorySelectWithCreate({
             createLabel={(q) => `Create category "${q}"`}
           />
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => handleCreateNew("")}
-          title="Create a new category without leaving this form"
-          aria-label="Create a new category without leaving this form"
-          className="size-9 shrink-0 p-0"
-        >
-          <Plus className="size-4" />
-        </Button>
+        {!selectProps.disabled && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleCreateNew("")}
+            title="Create a new category without leaving this form"
+            aria-label="Create a new category without leaving this form"
+            className="size-9 shrink-0 p-0"
+          >
+            <Plus className="size-4" />
+          </Button>
+        )}
       </div>
       {quickOpen && (
         <QuickCreateCategoryDialog
@@ -77,7 +79,10 @@ export function CategorySelectWithCreate({
  * Users can type a vendor name, press Enter or click "+ Create",
  * and quick-create the vendor prefilled, focusing directly on the mobile field.
  */
-export function VendorSelectWithCreate(selectProps: BaseProps) {
+export function VendorSelectWithCreate({
+  defaultTrade,
+  ...selectProps
+}: BaseProps & { defaultTrade?: string }) {
   const [quickOpen, setQuickOpen] = useState(false);
   const [pendingName, setPendingName] = useState("");
 
@@ -96,17 +101,19 @@ export function VendorSelectWithCreate(selectProps: BaseProps) {
             createLabel={(q) => `Create vendor "${q}"`}
           />
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => handleCreateNew("")}
-          title="Create a new vendor without leaving this form"
-          aria-label="Create a new vendor without leaving this form"
-          className="size-9 shrink-0 p-0"
-        >
-          <Plus className="size-4" />
-        </Button>
+        {!selectProps.disabled && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleCreateNew("")}
+            title="Create a new vendor without leaving this form"
+            aria-label="Create a new vendor without leaving this form"
+            className="size-9 shrink-0 p-0"
+          >
+            <Plus className="size-4" />
+          </Button>
+        )}
       </div>
       {quickOpen && (
         <QuickCreateVendorDialog
@@ -116,6 +123,7 @@ export function VendorSelectWithCreate(selectProps: BaseProps) {
             if (!v) setPendingName("");
           }}
           initialName={pendingName}
+          defaultTrade={defaultTrade}
           onCreated={selectProps.onChange}
         />
       )}

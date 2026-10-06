@@ -32,7 +32,11 @@ import {
   useUpdateVendorLiveStatus,
   useUpdateVendorRateStatus,
 } from "../hook/useVendor.ts";
-import type { Vendor, VendorRateProduct, VendorSpotItem } from "../types/vendor.types.ts";
+import type {
+  Vendor,
+  VendorRateProduct,
+  VendorSpotItem,
+} from "../types/vendor.types.ts";
 
 const PAGE_SIZE = 10;
 type VendorTabKey = "vendors" | "spots" | "live" | "rates";
@@ -42,22 +46,46 @@ export function VendorPage() {
   const [searchParams] = useSearchParams();
   const rawTab = searchParams.get("tab");
   const activeTab: VendorTabKey =
-    rawTab === "spots" || rawTab === "live" || rawTab === "rates" ? rawTab : "vendors";
+    rawTab === "spots" || rawTab === "live" || rawTab === "rates"
+      ? rawTab
+      : "vendors";
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
+
+  const [spotPage, setSpotPage] = useState(1);
+  const [spotSearchInput, setSpotSearchInput] = useState("");
+  const spotSearch = useDebouncedValue(spotSearchInput.trim(), 400);
+
+  const [livePage, setLivePage] = useState(1);
+  const [liveSearchInput, setLiveSearchInput] = useState("");
+  const liveSearch = useDebouncedValue(liveSearchInput.trim(), 400);
+
+  const [ratePage, setRatePage] = useState(1);
+  const [rateSearchInput, setRateSearchInput] = useState("");
+  const rateSearch = useDebouncedValue(rateSearchInput.trim(), 400);
 
   useEffect(() => {
     setPage(1);
   }, [search]);
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-    isFetching,
-  } = useVendorsPage(page, PAGE_SIZE, search);
+  useEffect(() => {
+    setSpotPage(1);
+  }, [spotSearch]);
+
+  useEffect(() => {
+    setLivePage(1);
+  }, [liveSearch]);
+
+  useEffect(() => {
+    setRatePage(1);
+  }, [rateSearch]);
+
+  const { data, isLoading, error, refetch, isFetching } = useVendorsPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
 
   const vendors = data?.items ?? [];
   const totalCount = data?.total ?? 0;
@@ -71,27 +99,58 @@ export function VendorPage() {
   }, [page, totalPages]);
 
   const {
-    data: spots = [],
+    data: spotsData,
     isLoading: loadingSpots,
     refetch: refetchSpots,
     isFetching: fetchingSpots,
-  } = useVendorSpots();
+  } = useVendorSpots(spotPage, PAGE_SIZE, spotSearch);
+
+  const spots = spotsData?.items ?? [];
+  const spotsTotal = spotsData?.total ?? 0;
+  const spotsTotalPages = spotsData?.lastPage ?? 1;
 
   const {
-    data: liveRates = [],
+    data: livesData,
     isLoading: loadingLive,
     error: errorLive,
     refetch: refetchLive,
     isFetching: fetchingLive,
-  } = useVendorLives();
+  } = useVendorLives(livePage, PAGE_SIZE, liveSearch);
+
+  const liveRates = livesData?.items ?? [];
+  const liveTotal = livesData?.total ?? 0;
+  const liveTotalPages = livesData?.lastPage ?? 1;
 
   const {
-    data: standardRates = [],
+    data: ratesData,
     isLoading: loadingRates,
     error: errorRates,
     refetch: refetchRates,
     isFetching: fetchingRates,
-  } = useVendorRates();
+  } = useVendorRates(ratePage, PAGE_SIZE, rateSearch);
+
+  const standardRates = ratesData?.items ?? [];
+  const ratesTotal = ratesData?.total ?? 0;
+  const ratesTotalPages = ratesData?.lastPage ?? 1;
+
+  // Clamp pages if totals shrink (e.g. deleted last item on last page).
+  useEffect(() => {
+    if (spotsTotalPages > 0 && spotPage > spotsTotalPages) {
+      setSpotPage(spotsTotalPages);
+    }
+  }, [spotPage, spotsTotalPages]);
+
+  useEffect(() => {
+    if (liveTotalPages > 0 && livePage > liveTotalPages) {
+      setLivePage(liveTotalPages);
+    }
+  }, [livePage, liveTotalPages]);
+
+  useEffect(() => {
+    if (ratesTotalPages > 0 && ratePage > ratesTotalPages) {
+      setRatePage(ratesTotalPages);
+    }
+  }, [ratePage, ratesTotalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
@@ -121,7 +180,10 @@ export function VendorPage() {
     navigate(PATHS.vendorSpotEdit.replace(":id", String(spot.id)));
   };
 
-  const handleOpenRateEdit = (item: VendorRateProduct, type: "live" | "standard") => {
+  const handleOpenRateEdit = (
+    item: VendorRateProduct,
+    type: "live" | "standard",
+  ) => {
     if (type === "live") {
       navigate(PATHS.vendorLiveEdit.replace(":id", String(item.id)));
     } else {
@@ -133,11 +195,17 @@ export function VendorPage() {
     item.vendor_product_status === "Active" ? "Inactive" : "Active";
 
   const handleToggleLiveStatus = async (item: VendorRateProduct) => {
-    await liveStatusMutation.mutateAsync({ id: item.id, status: nextRateStatus(item) });
+    await liveStatusMutation.mutateAsync({
+      id: item.id,
+      status: nextRateStatus(item),
+    });
   };
 
   const handleToggleRateStatus = async (item: VendorRateProduct) => {
-    await rateStatusMutation.mutateAsync({ id: item.id, status: nextRateStatus(item) });
+    await rateStatusMutation.mutateAsync({
+      id: item.id,
+      status: nextRateStatus(item),
+    });
   };
 
   const handleRefresh = () => {
@@ -147,9 +215,12 @@ export function VendorPage() {
     void refetchRates();
   };
 
-  const isRefreshing = isFetching || fetchingSpots || fetchingLive || fetchingRates;
+  const isRefreshing =
+    isFetching || fetchingSpots || fetchingLive || fetchingRates;
 
-  const activeCount = vendors.filter((v) => v.vendor_status === "Active").length;
+  const activeCount = vendors.filter(
+    (v) => v.vendor_status === "Active",
+  ).length;
   const inactiveCount = vendors.length - activeCount;
 
   const getHeaderInfo = () => {
@@ -157,8 +228,9 @@ export function VendorPage() {
       case "spots":
         return {
           title: "Spot Quotes",
-          description: "Real-time vendor spot market quotes and delivery terms.",
-          buttonLabel: "Create Spot Quote",
+          description:
+            "Real-time vendor spot market quotes and delivery terms.",
+          buttonLabel: "Spot Rate",
         };
       case "live":
         return {
@@ -175,7 +247,8 @@ export function VendorPage() {
       default:
         return {
           title: "Vendors",
-          description: "Manage your network of vendors, trade categories, and locations.",
+          description:
+            "Manage your network of vendors, trade categories, and locations.",
           buttonLabel: "Add Vendor",
         };
     }
@@ -224,7 +297,10 @@ export function VendorPage() {
             <div className="flex-1">
               <p className="font-semibold">Backend Error</p>
               <p className="mt-1 text-xs opacity-90">
-                {getApiErrorMessage(error, "Could not load vendors from server.")}
+                {getApiErrorMessage(
+                  error,
+                  "Could not load vendors from server.",
+                )}
               </p>
             </div>
             <Button
@@ -295,7 +371,7 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingSpots ? "—" : spots.length}
+                {loadingSpots ? "—" : spotsTotal}
               </div>
             </CardContent>
           </Card>
@@ -311,7 +387,7 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingLive ? "—" : liveRates.length}
+                {loadingLive ? "—" : liveTotal}
               </div>
             </CardContent>
           </Card>
@@ -324,7 +400,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingLive ? "—" : liveRates.filter((r) => r.vendor_product_status === "Active").length}
+                {loadingLive
+                  ? "—"
+                  : liveRates.filter(
+                      (r) => r.vendor_product_status === "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
@@ -337,7 +417,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingLive ? "—" : liveRates.filter((r) => r.vendor_product_status !== "Active").length}
+                {loadingLive
+                  ? "—"
+                  : liveRates.filter(
+                      (r) => r.vendor_product_status !== "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
@@ -353,7 +437,7 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingRates ? "—" : standardRates.length}
+                {loadingRates ? "—" : ratesTotal}
               </div>
             </CardContent>
           </Card>
@@ -366,7 +450,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingRates ? "—" : standardRates.filter((r) => r.vendor_product_status === "Active").length}
+                {loadingRates
+                  ? "—"
+                  : standardRates.filter(
+                      (r) => r.vendor_product_status === "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
@@ -379,7 +467,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingRates ? "—" : standardRates.filter((r) => r.vendor_product_status !== "Active").length}
+                {loadingRates
+                  ? "—"
+                  : standardRates.filter(
+                      (r) => r.vendor_product_status !== "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
@@ -405,13 +497,29 @@ export function VendorPage() {
         <VendorSpotTable
           spots={spots}
           isLoading={loadingSpots}
+          isFetching={fetchingSpots}
+          page={spotPage}
+          totalPages={spotsTotalPages}
+          total={spotsTotal}
+          perPage={PAGE_SIZE}
+          search={spotSearchInput}
+          onSearchChange={setSpotSearchInput}
+          onPageChange={setSpotPage}
           onEdit={handleOpenSpotEdit}
         />
       ) : activeTab === "live" ? (
         <VendorRateTable
           rates={liveRates}
           isLoading={loadingLive}
+          isFetching={fetchingLive}
           type="live"
+          page={livePage}
+          totalPages={liveTotalPages}
+          total={liveTotal}
+          perPage={PAGE_SIZE}
+          search={liveSearchInput}
+          onSearchChange={setLiveSearchInput}
+          onPageChange={setLivePage}
           onToggleStatus={handleToggleLiveStatus}
           onEdit={(item) => handleOpenRateEdit(item, "live")}
           errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
@@ -421,7 +529,15 @@ export function VendorPage() {
         <VendorRateTable
           rates={standardRates}
           isLoading={loadingRates}
+          isFetching={fetchingRates}
           type="standard"
+          page={ratePage}
+          totalPages={ratesTotalPages}
+          total={ratesTotal}
+          perPage={PAGE_SIZE}
+          search={rateSearchInput}
+          onSearchChange={setRateSearchInput}
+          onPageChange={setRatePage}
           onToggleStatus={handleToggleRateStatus}
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
           errorMessage={errorRates ? getApiErrorMessage(errorRates) : null}

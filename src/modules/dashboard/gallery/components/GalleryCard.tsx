@@ -38,8 +38,7 @@ export function GalleryCard({ item, isToggling, compact = false, highlighted = f
   return (
     <AppFeedCard
       cover={{ imageUrl, accent }}
-      title={`Image #${item.id}`}
-      snippet={item.gallery_image || "Untitled image"}
+      title={item.gallery_image || `Image #${item.id}`}
       snippetClamp={2}
       statusActive={isActive}
       statusText={item.gallery_status || "Active"}
