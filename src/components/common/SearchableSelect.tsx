@@ -16,6 +16,8 @@ interface SearchableSelectProps {
   disabled?: boolean;
   required?: boolean;
   clearable?: boolean;
+  className?: string;
+  direction?: "up" | "down" | "auto";
   /** Callback triggered when user chooses to create an item with the typed query. */
   onCreateNew?: (query: string) => void;
   /** Custom label for the create option. Defaults to `Create "${query}"`. */
@@ -38,8 +40,7 @@ function getScrollParents(node: HTMLElement | null): HTMLElement[] {
 
 /**
  * Searchable dropdown — in-tree relative positioning.
- * Automatically avoids upward flipping inside scroll containers so the
- * search input and top items are never clipped or hidden.
+ * Supports configurable open direction ("up" | "down" | "auto").
  */
 export function SearchableSelect({
   id,
@@ -50,13 +51,15 @@ export function SearchableSelect({
   disabled = false,
   required = false,
   clearable = false,
+  className,
+  direction = "auto",
   onCreateNew,
   createLabel,
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const [openUp, setOpenUp] = useState(false);
+  const [openUp, setOpenUp] = useState(direction === "up");
 
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -105,6 +108,14 @@ export function SearchableSelect({
     if (!open) return;
 
     const checkDirection = () => {
+      if (direction === "up") {
+        setOpenUp(true);
+        return;
+      }
+      if (direction === "down") {
+        setOpenUp(false);
+        return;
+      }
       const el = triggerRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
@@ -221,9 +232,10 @@ export function SearchableSelect({
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           "disabled:cursor-not-allowed disabled:opacity-50",
           !selected && "text-muted-foreground",
+          className,
         )}
       >
-        <span className="truncate">{selected ? selected.label : placeholder}</span>
+        <span className="truncate" title={selected?.label}>{selected ? selected.label : placeholder}</span>
         <div className="flex items-center gap-1 shrink-0">
           {clearable && selected && !disabled && (
             <span
@@ -272,7 +284,10 @@ export function SearchableSelect({
           </div>
           <ul
             ref={listRef}
-            className="max-h-56 overflow-x-hidden overflow-y-auto overscroll-contain p-1 touch-pan-y"
+            className={cn(
+              "overflow-x-hidden overflow-y-auto overscroll-contain p-1 touch-pan-y",
+              openUp ? "max-h-48" : "max-h-60",
+            )}
           >
             {filtered.length === 0 && !showCreateOption ? (
               <li className="px-2 py-4 text-center text-xs text-muted-foreground">
@@ -286,6 +301,7 @@ export function SearchableSelect({
                   <li key={o.value || `opt-${idx}`}>
                     <button
                       type="button"
+                      title={o.label}
                       onMouseEnter={() => setHighlightedIndex(idx)}
                       onClick={() => {
                         onChange(o.value);

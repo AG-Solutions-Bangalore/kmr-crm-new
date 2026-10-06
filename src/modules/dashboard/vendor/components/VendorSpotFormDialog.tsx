@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Copy, Loader2, Plus, Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog.tsx";
+import { Dialog, DialogContent } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
@@ -50,8 +46,10 @@ function VendorSpotEditContent({
   onClose: () => void;
 }) {
   const updateMutation = useUpdateVendorSpot();
-  const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
+  const { data: activeCategories = [], isLoading: activeCatsLoading } =
+    useActiveCategories();
+  const { data: allCategories = [], isLoading: allCatsLoading } =
+    useCategories();
   const categories = mergeCategories(activeCategories, allCategories);
   const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
@@ -134,7 +132,9 @@ function VendorSpotEditContent({
       className="flex flex-col gap-4"
     >
       <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-        <h2 className="text-lg font-semibold leading-none tracking-tight">Edit Spot Quote</h2>
+        <h2 className="text-lg font-semibold leading-none tracking-tight">
+          Edit Spot Quote
+        </h2>
         <p className="text-sm text-muted-foreground">
           {`Update spot quote #${spot?.id} (${spot?.vendor_name || `Vendor #${spot?.vendor_id}`}).`}
         </p>
@@ -162,6 +162,7 @@ function VendorSpotEditContent({
             <Label htmlFor="sp-cat">Category</Label>
             <CategorySelectWithCreate
               id="sp-cat"
+              direction="up"
               value={categoryId}
               onChange={(val) => {
                 setCategoryId(val);
@@ -181,17 +182,18 @@ function VendorSpotEditContent({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="sp-subcat">
-              Sub-Category {hasDirectChildren ? `(${directChildren.length})` : ""}
-            </Label>
+            <Label htmlFor="sp-subcat">Sub-Category</Label>
             <SearchableSelect
               id="sp-subcat"
+              direction="up"
               value={subCategoryId}
               onChange={setSubCategoryId}
+              clearable
               options={[
-                { value: "", label: hasDirectChildren ? "None" : "(No sub-categories)" },
                 ...(subCategoryId &&
-                !subOptionsBase.some((c) => String(c.id) === String(subCategoryId))
+                !subOptionsBase.some(
+                  (c) => String(c.id) === String(subCategoryId),
+                )
                   ? [
                       {
                         value: subCategoryId,
@@ -210,7 +212,7 @@ function VendorSpotEditContent({
                   : catsLoading
                     ? "Loading sub-categories..."
                     : hasDirectChildren
-                      ? `Select sub-category (${directChildren.length}) — type to search`
+                      ? "Select sub-category — type to search"
                       : "No sub-categories for this category"
               }
               disabled={!categoryId || catsLoading}
@@ -222,11 +224,13 @@ function VendorSpotEditContent({
           <Label htmlFor="sp-heading">
             Spot Heading <span className="text-destructive">*</span>
           </Label>
-          <Input
+          <textarea
             id="sp-heading"
+            rows={2}
             value={heading}
             onChange={(e) => setHeading(e.target.value)}
             placeholder="e.g. EDIBLE OIL or SUNFLOWER OIL"
+            className="w-full resize-y rounded-md border border-input bg-background p-2.5 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             required
           />
         </div>
@@ -300,8 +304,10 @@ interface SpotRow {
 function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   const createMutation = useCreateVendorSpot();
   const { data: activeVendors = [] } = useActiveVendors();
-  const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
+  const { data: activeCategories = [], isLoading: activeCatsLoading } =
+    useActiveCategories();
+  const { data: allCategories = [], isLoading: allCatsLoading } =
+    useCategories();
   const categories = mergeCategories(activeCategories, allCategories);
   const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
@@ -319,7 +325,8 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (activeVendors.length === 0) return;
     setVendorId((prev) => {
-      if (prev && activeVendors.some((v) => String(v.id) === String(prev))) return prev;
+      if (prev && activeVendors.some((v) => String(v.id) === String(prev)))
+        return prev;
       return String(activeVendors[0].id);
     });
   }, [activeVendors]);
@@ -327,11 +334,19 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   // Strict linking: no category -> no sub-categories.
   const subsFor = (catId: string) => getSubCategories(categories, catId);
 
-  const updateRow = (key: number, field: keyof Omit<SpotRow, "key">, val: string) => {
+  const updateRow = (
+    key: number,
+    field: keyof Omit<SpotRow, "key">,
+    val: string,
+  ) => {
     setRows((prev) =>
       prev.map((r) =>
         r.key === key
-          ? { ...r, [field]: val, ...(field === "categoryId" ? { subCategoryId: "" } : {}) }
+          ? {
+              ...r,
+              [field]: val,
+              ...(field === "categoryId" ? { subCategoryId: "" } : {}),
+            }
           : r,
       ),
     );
@@ -421,7 +436,9 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
       className="flex flex-col gap-4"
     >
       <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-        <h2 className="text-lg font-semibold leading-none tracking-tight">Create Spot Quote</h2>
+        <h2 className="text-lg font-semibold leading-none tracking-tight">
+          Create Spot Quote
+        </h2>
         <p className="text-sm text-muted-foreground">
           Publish one or more spot market quotes for a vendor in a single save.
         </p>
@@ -470,11 +487,12 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
             </Button>
           </div>
 
-          <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto pr-1 pb-28">
+          <div className="flex flex-col gap-3">
             {rows.map((row, idx) => (
               <div
                 key={row.key}
-                className="flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3"
+                style={{ zIndex: rows.length - idx }}
+                className="relative flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 focus-within:z-30"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-foreground">
@@ -511,6 +529,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                     <Label htmlFor={`sp-cat-${row.key}`}>Category</Label>
                     <CategorySelectWithCreate
                       id={`sp-cat-${row.key}`}
+                      direction="up"
                       value={row.categoryId}
                       onChange={(val) => updateRow(row.key, "categoryId", val)}
                       options={parentCategories.map((c) => ({
@@ -525,18 +544,16 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                     <Label htmlFor={`sp-subcat-${row.key}`}>Sub-Category</Label>
                     <SearchableSelect
                       id={`sp-subcat-${row.key}`}
+                      direction="up"
                       value={row.subCategoryId}
-                      onChange={(val) => updateRow(row.key, "subCategoryId", val)}
-                      options={(() => {
-                        const list = subsFor(row.categoryId);
-                        return [
-                          { value: "", label: list.length > 0 ? "None" : "(No sub-categories)" },
-                          ...list.map((c) => ({
-                            value: String(c.id),
-                            label: c.categories_name,
-                          })),
-                        ];
-                      })()}
+                      onChange={(val) =>
+                        updateRow(row.key, "subCategoryId", val)
+                      }
+                      clearable
+                      options={subsFor(row.categoryId).map((c) => ({
+                        value: String(c.id),
+                        label: c.categories_name,
+                      }))}
                       placeholder={
                         !row.categoryId
                           ? "Select category first"
@@ -558,24 +575,31 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                   <Label htmlFor={`sp-heading-${row.key}`}>
                     Spot Heading <span className="text-destructive">*</span>
                   </Label>
-                  <Input
+                  <textarea
                     id={`sp-heading-${row.key}`}
+                    rows={2}
                     value={row.heading}
-                    onChange={(e) => updateRow(row.key, "heading", e.target.value)}
+                    onChange={(e) =>
+                      updateRow(row.key, "heading", e.target.value)
+                    }
                     placeholder="e.g. EDIBLE OIL or SUNFLOWER OIL"
+                    className="w-full resize-y rounded-md border border-input bg-background p-2.5 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     required
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor={`sp-details-${row.key}`}>
-                    Spot Details / Offer <span className="text-destructive">*</span>
+                    Spot Details / Offer{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <textarea
                     id={`sp-details-${row.key}`}
                     rows={2}
                     value={row.details}
-                    onChange={(e) => updateRow(row.key, "details", e.target.value)}
+                    onChange={(e) =>
+                      updateRow(row.key, "details", e.target.value)
+                    }
                     placeholder="e.g. Khopoli Seller Option / Prompt Dispatch"
                     className="w-full rounded-md border border-input bg-background p-2.5 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     required

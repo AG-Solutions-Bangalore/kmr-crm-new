@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileText, Loader2, X } from "lucide-react";
 import {
   Dialog,
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { isRootCategory, mergeCategories } from "@/lib/category-tree.ts";
 import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import { useCreateNews, useNewsItem, useUpdateNews } from "../hook/useNews.ts";
 import {
@@ -41,15 +42,37 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
   const [details, setDetails] = useState(news?.news_details || "");
   const { data: activeCategories = [] } = useActiveCategories();
   const { data: allCategories = [] } = useCategories();
-  const categories =
-    activeCategories.length > 0 ? activeCategories : allCategories;
+
+  // Show ONLY root categories (exclude sub-categories)
+  const parentCategories = useMemo(() => {
+    const merged = mergeCategories(activeCategories, allCategories);
+    return merged.filter(isRootCategory);
+  }, [activeCategories, allCategories]);
+
   const [categoryId, setCategoryId] = useState(String(news?.category_id ?? ""));
 
   useEffect(() => {
-    if (!categoryId && categories.length > 0) {
-      setCategoryId(String(categories[0].id));
+    if (!categoryId && parentCategories.length > 0) {
+      setCategoryId(String(parentCategories[0].id));
     }
-  }, [categories, categoryId]);
+  }, [parentCategories, categoryId]);
+
+  const categoryOptions = useMemo(() => {
+    const list = parentCategories.map((c) => ({
+      value: String(c.id),
+      label: c.categories_name,
+    }));
+    if (
+      news?.category_id &&
+      !list.some((o) => o.value === String(news.category_id))
+    ) {
+      list.unshift({
+        value: String(news.category_id),
+        label: news.categories_name || `Category #${news.category_id}`,
+      });
+    }
+    return list;
+  }, [parentCategories, news]);
 
   const [status, setStatus] = useState<NewsStatus>(
     (news?.news_status as NewsStatus) || "Active",
@@ -174,10 +197,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
               id="n-cat"
               value={categoryId}
               onChange={setCategoryId}
-              options={categories.map((c) => ({
-                value: String(c.id),
-                label: c.categories_name,
-              }))}
+              options={categoryOptions}
               placeholder="Select category — or + to create one"
               required
             />

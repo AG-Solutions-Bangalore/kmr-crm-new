@@ -3,6 +3,7 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
+import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { normalizePageSlug } from "@/lib/page-slug.ts";
 import {
@@ -18,6 +19,13 @@ interface InnerFormProps {
   faq?: FaqItem | null;
   onClose: () => void;
 }
+
+const FALLBACK_PAGE_OPTIONS = [
+  { value: "home", label: "Home (home)" },
+  { value: "about-us", label: "About Us (about-us)" },
+  { value: "blogs", label: "Blogs (blogs)" },
+  { value: "contacts", label: "Contact (contacts)" },
+];
 
 function FaqFormContent({ faq, onClose }: InnerFormProps) {
   const isEditing = Boolean(faq);
@@ -38,7 +46,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
       : [
           {
             faq_sort: 1,
-            faq_heading: "General",
+            faq_heading: "",
             faq_que: "",
             faq_ans: "",
             faq_status: "Active",
@@ -59,6 +67,14 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
       })),
     [pageOptions],
   );
+
+  const placementOptions = useMemo(() => {
+    const list = pageSlugs.length > 0 ? [...pageSlugs] : [...FALLBACK_PAGE_OPTIONS];
+    if (faqFor && !list.some((o) => o.value === faqFor)) {
+      list.unshift({ value: faqFor, label: `${faqFor} (${faqFor})` });
+    }
+    return list;
+  }, [pageSlugs, faqFor]);
 
   // Page options load after mount — default a new record to the first page.
   useEffect(() => {
@@ -81,7 +97,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
       ...prev,
       {
         faq_sort: prev.length + 1,
-        faq_heading: "General",
+        faq_heading: "",
         faq_que: "",
         faq_ans: "",
         faq_status: "Active",
@@ -137,7 +153,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
             subs: subs.map((s, idx) => ({
               id: s.id,
               faq_sort: Number(s.faq_sort) || idx + 1,
-              faq_heading: s.faq_heading || "General",
+              faq_heading: s.faq_heading?.trim() || "",
               faq_que: s.faq_que.trim(),
               faq_ans: s.faq_ans.trim(),
               faq_status:
@@ -157,7 +173,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
           faq_for: normalizePageSlug(faqFor),
           subs: subs.map((s, idx) => ({
             faq_sort: s.faq_sort ?? idx + 1,
-            faq_heading: s.faq_heading || "General",
+            faq_heading: s.faq_heading?.trim() || "",
             faq_que: s.faq_que.trim(),
             faq_ans: s.faq_ans.trim(),
           })),
@@ -170,148 +186,202 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-        <h2 className="text-lg font-semibold leading-none tracking-tight">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <div className="flex flex-col space-y-1.5 border-b border-border/60 pb-4">
+        <h2 className="text-xl font-bold tracking-tight text-foreground">
           {isEditing ? "Edit FAQ Group" : "Create FAQ Group"}
         </h2>
         <p className="text-sm text-muted-foreground">
           {isEditing
-            ? "Modify questions and answers in this group."
-            : "Add a set of frequently asked questions for a specific page."}
+            ? "Modify questions, answers, and subheadings in this FAQ group."
+            : "Add a set of frequently asked questions and answers for a specific website page."}
         </p>
       </div>
 
       {errorMessage && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
           {errorMessage}
         </div>
       )}
 
-      <div className="grid gap-3">
-        <div
-          className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}
-        >
+      {/* Page placement & status */}
+      <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
+        <div className={isEditing ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : "grid grid-cols-1 gap-4"}>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="faq-for">Page Placement</Label>
-            <select
+            <Label htmlFor="faq-for" className="text-xs font-semibold text-foreground">
+              Page Placement
+            </Label>
+            <SearchableSelect
               id="faq-for"
               value={faqFor}
-              onChange={(e) => setFaqFor(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              {pageSlugs.length > 0 ? (
-                pageSlugs.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.label}
-                  </option>
-                ))
-              ) : (
-                <>
-                  <option value="home">Home</option>
-                  <option value="about-us">About Us</option>
-                  <option value="blogs">Blogs</option>
-                  <option value="contacts">Contact</option>
-                </>
-              )}
-            </select>
+              onChange={(val) => setFaqFor(val)}
+              options={placementOptions}
+              placeholder="Search or select page..."
+              className="h-10 text-sm"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Select which website page displays this FAQ group. Type to search by page name or URL slug.
+            </p>
           </div>
 
           {isEditing && (
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="faq-status">Status</Label>
+              <Label htmlFor="faq-status" className="text-xs font-semibold text-foreground">
+                Status
+              </Label>
               <select
                 id="faq-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as FaqStatus)}
-                className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
+              <p className="text-[11px] text-muted-foreground">
+                Set active to display on the live website.
+              </p>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Q&A Items List */}
-        <div className="flex flex-col gap-3 pt-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+      {/* Q&A Items List */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+          <div>
+            <Label className="text-sm font-semibold text-foreground">
               Questions & Answers ({subs.length})
             </Label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddSub}
-              className="h-7 text-xs gap-1.5"
-            >
-              <Plus className="size-3" />
-              <span>Add Question</span>
-            </Button>
+            <p className="text-xs text-muted-foreground">
+              Organize your FAQs with optional subheadings, questions, and detailed answers.
+            </p>
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddSub}
+            className="h-8 gap-1.5 text-xs font-medium"
+          >
+            <Plus className="size-3.5" />
+            <span>Add Question</span>
+          </Button>
+        </div>
 
-          <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
-            {subs.map((sub, index) => (
-              <div
-                key={index}
-                className="flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-foreground">
-                    #{index + 1}
+        <div className="flex flex-col gap-4">
+          {subs.map((sub, index) => (
+            <div
+              key={index}
+              className="flex flex-col gap-4 rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs transition-colors hover:border-border"
+            >
+              {/* Question Header */}
+              <div className="flex items-center justify-between border-b border-border/50 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
+                    {index + 1}
                   </span>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="Heading (e.g. General)"
-                      value={sub.faq_heading || ""}
-                      onChange={(e) =>
-                        handleUpdateSub(index, "faq_heading", e.target.value)
-                      }
-                      className="h-7 text-xs w-36"
-                    />
-                    {subs.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveSub(index)}
-                        className="size-7 p-0 text-destructive hover:bg-destructive/10"
-                        title="Remove question"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    )}
-                  </div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Question #{index + 1}
+                  </span>
                 </div>
 
+                {subs.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveSub(index)}
+                    className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive gap-1"
+                    title="Remove this question"
+                  >
+                    <Trash2 className="size-3.5" />
+                    <span>Remove</span>
+                  </Button>
+                )}
+              </div>
+
+              {/* Subheading / Topic (Big, dedicated space!) */}
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor={`faq-heading-${index}`}
+                    className="text-xs font-semibold text-foreground"
+                  >
+                    Subheading / Topic
+                  </Label>
+                  <span className="text-[11px] text-muted-foreground">
+                    Optional section heading (e.g. General, Account & Billing, Orders & Shipping)
+                  </span>
+                </div>
                 <Input
-                  placeholder="Question text..."
+                  id={`faq-heading-${index}`}
+                  placeholder="e.g. General, Account & Billing, Orders & Shipping..."
+                  value={sub.faq_heading || ""}
+                  onChange={(e) =>
+                    handleUpdateSub(index, "faq_heading", e.target.value)
+                  }
+                  className="h-10 w-full text-sm"
+                />
+              </div>
+
+              {/* Question Text */}
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  htmlFor={`faq-que-${index}`}
+                  className="text-xs font-semibold text-foreground"
+                >
+                  Question <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id={`faq-que-${index}`}
+                  placeholder="e.g. How do I track my order or request a refund?"
                   value={sub.faq_que}
                   onChange={(e) =>
                     handleUpdateSub(index, "faq_que", e.target.value)
                   }
                   required
-                  className="text-xs"
+                  className="h-10 w-full text-sm"
                 />
+              </div>
 
+              {/* Answer Explanation */}
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  htmlFor={`faq-ans-${index}`}
+                  className="text-xs font-semibold text-foreground"
+                >
+                  Answer <span className="text-destructive">*</span>
+                </Label>
                 <textarea
-                  rows={2}
-                  placeholder="Answer explanation..."
+                  id={`faq-ans-${index}`}
+                  rows={3}
+                  placeholder="Write the detailed answer here..."
                   value={sub.faq_ans}
                   onChange={(e) =>
                     handleUpdateSub(index, "faq_ans", e.target.value)
                   }
                   required
-                  className="w-full rounded-md border border-input bg-background p-2 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="w-full rounded-md border border-input bg-background p-3 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-y min-h-[88px]"
                 />
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+
+          {/* Add Another Question button at the bottom */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddSub}
+            className="h-10 w-full border-dashed gap-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+          >
+            <Plus className="size-4" />
+            <span>Add Another Question</span>
+          </Button>
         </div>
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-2">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 pt-3 border-t border-border/60">
         <Button
           type="button"
           variant="outline"
@@ -320,8 +390,17 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update FAQ" : "Create FAQ"}
+        <Button type="submit" disabled={isPending} className="min-w-[120px]">
+          {isPending ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="size-4 animate-spin" />
+              <span>Saving...</span>
+            </div>
+          ) : isEditing ? (
+            "Update FAQ"
+          ) : (
+            "Create FAQ"
+          )}
         </Button>
       </div>
     </form>

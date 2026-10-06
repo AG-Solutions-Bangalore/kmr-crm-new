@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, SlidersHorizontal, X } from "lucide-react";
 import {
   Dialog,
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { isRootCategory, mergeCategories } from "@/lib/category-tree.ts";
 import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import { useCreateSlider, useSlider, useUpdateSlider } from "../hook/useSlider.ts";
 import {
@@ -43,19 +44,40 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
   const { data: activeCategories = [], isLoading: categoriesLoading } =
     useActiveCategories();
   const { data: allCategories = [] } = useCategories();
-  // Prefer /activeCategories, fallback to /category (backend sometimes 500s on one).
-  const categories =
-    activeCategories.length > 0 ? activeCategories : allCategories;
+
+  // Show ONLY root categories (exclude sub-categories) in Slider
+  const parentCategories = useMemo(() => {
+    const merged = mergeCategories(activeCategories, allCategories);
+    return merged.filter(isRootCategory);
+  }, [activeCategories, allCategories]);
+
   const [categoryId, setCategoryId] = useState(
     String(slider?.category_id ?? ""),
   );
 
-  // Default to first real category instead of hardcoded "1".
+  // Default to first real root category
   useEffect(() => {
-    if (!categoryId && categories.length > 0) {
-      setCategoryId(String(categories[0].id));
+    if (!categoryId && parentCategories.length > 0) {
+      setCategoryId(String(parentCategories[0].id));
     }
-  }, [categories, categoryId]);
+  }, [parentCategories, categoryId]);
+
+  const categoryOptions = useMemo(() => {
+    const list = parentCategories.map((c) => ({
+      value: String(c.id),
+      label: c.categories_name,
+    }));
+    if (
+      slider?.category_id &&
+      !list.some((o) => o.value === String(slider.category_id))
+    ) {
+      list.unshift({
+        value: String(slider.category_id),
+        label: slider.categories_name || `Category #${slider.category_id}`,
+      });
+    }
+    return list;
+  }, [parentCategories, slider]);
 
   const [sortOrder, setSortOrder] = useState(String(slider?.slider_sort_order ?? "1"));
   const [url, setUrl] = useState(slider?.slider_url || "");
@@ -209,10 +231,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
               id="s-cat"
               value={categoryId}
               onChange={setCategoryId}
-              options={categories.map((c) => ({
-                value: String(c.id),
-                label: c.categories_name,
-              }))}
+              options={categoryOptions}
               placeholder={
                 categoriesLoading
                   ? "Loading categories..."

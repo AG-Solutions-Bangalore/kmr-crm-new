@@ -14,6 +14,7 @@ interface BaseProps {
   required?: boolean;
   disabled?: boolean;
   clearable?: boolean;
+  direction?: "up" | "down" | "auto";
 }
 
 /**

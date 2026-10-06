@@ -36,7 +36,6 @@ export function CategoryCard({
     setImgError(false);
   }, [category.categories_image]);
 
-
   const updatedStamp = category.updated_at ?? category.created_at;
   const ago = timeAgo(updatedStamp);
   const justUpdated = isWithinHours(category.updated_at, 24);
@@ -57,12 +56,6 @@ export function CategoryCard({
       }
       updatedPill={justUpdated ? `Updated${ago ? ` • ${ago}` : ""}` : null}
       justUpdated={justUpdated}
-      metaSecondary={
-        <span className="text-muted-foreground/70">
-          {category.categories_slug ? `/${category.categories_slug}` : ""}
-          {ago ? ` • Updated ${ago}` : ""}
-        </span>
-      }
       compact={compact}
       isToggling={isToggling}
       highlighted={highlighted}
