@@ -116,10 +116,10 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                       <td className="px-4 py-3.5">
                         <div className="flex flex-col gap-0.5">
                           <p className="font-medium text-foreground">
-                            {item.vendor_name || "—"}
+                            {item.vendor_name}
                           </p>
                           <span className="text-[11px] text-muted-foreground">
-                            {item.vendor_mobile || "—"}
+                            {item.vendor_mobile}
                           </span>
                         </div>
                       </td>

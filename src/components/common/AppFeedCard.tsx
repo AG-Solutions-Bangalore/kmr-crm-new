@@ -127,7 +127,9 @@ export function AppFeedCard({
       document.body.removeChild(ta);
     }
     toast.success(
-      directUrl ? "Image URL copied." : "Link copied — reopening it jumps straight to this item.",
+      directUrl
+        ? "Image URL copied."
+        : "Link copied — reopening it jumps straight to this item.",
     );
   };
 
@@ -184,7 +186,9 @@ export function AppFeedCard({
           variant="outline"
           className={cn(
             "border-0 backdrop-blur-md",
-            statusActive ? "bg-emerald-500/90 text-white" : "bg-black/55 text-white/85",
+            statusActive
+              ? "bg-emerald-500/90 text-white"
+              : "bg-black/55 text-white/85",
           )}
         >
           <span
@@ -195,7 +199,10 @@ export function AppFeedCard({
           />
           {statusText ?? (statusActive ? "Live" : "Hidden")}
         </Badge>
-        <Badge variant="outline" className="border-0 bg-black/55 font-mono text-white/85 backdrop-blur-md">
+        <Badge
+          variant="outline"
+          className="border-0 bg-black/55 font-mono text-white/85 backdrop-blur-md"
+        >
           #{recordId}
         </Badge>
       </span>
@@ -205,10 +212,13 @@ export function AppFeedCard({
         <span className="absolute inset-x-2.5 bottom-2.5 flex items-center justify-between gap-2">
           <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-black/55 py-1 pl-2 pr-2.5 backdrop-blur-md">
             {chipAccent && (
-              <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: chipAccent }} />
+              <span
+                className="size-2 shrink-0 rounded-full"
+                style={{ backgroundColor: chipAccent }}
+              />
             )}
             <span className="truncate text-[11px] font-semibold text-white">
-              {chipLabel ?? "—"}
+              {chipLabel}
             </span>
           </span>
           {updatedPill ? (
@@ -266,7 +276,9 @@ export function AppFeedCard({
               }}
               className={cn(
                 "inline-flex size-9 items-center justify-center rounded-full shadow-lg backdrop-blur-md transition-transform hover:scale-105",
-                statusActive ? "bg-emerald-500/90 text-white" : "bg-white/90 text-black",
+                statusActive
+                  ? "bg-emerald-500/90 text-white"
+                  : "bg-white/90 text-black",
                 isToggling && "animate-pulse",
               )}
             >
@@ -320,9 +332,19 @@ export function AppFeedCard({
         </div>
       )}
 
-      <CardContent className={cn("flex flex-1 flex-col", compact ? "gap-1.5 p-3" : "gap-2 p-4")}>
+      <CardContent
+        className={cn(
+          "flex flex-1 flex-col",
+          compact ? "gap-1.5 p-3" : "gap-2 p-4",
+        )}
+      >
         {canEdit ? (
-          <button type="button" onClick={() => onEdit?.()} title={title} className="cursor-pointer text-left">
+          <button
+            type="button"
+            onClick={() => onEdit?.()}
+            title={title}
+            className="cursor-pointer text-left"
+          >
             <CardTitle title={title} compact={compact} />
           </button>
         ) : (
@@ -330,7 +352,12 @@ export function AppFeedCard({
         )}
 
         {highlight && (
-          <p className={cn("font-extrabold tracking-tight text-foreground", compact ? "text-lg" : "text-[22px]")}>
+          <p
+            className={cn(
+              "font-extrabold tracking-tight text-foreground",
+              compact ? "text-lg" : "text-[22px]",
+            )}
+          >
             {highlight}
           </p>
         )}
@@ -368,7 +395,9 @@ export function AppFeedCard({
                   size="sm"
                   onClick={handleShare}
                   title={shareUrl ? "Copy image URL" : "Copy link to this item"}
-                  aria-label={shareUrl ? "Copy image URL" : "Copy link to this item"}
+                  aria-label={
+                    shareUrl ? "Copy image URL" : "Copy link to this item"
+                  }
                   className="size-8 shrink-0 p-0"
                 >
                   <Copy className="size-4 text-muted-foreground" />
@@ -381,7 +410,10 @@ export function AppFeedCard({
                   size="sm"
                   onClick={() => onEdit?.()}
                   title="Edit"
-                  className={cn("gap-1.5 font-semibold", compact ? "h-7 px-2.5 text-[11px]" : "h-8 px-3 text-xs")}
+                  className={cn(
+                    "gap-1.5 font-semibold",
+                    compact ? "h-7 px-2.5 text-[11px]" : "h-8 px-3 text-xs",
+                  )}
                 >
                   <Edit2 className="size-3.5" />
                   Edit
@@ -401,7 +433,9 @@ export function AppFeedCard({
                   <Power
                     className={cn(
                       "size-4",
-                      statusActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground",
+                      statusActive
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-muted-foreground",
                       isToggling && "animate-pulse",
                     )}
                   />
