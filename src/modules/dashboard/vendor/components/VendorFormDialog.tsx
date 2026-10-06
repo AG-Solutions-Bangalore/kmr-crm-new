@@ -218,11 +218,13 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="v-address">Address</Label>
-          <Input
+          <textarea
             id="v-address"
+            rows={3}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Full physical address or warehouse"
+            className="w-full rounded-md border border-input bg-background p-2.5 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
 

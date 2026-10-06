@@ -5,6 +5,19 @@ import axios, {
 } from "axios";
 
 const TOKEN_KEY = "kmr-crm-token";
+const USER_KEY = "kmr-crm-user";
+
+export interface StoredAuthUser {
+  id?: number;
+  name?: string;
+  mobile?: string;
+  email?: string;
+  user_type?: number;
+  city?: string;
+  address?: string;
+  status?: string;
+  trail?: string;
+}
 
 export function getAuthToken(): string | null {
   try {
@@ -26,11 +39,37 @@ export function setAuthToken(token: string) {
   }
 }
 
+export function getAuthUser(): StoredAuthUser | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthUser(user: StoredAuthUser) {
+  try {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+  } catch {
+    // storage unavailable
+  }
+}
+
+export function clearAuthUser() {
+  try {
+    localStorage.removeItem(USER_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function clearAuthToken() {
   try {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem("access_token");
     localStorage.removeItem("token");
+    clearAuthUser();
   } catch {
     // ignore
   }

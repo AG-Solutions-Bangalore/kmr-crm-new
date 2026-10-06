@@ -28,6 +28,7 @@ export interface AppRoute {
   path: string;
   title: string;
   element: ReactNode;
+  superAdminOnly?: boolean;
 }
 
 /** Routes that don't need a session. Rendered without the dashboard shell. */
@@ -100,21 +101,25 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.blog,
     title: "Blog",
     element: <BlogPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.blogNew,
     title: "Create Blog Post",
     element: <BlogFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.blogEdit,
     title: "Edit Blog Post",
     element: <BlogFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.gallery,
     title: "Gallery",
     element: <GalleryPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.enquiry,
@@ -140,26 +145,31 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.faq,
     title: "FAQs",
     element: <FaqPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.faqNew,
     title: "Create FAQ",
     element: <FaqFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.faqEdit,
     title: "Edit FAQ",
     element: <FaqFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.testimonial,
     title: "Testimonials",
     element: <TestimonialPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.client,
     title: "Clients",
     element: <ClientPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.member,
@@ -170,5 +180,6 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.slider,
     title: "Sliders",
     element: <SliderPage />,
+    superAdminOnly: true,
   },
 ];

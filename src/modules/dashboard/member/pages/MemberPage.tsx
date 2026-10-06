@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AlertCircle, CheckCircle2, Plus, RefreshCw, Users, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -19,7 +20,10 @@ const PAGE_SIZE = 10;
 type MemberTab = "all" | "trail";
 
 export function MemberPage() {
-  const [tab, setTab] = useState<MemberTab>("all");
+  const [searchParams] = useSearchParams();
+  const rawTab = searchParams.get("tab");
+  const tab: MemberTab = rawTab === "trail" ? "trail" : "all";
+
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -65,12 +69,6 @@ export function MemberPage() {
     if (trailPage > trailTotalPages) setTrailPage(trailTotalPages);
   }, [trailPage, trailTotalPages]);
 
-  const handleTabChange = (next: MemberTab) => {
-    setTab(next);
-    if (next === "all") setPage(1);
-    else setTrailPage(1);
-  };
-
   const activeMembers = tab === "all" ? members : trailMembers;
   const activeLoading = tab === "all" ? isLoading : isTrailLoading;
   const activeFetching = tab === "all" ? isFetching : isTrailFetching;
@@ -99,10 +97,12 @@ export function MemberPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Members
+            {tab === "trail" ? "Trail Users" : "Registered Members"}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage registered members, subscriptions, and validity dates.
+            {tab === "trail"
+              ? "Manage members currently active on trial access period."
+              : "Manage registered members, accounts, and subscription validity."}
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export function MemberPage() {
 
           <Button size="sm" onClick={handleOpenCreate} className="gap-2">
             <Plus className="size-4" />
-            <span>Add Member</span>
+            <span>{tab === "trail" ? "Add Trail User" : "Add Member"}</span>
           </Button>
         </div>
       </div>
@@ -150,68 +150,100 @@ export function MemberPage() {
         </div>
       )}
 
-      {/* Metric Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Total Members
-            </CardTitle>
-            <Users className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : totalCount}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Metric Cards - Contextual to active view */}
+      {tab === "trail" ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Total Trail Users
+              </CardTitle>
+              <Users className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isTrailLoading ? "—" : trailTotal}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              Active Members
-            </CardTitle>
-            <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : activeCount}
-            </div>
-          </CardContent>
-        </Card>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Active Trail
+              </CardTitle>
+              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isTrailLoading
+                  ? "—"
+                  : trailMembers.filter((m) => m.status === "Active").length}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">
-              Inactive Members
-            </CardTitle>
-            <XCircle className="size-4 text-amber-600 dark:text-amber-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : inactiveCount}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                Inactive Trail
+              </CardTitle>
+              <XCircle className="size-4 text-amber-600 dark:text-amber-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isTrailLoading
+                  ? "—"
+                  : trailMembers.filter((m) => m.status !== "Active").length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Total Members
+              </CardTitle>
+              <Users className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isLoading ? "—" : totalCount}
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant={tab === "all" ? "default" : "outline"}
-          size="sm"
-          onClick={() => handleTabChange("all")}
-        >
-          All Members{isLoading ? "" : ` (${totalCount})`}
-        </Button>
-        <Button
-          variant={tab === "trail" ? "default" : "outline"}
-          size="sm"
-          onClick={() => handleTabChange("trail")}
-        >
-          Trail Members{isTrailLoading ? "" : ` (${trailTotal})`}
-        </Button>
-      </div>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Active Members
+              </CardTitle>
+              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isLoading ? "—" : activeCount}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                Inactive Members
+              </CardTitle>
+              <XCircle className="size-4 text-amber-600 dark:text-amber-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isLoading ? "—" : inactiveCount}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Members Table */}
       <MemberTable

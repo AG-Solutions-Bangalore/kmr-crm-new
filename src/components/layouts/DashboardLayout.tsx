@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useLocation, Outlet } from "react-router-dom";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { cn } from "@/lib/utils";
-import { NAV_SECTIONS } from "@/constants/navigation.ts";
+import { SIDEBAR_ITEMS } from "@/constants/navigation.ts";
 import { PATHS } from "@/constants/paths.ts";
+import { useCurrentUser } from "@/modules/auth/login/hook/useCurrentUser.ts";
 import { ProfileDialog } from "@/modules/auth/profile/components/ProfileDialog.tsx";
 import { ChangePasswordDialog } from "@/modules/auth/login/components/ChangePasswordDialog.tsx";
 import { AccountMenu, type AccountDialog } from "./AccountMenu.tsx";
@@ -17,7 +18,73 @@ interface SidebarContentProps {
   onOpenDialog: (dialog: AccountDialog) => void;
 }
 
+const SIDEBAR_EXPANDED_STORAGE_KEY = "kmr_sidebar_expanded_groups";
+
+function getInitialOpenGroups(): Record<string, boolean> {
+  if (typeof window === "undefined") {
+    return { Members: true, "APP Rates": true };
+  }
+  try {
+    const raw = localStorage.getItem(SIDEBAR_EXPANDED_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === "object" && parsed !== null) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to parse sidebar state from localStorage", err);
+  }
+  return {
+    Members: true,
+    "APP Rates": true,
+  };
+}
+
 function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
+  const { userType } = useCurrentUser();
+  const location = useLocation();
+
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(getInitialOpenGroups);
+
+  const toggleGroup = (title: string, defaultOpen = true) => {
+    setOpenGroups((prev) => {
+      const currentlyOpen = prev[title] ?? defaultOpen;
+      const next = {
+        ...prev,
+        [title]: !currentlyOpen,
+      };
+      try {
+        localStorage.setItem(SIDEBAR_EXPANDED_STORAGE_KEY, JSON.stringify(next));
+      } catch (err) {
+        console.error("Failed to save sidebar state to localStorage", err);
+      }
+      return next;
+    });
+  };
+
+  function isPathActive(targetPath?: string): boolean {
+    if (!targetPath) return false;
+    if (targetPath.includes("?")) {
+      const [pathPart, queryPart] = targetPath.split("?");
+      return (
+        location.pathname === pathPart &&
+        location.search.includes(queryPart)
+      );
+    }
+    if (targetPath === PATHS.overview) {
+      return location.pathname === PATHS.overview && !location.search;
+    }
+    return (
+      location.pathname === targetPath &&
+      (!location.search || !location.search.includes("tab="))
+    );
+  }
+
+  const visibleItems = SIDEBAR_ITEMS.filter(
+    (item) => !item.userTypes || item.userTypes.includes(userType),
+  );
+
   return (
     <div className="flex h-full flex-col">
       {/* Sidebar header */}
@@ -38,34 +105,108 @@ function SidebarContent({ onNavigate, onOpenDialog }: SidebarContentProps) {
 
       {/* Nav items */}
       <nav className="flex-1 overflow-y-auto p-2 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        {NAV_SECTIONS.map((section) => (
-          <div key={section.label} className="mb-4">
-            <p className="px-3 pb-1 text-[11px] font-semibold tracking-wider uppercase text-sidebar-foreground/50">
-              {section.label}
-            </p>
-            <div className="flex flex-col gap-1">
-              {section.items.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  end={item.path === PATHS.overview}
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
-                      isActive
-                        ? "bg-primary text-primary-foreground font-semibold shadow-sm shadow-primary/25"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
-                    )
-                  }
-                >
-                  <item.icon className="size-4 shrink-0" />
-                  <span className="truncate">{item.title}</span>
-                </NavLink>
-              ))}
-            </div>
-          </div>
-        ))}
+        <div className="flex flex-col gap-1">
+          {visibleItems.map((item) => {
+            if (item.children && item.children.length > 0) {
+              const hasActiveChild = item.children.some((child) =>
+                isPathActive(child.path),
+              );
+              const isOpen = openGroups[item.title] ?? (hasActiveChild || true);
+
+              return (
+                <div key={item.title} className="flex flex-col">
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    onClick={() => toggleGroup(item.title, isOpen)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 cursor-pointer select-none",
+                      hasActiveChild
+                        ? "text-primary font-semibold bg-primary/10"
+                        : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="size-4 shrink-0" />
+                      <span className="truncate">{item.title}</span>
+                    </div>
+                    <ChevronDown
+                      className={cn(
+                        "size-3.5 shrink-0 transition-transform duration-300 ease-in-out opacity-60",
+                        isOpen && "rotate-180",
+                      )}
+                    />
+                  </button>
+
+                  {/* Smooth accordion animated container */}
+                  <div
+                    className={cn(
+                      "grid transition-all duration-300 ease-in-out",
+                      isOpen
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0 pointer-events-none",
+                    )}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-sidebar-border pl-3 pb-0.5">
+                        {item.children.map((child) => {
+                          const active = isPathActive(child.path);
+                          const ChildIcon = child.icon;
+
+                          return (
+                            <Link
+                              key={child.title}
+                              to={child.path}
+                              onClick={onNavigate}
+                              tabIndex={isOpen ? 0 : -1}
+                              className={cn(
+                                "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+                                active
+                                  ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                              )}
+                            >
+                              {ChildIcon ? (
+                                <ChildIcon className="size-3.5 shrink-0" />
+                              ) : (
+                                <span
+                                  className={cn(
+                                    "size-1.5 rounded-full",
+                                    active ? "bg-white" : "bg-muted-foreground/50",
+                                  )}
+                                />
+                              )}
+                              <span className="truncate">{child.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            const active = isPathActive(item.path);
+
+            return (
+              <Link
+                key={item.title}
+                to={item.path ?? "#"}
+                onClick={onNavigate}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
+                  active
+                    ? "bg-primary text-primary-foreground font-semibold shadow-sm shadow-primary/25"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                )}
+              >
+                <item.icon className="size-4 shrink-0" />
+                <span className="truncate">{item.title}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Account section */}
