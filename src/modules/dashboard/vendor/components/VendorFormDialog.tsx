@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,86 @@ interface VendorFormDialogProps {
 interface InnerFormProps {
   vendor?: Vendor | null;
   onClose: () => void;
+}
+
+const TRADE_OPTIONS = [
+  { value: "1", label: "Live" },
+  { value: "2", label: "Rate" },
+  { value: "3", label: "Spot" },
+];
+
+/** Multi-select dropdown for trade types. Stores comma-separated ids
+ *  (e.g. "1, 3") so the API payload stays unchanged. */
+function TradeMultiSelect({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const ids = value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const toggle = (v: string) => {
+    const next = ids.includes(v) ? ids.filter((i) => i !== v) : [...ids, v];
+    next.sort((a, b) => Number(a) - Number(b));
+    onChange(next.join(", "));
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open ]);
+
+  const selectedLabels = TRADE_OPTIONS.filter((o) => ids.includes(o.value)).map(
+    (o) => `${o.value} - ${o.label}`,
+  );
+
+  return (
+    <div ref={rootRef} className="relative w-full">
+      <button
+        id="v-trade"
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      >
+        <span className={selectedLabels.length > 0 ? "" : "text-muted-foreground"}>
+          {selectedLabels.length > 0 ? selectedLabels.join(", ") : "Select trade types"}
+        </span>
+        <ChevronDown className="size-4 shrink-0 opacity-50" />
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md">
+          {TRADE_OPTIONS.map((o) => (
+            <label
+              key={o.value}
+              className="flex cursor-pointer items-center gap-2.5 rounded-sm px-2 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <input
+                type="checkbox"
+                checked={ids.includes(o.value)}
+                onChange={() => toggle(o.value)}
+                className="size-4 shrink-0 accent-primary"
+              />
+              <span>
+                {o.value} - {o.label}
+              </span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function VendorFormContent({ vendor, onClose }: InnerFormProps) {
@@ -191,13 +271,8 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
 
         <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="v-trade">Trade Categories / IDs</Label>
-            <Input
-              id="v-trade"
-              value={trade}
-              onChange={(e) => setTrade(e.target.value)}
-              placeholder="e.g. 1, 2, 3"
-            />
+            <Label htmlFor="v-trade">Trade</Label>
+            <TradeMultiSelect value={trade} onChange={setTrade} />
           </div>
 
           {isEditing && (
