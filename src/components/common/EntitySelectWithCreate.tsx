@@ -44,17 +44,19 @@ export function CategorySelectWithCreate({
             createLabel={(q) => `Create category "${q}"`}
           />
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => handleCreateNew("")}
-          title="Create a new category without leaving this form"
-          aria-label="Create a new category without leaving this form"
-          className="size-9 shrink-0 p-0"
-        >
-          <Plus className="size-4" />
-        </Button>
+        {!selectProps.disabled && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleCreateNew("")}
+            title="Create a new category without leaving this form"
+            aria-label="Create a new category without leaving this form"
+            className="size-9 shrink-0 p-0"
+          >
+            <Plus className="size-4" />
+          </Button>
+        )}
       </div>
       {quickOpen && (
         <QuickCreateCategoryDialog

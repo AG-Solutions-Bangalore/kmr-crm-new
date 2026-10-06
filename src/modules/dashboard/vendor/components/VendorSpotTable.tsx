@@ -13,7 +13,11 @@ interface VendorSpotTableProps {
   onEdit: (spot: VendorSpotItem) => void;
 }
 
-export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTableProps) {
+export function VendorSpotTable({
+  spots,
+  isLoading,
+  onEdit,
+}: VendorSpotTableProps) {
   const [search, setSearch] = useState("");
   const updateStatusMutation = useUpdateVendorSpotStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -33,7 +37,8 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
   });
 
   const handleToggleStatus = async (item: VendorSpotItem) => {
-    const nextStatus = item.vendor_spot_status === "Active" ? "Inactive" : "Active";
+    const nextStatus =
+      item.vendor_spot_status === "Active" ? "Inactive" : "Active";
     setTogglingId(item.id);
     try {
       await updateStatusMutation.mutateAsync({
@@ -78,7 +83,10 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading vendor spot quotes...</span>
@@ -87,14 +95,17 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Sparkles className="size-8 opacity-40 text-sky-500" />
                       <p className="font-medium">No spot quotes found</p>
                       <p className="text-xs">
                         {search
                           ? "Try adjusting your search criteria"
-                          : "Create spot quotes using the button above."}
+                          : "Spot Rates using the button above."}
                       </p>
                     </div>
                   </td>
@@ -182,7 +193,9 @@ export function VendorSpotTable({ spots, isLoading, onEdit }: VendorSpotTablePro
                           >
                             <Power
                               className={`size-3.5 ${
-                                isActive ? "text-emerald-600" : "text-muted-foreground"
+                                isActive
+                                  ? "text-emerald-600"
+                                  : "text-muted-foreground"
                               }`}
                             />
                             <span className="sr-only">Toggle</span>

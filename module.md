@@ -168,7 +168,7 @@ Follow this guide step-by-step in the browser (`http://localhost:5173`) and in t
      - **Status Toggle:** Click power icon -> submits `PATCH /vendors/{id}/status`.
   2. **Tab 2: Spot Quotes (`/vendor-spot`):**
      - **GET List:** Displays live spot quotes (e.g. _"EDIBLE OIL - Khopoli Seller Option"_).
-     - **Create Spot Quote Form:** Click **+ Create Spot Quote**.
+     - **Spot Rate Form:** Click **+ Spot Rate**.
        - Fields: Vendor Select, Category ID, Sub-Category ID, Spot Heading, Spot Details.
        - Submits payload: `{ products: [{ vendor_id, category_id, sub_category_id, vendor_spot_heading, vendor_spot_details }] }` to `POST /vendor-spot`.
      - **Status Toggle:** Click power icon -> submits `PATCH /vendor-spots/{id}/status`.

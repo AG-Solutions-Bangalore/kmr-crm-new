@@ -59,7 +59,7 @@ export const dashboardRoutes: AppRoute[] = [
   },
   {
     path: PATHS.vendorSpotNew,
-    title: "Create Spot Quote",
+    title: "Spot Rate",
     element: <VendorSpotFormPage />,
   },
   {

@@ -41,6 +41,7 @@ export function NewsCard({ article, isToggling, compact = false, highlighted = f
       snippet={article.news_details}
       snippetClamp={3}
       statusActive={isActive}
+      statusText={article.news_status || "Active"}
       recordId={article.id}
       chipLabel={article.categories_name || "Uncategorized"}
       chipAccent={accent}

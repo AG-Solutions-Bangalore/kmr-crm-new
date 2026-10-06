@@ -25,7 +25,7 @@ export interface AppFeedCardProps {
   /** Big value row between title and snippet (e.g. ₹ rate). */
   highlight?: string | null;
   statusActive: boolean;
-  /** Defaults to Live / Hidden. */
+  /** Defaults to Active / Inactive. */
   statusText?: string;
   recordId: number | string;
   /** Bottom-left glass chip (e.g. category). */
@@ -203,7 +203,7 @@ export function AppFeedCard({
               statusActive ? "bg-white" : "bg-white/60",
             )}
           />
-          {statusText ?? (statusActive ? "Live" : "Hidden")}
+          {statusText ?? (statusActive ? "Active" : "Inactive")}
         </Badge>
         <Badge
           variant="outline"

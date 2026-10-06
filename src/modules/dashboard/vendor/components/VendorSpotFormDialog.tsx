@@ -237,7 +237,7 @@ function VendorSpotEditContent({
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="sp-details">
-            Spot Details / Offer <span className="text-destructive">*</span>
+            Spot Details<span className="text-destructive">*</span>
           </Label>
           <textarea
             id="sp-details"
@@ -437,7 +437,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     >
       <div className="flex flex-col space-y-1.5 text-center sm:text-left">
         <h2 className="text-lg font-semibold leading-none tracking-tight">
-          Create Spot Quote
+          Spot Rate
         </h2>
         <p className="text-sm text-muted-foreground">
           Publish one or more spot market quotes for a vendor in a single save.
@@ -590,7 +590,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
 
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor={`sp-details-${row.key}`}>
-                    Spot Details / Offer{" "}
+                    Spot Details
                     <span className="text-destructive">*</span>
                   </Label>
                   <textarea
@@ -632,7 +632,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
               ? "Saving..."
               : rows.length > 1
                 ? `Create ${rows.length} Spot Quotes`
-                : "Create Spot Quote"}
+                : "Spot Rate"}
           </Button>
         </div>
       </div>

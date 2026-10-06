@@ -32,7 +32,11 @@ import {
   useUpdateVendorLiveStatus,
   useUpdateVendorRateStatus,
 } from "../hook/useVendor.ts";
-import type { Vendor, VendorRateProduct, VendorSpotItem } from "../types/vendor.types.ts";
+import type {
+  Vendor,
+  VendorRateProduct,
+  VendorSpotItem,
+} from "../types/vendor.types.ts";
 
 const PAGE_SIZE = 10;
 type VendorTabKey = "vendors" | "spots" | "live" | "rates";
@@ -42,7 +46,9 @@ export function VendorPage() {
   const [searchParams] = useSearchParams();
   const rawTab = searchParams.get("tab");
   const activeTab: VendorTabKey =
-    rawTab === "spots" || rawTab === "live" || rawTab === "rates" ? rawTab : "vendors";
+    rawTab === "spots" || rawTab === "live" || rawTab === "rates"
+      ? rawTab
+      : "vendors";
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -51,13 +57,11 @@ export function VendorPage() {
     setPage(1);
   }, [search]);
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-    isFetching,
-  } = useVendorsPage(page, PAGE_SIZE, search);
+  const { data, isLoading, error, refetch, isFetching } = useVendorsPage(
+    page,
+    PAGE_SIZE,
+    search,
+  );
 
   const vendors = data?.items ?? [];
   const totalCount = data?.total ?? 0;
@@ -121,7 +125,10 @@ export function VendorPage() {
     navigate(PATHS.vendorSpotEdit.replace(":id", String(spot.id)));
   };
 
-  const handleOpenRateEdit = (item: VendorRateProduct, type: "live" | "standard") => {
+  const handleOpenRateEdit = (
+    item: VendorRateProduct,
+    type: "live" | "standard",
+  ) => {
     if (type === "live") {
       navigate(PATHS.vendorLiveEdit.replace(":id", String(item.id)));
     } else {
@@ -133,11 +140,17 @@ export function VendorPage() {
     item.vendor_product_status === "Active" ? "Inactive" : "Active";
 
   const handleToggleLiveStatus = async (item: VendorRateProduct) => {
-    await liveStatusMutation.mutateAsync({ id: item.id, status: nextRateStatus(item) });
+    await liveStatusMutation.mutateAsync({
+      id: item.id,
+      status: nextRateStatus(item),
+    });
   };
 
   const handleToggleRateStatus = async (item: VendorRateProduct) => {
-    await rateStatusMutation.mutateAsync({ id: item.id, status: nextRateStatus(item) });
+    await rateStatusMutation.mutateAsync({
+      id: item.id,
+      status: nextRateStatus(item),
+    });
   };
 
   const handleRefresh = () => {
@@ -147,9 +160,12 @@ export function VendorPage() {
     void refetchRates();
   };
 
-  const isRefreshing = isFetching || fetchingSpots || fetchingLive || fetchingRates;
+  const isRefreshing =
+    isFetching || fetchingSpots || fetchingLive || fetchingRates;
 
-  const activeCount = vendors.filter((v) => v.vendor_status === "Active").length;
+  const activeCount = vendors.filter(
+    (v) => v.vendor_status === "Active",
+  ).length;
   const inactiveCount = vendors.length - activeCount;
 
   const getHeaderInfo = () => {
@@ -157,8 +173,9 @@ export function VendorPage() {
       case "spots":
         return {
           title: "Spot Quotes",
-          description: "Real-time vendor spot market quotes and delivery terms.",
-          buttonLabel: "Create Spot Quote",
+          description:
+            "Real-time vendor spot market quotes and delivery terms.",
+          buttonLabel: "Spot Rate",
         };
       case "live":
         return {
@@ -175,7 +192,8 @@ export function VendorPage() {
       default:
         return {
           title: "Vendors",
-          description: "Manage your network of vendors, trade categories, and locations.",
+          description:
+            "Manage your network of vendors, trade categories, and locations.",
           buttonLabel: "Add Vendor",
         };
     }
@@ -224,7 +242,10 @@ export function VendorPage() {
             <div className="flex-1">
               <p className="font-semibold">Backend Error</p>
               <p className="mt-1 text-xs opacity-90">
-                {getApiErrorMessage(error, "Could not load vendors from server.")}
+                {getApiErrorMessage(
+                  error,
+                  "Could not load vendors from server.",
+                )}
               </p>
             </div>
             <Button
@@ -324,7 +345,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingLive ? "—" : liveRates.filter((r) => r.vendor_product_status === "Active").length}
+                {loadingLive
+                  ? "—"
+                  : liveRates.filter(
+                      (r) => r.vendor_product_status === "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
@@ -337,7 +362,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingLive ? "—" : liveRates.filter((r) => r.vendor_product_status !== "Active").length}
+                {loadingLive
+                  ? "—"
+                  : liveRates.filter(
+                      (r) => r.vendor_product_status !== "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
@@ -366,7 +395,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingRates ? "—" : standardRates.filter((r) => r.vendor_product_status === "Active").length}
+                {loadingRates
+                  ? "—"
+                  : standardRates.filter(
+                      (r) => r.vendor_product_status === "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
@@ -379,7 +412,11 @@ export function VendorPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {loadingRates ? "—" : standardRates.filter((r) => r.vendor_product_status !== "Active").length}
+                {loadingRates
+                  ? "—"
+                  : standardRates.filter(
+                      (r) => r.vendor_product_status !== "Active",
+                    ).length}
               </div>
             </CardContent>
           </Card>
