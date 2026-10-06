@@ -1,0 +1,100 @@
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
+import {
+  createGallery,
+  fetchGallery,
+  fetchGalleryById,
+  fetchGalleryPage,
+  updateGallery,
+  updateGalleryStatus,
+} from "../api/gallery.api.ts";
+import type { GalleryMutationPayload, GalleryStatus } from "../types/gallery.types.ts";
+
+export const galleryKeys = {
+  all: ["gallery"] as const,
+  list: () => [...galleryKeys.all, "list"] as const,
+  detail: (id: number | string) => [...galleryKeys.all, "detail", id] as const,
+};
+
+export function useGalleryList() {
+  return useQuery({
+    queryKey: galleryKeys.list(),
+    queryFn: fetchGallery,
+    retry: 1,
+  });
+}
+
+export function useGalleryPage(page: number, perPage: number, search = "", status = "all") {
+  return useQuery({
+    queryKey: [...galleryKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchGalleryPage(page, perPage, search, status),
+    retry: 1,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useGalleryItem(id: number | string | null | undefined) {
+  return useQuery({
+    queryKey: galleryKeys.detail(id ?? ""),
+    queryFn: () => fetchGalleryById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateGallery() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: GalleryMutationPayload) => createGallery(payload),
+    onSuccess: () => {
+      toast.success("Gallery image created successfully.");
+      void queryClient.invalidateQueries({ queryKey: galleryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save gallery image."));
+    },
+  });
+}
+
+export function useUpdateGallery() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number | string;
+      payload: GalleryMutationPayload;
+    }) => updateGallery(id, payload),
+    onSuccess: () => {
+      toast.success("Gallery image updated successfully.");
+      void queryClient.invalidateQueries({ queryKey: galleryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save gallery image."));
+    },
+  });
+}
+
+export function useUpdateGalleryStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      status,
+    }: {
+      id: number | string;
+      status: GalleryStatus;
+    }) => updateGalleryStatus(id, status),
+    onSuccess: () => {
+      toast.success("Gallery image status updated.");
+      void queryClient.invalidateQueries({ queryKey: galleryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save gallery image."));
+    },
+  });
+}

@@ -1,0 +1,110 @@
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/axios.ts";
+import {
+  createCategory,
+  fetchActiveCategories,
+  fetchCategories,
+  fetchCategoriesPage,
+  fetchCategoryById,
+  updateCategory,
+  updateCategoryStatus,
+} from "../api/category.api.ts";
+import type { CategoryMutationPayload, CategoryStatus } from "../types/category.types.ts";
+
+export const categoryKeys = {
+  all: ["categories"] as const,
+  list: () => [...categoryKeys.all, "list"] as const,
+  active: () => [...categoryKeys.all, "active"] as const,
+  detail: (id: number | string) => [...categoryKeys.all, "detail", id] as const,
+};
+
+export function useCategories(search = "", status = "all") {
+  return useQuery({
+    queryKey: [...categoryKeys.all, "list", search, status] as const,
+    queryFn: () => fetchCategories(search, status),
+    retry: 1,
+  });
+}
+
+export function useCategoriesPage(page: number, perPage: number, search = "", status = "all") {
+  return useQuery({
+    queryKey: [...categoryKeys.all, "page", page, perPage, search, status] as const,
+    queryFn: () => fetchCategoriesPage(page, perPage, search, status),
+    retry: 1,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useActiveCategories() {
+  return useQuery({
+    queryKey: categoryKeys.active(),
+    queryFn: fetchActiveCategories,
+    retry: 1,
+  });
+}
+
+export function useCategory(id: number | string | null | undefined) {
+  return useQuery({
+    queryKey: categoryKeys.detail(id ?? ""),
+    queryFn: () => fetchCategoryById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CategoryMutationPayload) => createCategory(payload),
+    onSuccess: () => {
+      toast.success("Category created successfully.");
+      void queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save category."));
+    },
+  });
+}
+
+export function useUpdateCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number | string;
+      payload: CategoryMutationPayload;
+    }) => updateCategory(id, payload),
+    onSuccess: () => {
+      toast.success("Category updated successfully.");
+      void queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save category."));
+    },
+  });
+}
+
+export function useUpdateCategoryStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      status,
+    }: {
+      id: number | string;
+      status: CategoryStatus;
+    }) => updateCategoryStatus(id, status),
+    onSuccess: () => {
+      toast.success("Category status updated.");
+      void queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Could not save category."));
+    },
+  });
+}

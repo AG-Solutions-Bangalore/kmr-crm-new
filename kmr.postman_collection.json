@@ -1,0 +1,3097 @@
+{
+  "info": {
+    "_postman_id": "a59bf35d-2585-410f-b90b-f0f1912811f3",
+    "name": "kmr",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "37493424"
+  },
+  "item": [
+    {
+      "name": "fetch-dotenv",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/panel-fetch-dotenv",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "panel-fetch-dotenv"
+          ]
+        }
+      },
+      "response": []
+    },
+  
+    {
+      "name": "forgot-password",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "username",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "email",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/panel-send-password",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "panel-send-password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "change-password",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "new_password",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "old_password",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/panel-change-password",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "panel-change-password"
+          ]
+        }
+      },
+      "response": []
+    },
+   
+
+
+    
+    {
+      "name": "fetch-profile",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/panel-fetch-profile",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "panel-fetch-profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update-profile",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "mobile",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "email",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/panel-update-profile",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "panel-update-profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "category list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/category",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "category"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "category",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "parent_id",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_sort_order",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_name",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_slug",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_image",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/category",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "category"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "category by id",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/category/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "category",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "category",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "parent_id",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_sort_order",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_name",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_slug",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_image",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "categories_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/category/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "category",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "category status",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "categories_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/categorys/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "categorys",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "active Categories",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/activeCategories",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "activeCategories"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiIyZTdkZjBmZDFmOTBhNzA1MmMzMDBjMTc5NjZiZDBiZDJhNmU1OWRjMTdhZDQxMjc5YTIwYmM1ODUwYmFjYWEwNDgzMzA5YjYzMjcwMDY0MyIsImlhdCI6MTc5MDY2NzQ1NS4wNTU4MTkwMzQ1NzY0MTYwMTU2MjUsIm5iZiI6MTc5MDY2NzQ1NS4wNTU4MjQ5OTUwNDA4OTM1NTQ2ODc1LCJleHAiOjE4MjIyMDM0NTQuOTYwMzU1OTk3MDg1NTcxMjg5MDYyNSwic3ViIjoiMiIsInNjb3BlcyI6W119.W15qnAyNmxlqdfjUb9MAthgfSPe-ekcOoath3r1ixOt0kCZaUz9k7irWMeh49ZF13au5FOEEy-QDEXFix1vlej4YQh423ivPuXKbhSYsUEUhiCcVPzxdLnMAEX-wrriB7Dama6c_YBcDtPNFk3EPgt8f3PbjZWnpm7cQGgtpCNbcWna8Sx6JN7eygz0ZQCyYKlsYQELvzUdsrscXw6Kav5TdBYnCb3lIJA--zwfp5ebOtacGhXvR6ZJZ5PaysYwT1VkYW8q-6lxquEqSl0-jyC4bLOYovnJSanDfuSabLt9b9UDL5xiPpEYQsf29BmnS8oiDi78JsdUuzLSKe1dR0mBNYI7iAmSEkrXReYF7ljFwT6rnfXfsNnRI6pkV3sJUEwfzGFJ4jTr1sEcrNHeeWsvv7lWSTcvr5YKPoMp-wlSYWGJ89AL2K1pKdwyjj1tg2s1gb6qyJk1wLb-5CNJh793wB2RfhwvXxH3IpQoszR4E_EmQqLd_ZtqKxaLsEYjg_1Q2wQiMUrYRN3jbt2lqFgVWPFB6z1TnIQcVKq5320wUO36iCN-NhuoStWWmzEwTuoN5yXwgWUkeVyRm6PvxGJdIj-g37HpjZk-O62BpFazSITCkijDkgxrPsPEJxdOSbKdR9owLHdVR0EOCWokdKZsrdxPGjJnArizHiWXWMSc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vendor_name\":\"HALDIYA PORT RATE\",\r\n    \"vendor_mobile\":\"9876543234\",\r\n    \"vendor_email\":\"test@gmail.com\",\r\n    \"vendor_city\":\"KOLKATA\",\r\n    \"vendor_trade\":\"1,2,3\",\r\n    \"vendor_address\":\"KOLKATA\",\r\n    \"vendor_image\":\"\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor list",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiIyZTdkZjBmZDFmOTBhNzA1MmMzMDBjMTc5NjZiZDBiZDJhNmU1OWRjMTdhZDQxMjc5YTIwYmM1ODUwYmFjYWEwNDgzMzA5YjYzMjcwMDY0MyIsImlhdCI6MTc5MDY2NzQ1NS4wNTU4MTkwMzQ1NzY0MTYwMTU2MjUsIm5iZiI6MTc5MDY2NzQ1NS4wNTU4MjQ5OTUwNDA4OTM1NTQ2ODc1LCJleHAiOjE4MjIyMDM0NTQuOTYwMzU1OTk3MDg1NTcxMjg5MDYyNSwic3ViIjoiMiIsInNjb3BlcyI6W119.W15qnAyNmxlqdfjUb9MAthgfSPe-ekcOoath3r1ixOt0kCZaUz9k7irWMeh49ZF13au5FOEEy-QDEXFix1vlej4YQh423ivPuXKbhSYsUEUhiCcVPzxdLnMAEX-wrriB7Dama6c_YBcDtPNFk3EPgt8f3PbjZWnpm7cQGgtpCNbcWna8Sx6JN7eygz0ZQCyYKlsYQELvzUdsrscXw6Kav5TdBYnCb3lIJA--zwfp5ebOtacGhXvR6ZJZ5PaysYwT1VkYW8q-6lxquEqSl0-jyC4bLOYovnJSanDfuSabLt9b9UDL5xiPpEYQsf29BmnS8oiDi78JsdUuzLSKe1dR0mBNYI7iAmSEkrXReYF7ljFwT6rnfXfsNnRI6pkV3sJUEwfzGFJ4jTr1sEcrNHeeWsvv7lWSTcvr5YKPoMp-wlSYWGJ89AL2K1pKdwyjj1tg2s1gb6qyJk1wLb-5CNJh793wB2RfhwvXxH3IpQoszR4E_EmQqLd_ZtqKxaLsEYjg_1Q2wQiMUrYRN3jbt2lqFgVWPFB6z1TnIQcVKq5320wUO36iCN-NhuoStWWmzEwTuoN5yXwgWUkeVyRm6PvxGJdIj-g37HpjZk-O62BpFazSITCkijDkgxrPsPEJxdOSbKdR9owLHdVR0EOCWokdKZsrdxPGjJnArizHiWXWMSc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor by id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiIyZTdkZjBmZDFmOTBhNzA1MmMzMDBjMTc5NjZiZDBiZDJhNmU1OWRjMTdhZDQxMjc5YTIwYmM1ODUwYmFjYWEwNDgzMzA5YjYzMjcwMDY0MyIsImlhdCI6MTc5MDY2NzQ1NS4wNTU4MTkwMzQ1NzY0MTYwMTU2MjUsIm5iZiI6MTc5MDY2NzQ1NS4wNTU4MjQ5OTUwNDA4OTM1NTQ2ODc1LCJleHAiOjE4MjIyMDM0NTQuOTYwMzU1OTk3MDg1NTcxMjg5MDYyNSwic3ViIjoiMiIsInNjb3BlcyI6W119.W15qnAyNmxlqdfjUb9MAthgfSPe-ekcOoath3r1ixOt0kCZaUz9k7irWMeh49ZF13au5FOEEy-QDEXFix1vlej4YQh423ivPuXKbhSYsUEUhiCcVPzxdLnMAEX-wrriB7Dama6c_YBcDtPNFk3EPgt8f3PbjZWnpm7cQGgtpCNbcWna8Sx6JN7eygz0ZQCyYKlsYQELvzUdsrscXw6Kav5TdBYnCb3lIJA--zwfp5ebOtacGhXvR6ZJZ5PaysYwT1VkYW8q-6lxquEqSl0-jyC4bLOYovnJSanDfuSabLt9b9UDL5xiPpEYQsf29BmnS8oiDi78JsdUuzLSKe1dR0mBNYI7iAmSEkrXReYF7ljFwT6rnfXfsNnRI6pkV3sJUEwfzGFJ4jTr1sEcrNHeeWsvv7lWSTcvr5YKPoMp-wlSYWGJ89AL2K1pKdwyjj1tg2s1gb6qyJk1wLb-5CNJh793wB2RfhwvXxH3IpQoszR4E_EmQqLd_ZtqKxaLsEYjg_1Q2wQiMUrYRN3jbt2lqFgVWPFB6z1TnIQcVKq5320wUO36iCN-NhuoStWWmzEwTuoN5yXwgWUkeVyRm6PvxGJdIj-g37HpjZk-O62BpFazSITCkijDkgxrPsPEJxdOSbKdR9owLHdVR0EOCWokdKZsrdxPGjJnArizHiWXWMSc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiIyZTdkZjBmZDFmOTBhNzA1MmMzMDBjMTc5NjZiZDBiZDJhNmU1OWRjMTdhZDQxMjc5YTIwYmM1ODUwYmFjYWEwNDgzMzA5YjYzMjcwMDY0MyIsImlhdCI6MTc5MDY2NzQ1NS4wNTU4MTkwMzQ1NzY0MTYwMTU2MjUsIm5iZiI6MTc5MDY2NzQ1NS4wNTU4MjQ5OTUwNDA4OTM1NTQ2ODc1LCJleHAiOjE4MjIyMDM0NTQuOTYwMzU1OTk3MDg1NTcxMjg5MDYyNSwic3ViIjoiMiIsInNjb3BlcyI6W119.W15qnAyNmxlqdfjUb9MAthgfSPe-ekcOoath3r1ixOt0kCZaUz9k7irWMeh49ZF13au5FOEEy-QDEXFix1vlej4YQh423ivPuXKbhSYsUEUhiCcVPzxdLnMAEX-wrriB7Dama6c_YBcDtPNFk3EPgt8f3PbjZWnpm7cQGgtpCNbcWna8Sx6JN7eygz0ZQCyYKlsYQELvzUdsrscXw6Kav5TdBYnCb3lIJA--zwfp5ebOtacGhXvR6ZJZ5PaysYwT1VkYW8q-6lxquEqSl0-jyC4bLOYovnJSanDfuSabLt9b9UDL5xiPpEYQsf29BmnS8oiDi78JsdUuzLSKe1dR0mBNYI7iAmSEkrXReYF7ljFwT6rnfXfsNnRI6pkV3sJUEwfzGFJ4jTr1sEcrNHeeWsvv7lWSTcvr5YKPoMp-wlSYWGJ89AL2K1pKdwyjj1tg2s1gb6qyJk1wLb-5CNJh793wB2RfhwvXxH3IpQoszR4E_EmQqLd_ZtqKxaLsEYjg_1Q2wQiMUrYRN3jbt2lqFgVWPFB6z1TnIQcVKq5320wUO36iCN-NhuoStWWmzEwTuoN5yXwgWUkeVyRm6PvxGJdIj-g37HpjZk-O62BpFazSITCkijDkgxrPsPEJxdOSbKdR9owLHdVR0EOCWokdKZsrdxPGjJnArizHiWXWMSc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vendor_name\":\"HALDIYA PORT RATE\",\r\n    \"vendor_mobile\":\"9876543234\",\r\n    \"vendor_email\":\"test@gmail.com\",\r\n    \"vendor_city\":\"KOLKATA\",\r\n    \"vendor_trade\":\"1,2,3\",\r\n    \"vendor_address\":\"KOLKATA\",\r\n    \"vendor_image\":\"\",\r\n    \"vendor_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendors status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiIyZTdkZjBmZDFmOTBhNzA1MmMzMDBjMTc5NjZiZDBiZDJhNmU1OWRjMTdhZDQxMjc5YTIwYmM1ODUwYmFjYWEwNDgzMzA5YjYzMjcwMDY0MyIsImlhdCI6MTc5MDY2NzQ1NS4wNTU4MTkwMzQ1NzY0MTYwMTU2MjUsIm5iZiI6MTc5MDY2NzQ1NS4wNTU4MjQ5OTUwNDA4OTM1NTQ2ODc1LCJleHAiOjE4MjIyMDM0NTQuOTYwMzU1OTk3MDg1NTcxMjg5MDYyNSwic3ViIjoiMiIsInNjb3BlcyI6W119.W15qnAyNmxlqdfjUb9MAthgfSPe-ekcOoath3r1ixOt0kCZaUz9k7irWMeh49ZF13au5FOEEy-QDEXFix1vlej4YQh423ivPuXKbhSYsUEUhiCcVPzxdLnMAEX-wrriB7Dama6c_YBcDtPNFk3EPgt8f3PbjZWnpm7cQGgtpCNbcWna8Sx6JN7eygz0ZQCyYKlsYQELvzUdsrscXw6Kav5TdBYnCb3lIJA--zwfp5ebOtacGhXvR6ZJZ5PaysYwT1VkYW8q-6lxquEqSl0-jyC4bLOYovnJSanDfuSabLt9b9UDL5xiPpEYQsf29BmnS8oiDi78JsdUuzLSKe1dR0mBNYI7iAmSEkrXReYF7ljFwT6rnfXfsNnRI6pkV3sJUEwfzGFJ4jTr1sEcrNHeeWsvv7lWSTcvr5YKPoMp-wlSYWGJ89AL2K1pKdwyjj1tg2s1gb6qyJk1wLb-5CNJh793wB2RfhwvXxH3IpQoszR4E_EmQqLd_ZtqKxaLsEYjg_1Q2wQiMUrYRN3jbt2lqFgVWPFB6z1TnIQcVKq5320wUO36iCN-NhuoStWWmzEwTuoN5yXwgWUkeVyRm6PvxGJdIj-g37HpjZk-O62BpFazSITCkijDkgxrPsPEJxdOSbKdR9owLHdVR0EOCWokdKZsrdxPGjJnArizHiWXWMSc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "vendor_status",
+              "value": "Active",
+              "type": "text",
+              "description": "Active / Inactive"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendors/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendors",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "activeVendors",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiIyZTdkZjBmZDFmOTBhNzA1MmMzMDBjMTc5NjZiZDBiZDJhNmU1OWRjMTdhZDQxMjc5YTIwYmM1ODUwYmFjYWEwNDgzMzA5YjYzMjcwMDY0MyIsImlhdCI6MTc5MDY2NzQ1NS4wNTU4MTkwMzQ1NzY0MTYwMTU2MjUsIm5iZiI6MTc5MDY2NzQ1NS4wNTU4MjQ5OTUwNDA4OTM1NTQ2ODc1LCJleHAiOjE4MjIyMDM0NTQuOTYwMzU1OTk3MDg1NTcxMjg5MDYyNSwic3ViIjoiMiIsInNjb3BlcyI6W119.W15qnAyNmxlqdfjUb9MAthgfSPe-ekcOoath3r1ixOt0kCZaUz9k7irWMeh49ZF13au5FOEEy-QDEXFix1vlej4YQh423ivPuXKbhSYsUEUhiCcVPzxdLnMAEX-wrriB7Dama6c_YBcDtPNFk3EPgt8f3PbjZWnpm7cQGgtpCNbcWna8Sx6JN7eygz0ZQCyYKlsYQELvzUdsrscXw6Kav5TdBYnCb3lIJA--zwfp5ebOtacGhXvR6ZJZ5PaysYwT1VkYW8q-6lxquEqSl0-jyC4bLOYovnJSanDfuSabLt9b9UDL5xiPpEYQsf29BmnS8oiDi78JsdUuzLSKe1dR0mBNYI7iAmSEkrXReYF7ljFwT6rnfXfsNnRI6pkV3sJUEwfzGFJ4jTr1sEcrNHeeWsvv7lWSTcvr5YKPoMp-wlSYWGJ89AL2K1pKdwyjj1tg2s1gb6qyJk1wLb-5CNJh793wB2RfhwvXxH3IpQoszR4E_EmQqLd_ZtqKxaLsEYjg_1Q2wQiMUrYRN3jbt2lqFgVWPFB6z1TnIQcVKq5320wUO36iCN-NhuoStWWmzEwTuoN5yXwgWUkeVyRm6PvxGJdIj-g37HpjZk-O62BpFazSITCkijDkgxrPsPEJxdOSbKdR9owLHdVR0EOCWokdKZsrdxPGjJnArizHiWXWMSc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/activeVendors",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "activeVendors"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-live",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"products\":[\r\n        {\r\n            \"vendor_id\":1,\r\n            \"category_id\":\"1\",\r\n            \"sub_category_id\":\"15\",\r\n            \"vendor_product\":\"EDIBLE OIL\",\r\n            \"vendor_product_size\":\"10 kg\",\r\n            \"vendor_product_rate\":\"1369\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-live",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-live"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-live list",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-live",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-live"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-live by id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-live/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-live",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-live",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"category_id\":\"1\",\r\n            \"sub_category_id\":\"15\",\r\n            \"vendor_product\":\"EDIBLE OIL\",\r\n            \"vendor_product_size\":\"10 kg\",\r\n            \"vendor_product_rate\":\"1370\",\r\n            \"vendor_product_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-live/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-live",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-lives status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vendor_product_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-lives/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-lives",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-rate",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"products\":[\r\n        {\r\n            \"vendor_id\":1,\r\n            \"category_id\":\"1\",\r\n            \"sub_category_id\":\"15\",\r\n            \"vendor_product\":\"EDIBLE OIL\",\r\n            \"vendor_product_size\":\"10 kg\",\r\n            \"vendor_product_rate\":\"1369\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-rate",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-rate"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-rate list",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-rate",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-rate"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-rate by id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-rate/2",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-rate",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-rate",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"category_id\":\"1\",\r\n            \"sub_category_id\":\"15\",\r\n            \"vendor_product\":\"EDIBLE OIL\",\r\n            \"vendor_product_size\":\"10 kg\",\r\n            \"vendor_product_rate\":\"1370\",\r\n            \"vendor_product_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-rate/2",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-rate",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-rates status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vendor_product_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-rates/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-rates",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-spot",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"products\":[\r\n        {\r\n            \"vendor_id\":1,\r\n            \"category_id\":\"1\",\r\n            \"sub_category_id\":\"15\",\r\n            \"vendor_spot_heading\":\"EDIBLE OIL\",\r\n            \"vendor_spot_details\":\"Khopoli Seller Option\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-spot",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-spot"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-spot list",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-spot",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-spot"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-spot by id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-spot/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-spot",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-spot",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"category_id\":\"1\",\r\n            \"sub_category_id\":\"15\",\r\n            \"vendor_spot_heading\":\"EDIBLE OIL\",\r\n            \"vendor_spot_details\":\"Khopoli Seller Option\",\r\n            \"vendor_spot_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-spot/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-spot",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "vendor-spots status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI2NDIwZDU2ZTUyNjIyMTI4MjRiYTRhMDJjY2U1YzZkNDYyZWQxZjgwNjhkZDBjMTQ2NDI0Nzc0OGI3MzZmNmI3MDA5YTc5ZDI2NWQ2YzVmZCIsImlhdCI6MTc5MDY3MzE0NS4zNjU2NzQ5NzI1MzQxNzk2ODc1LCJuYmYiOjE3OTA2NzMxNDUuMzY1NjgwOTMyOTk4NjU3MjI2NTYyNSwiZXhwIjoxODIyMjA5MTQ1LjMzMTc1MzAxNTUxODE4ODQ3NjU2MjUsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.VJl-rRkMkyw92j10PtrBTNNvyTD0N69kWOUd_FcqwXUcS9k3EcINhG1He95aLMbMSIz2cXcglBtYllwEptmX79PR5wiJzjRs0l8EmtEY4NBSAXt0ikI0lXWf8p-V4kfbgecom_S5URzOT1SM0jRQxHzLyV8HtOvr1x3Wq1Uf_3FIXgVslyVvOnfo_ejQcId9z_QRYgz85Df2ya8guvkryj3uIvZoBpPe2JX3mo9uPm9zbpOG9riEhrYa78f_onaDdok-qQUvtKnlWw7r5wn1e9AHVdHCbg7eaBVCNBpGu_qGpqkhCOnuAMRPp1o2I0SWwwq5G_ArFFDw_xEMaN3WoLhK4WGSpVM2zkSoWTXcLhegOjs4f19ffHaFB_euazaSti5gxlyC8QfO8fCR5ZZw6d_Dfnw3-T-DasJ8L7Y5XCAyw610kyv7cF9uF8eDalujw4y1TKt1DuRWrTuITWkQSZLL4Bivjwg9q4Y7-jTuzjlRQpENEv-6eBNzYePlXZgoBd4TN0oppRQlpBGJJe8rFn3A-EAY-6L3cFSn3JIefxj-6_T6FMcAFHLnUEaO7h3Wg_xR0-k7hvoslC9aL3WZIskA8t-n2AZTYAKwMfRA-5ZFwwu0zEU0RSA9pyVDxJ2R46GGPJafIGO2Jv-GvcIgmALqW1YLCc-I8tMNehIP58g",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vendor_spot_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/vendor-spots/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "vendor-spots",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "news",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"category_id\":\"1\",\r\n    \"news_heading\":\"EDIBLE OIL NEWS CPO MIDDAY MARKET UPDATE — 21 SEPTEMBER 2026\",\r\n    \"news_details\":\"Indian duty-cut hopes cushion palm oil against energy sell-off\",\r\n    \"news_image\":\"\",\r\n    \"news_other_image\":\"\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/news",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "news"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "news list",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/news",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "news"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "news by id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/news/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "news",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "news",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"category_id\":\"1\",\r\n    \"news_heading\":\"EDIBLE OIL NEWS CPO MIDDAY MARKET UPDATE — 21 SEPTEMBER 2026\",\r\n    \"news_details\":\"Indian duty-cut hopes cushion palm oil against energy sell-off\",\r\n    \"news_image\":\"\",\r\n    \"news_other_image\":\"\",\r\n    \"news_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/news/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "news",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "newss status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"news_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/newss/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "newss",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "slider",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "slider_type",
+              "value": "Category",
+              "type": "text",
+              "description": "required Home/Category"
+            },
+            {
+              "key": "category_id",
+              "value": "1",
+              "type": "text",
+              "description": "if slider_type = Category then required"
+            },
+            {
+              "key": "slider_image",
+              "type": "file",
+              "description": "required",
+              "src": [
+                "/C:/Users/AGS/Documents/Received Files/product-washers.webp"
+              ]
+            },
+            {
+              "key": "slider_url",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "slider_sort_order",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/slider",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "slider"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "slider list",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/slider",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "slider"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "slider by id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/slider/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "slider",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "slider",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "slider_type",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "slider_sort_order",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "category_id",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "slider_image",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "slider_url",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "slider_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/slider/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "slider",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sliders status",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"slider_status\":\"Active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/sliders/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "sliders",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "notification",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "notification_date",
+              "value": "2026-09-30",
+              "type": "text",
+              "description": "only today and future date required"
+            },
+            {
+              "key": "notification_heading",
+              "value": "test",
+              "type": "text",
+              "description": "required"
+            },
+            {
+              "key": "notification_description",
+              "value": "description",
+              "type": "text",
+              "description": "required"
+            },
+            {
+              "key": "notification_image",
+              "type": "file",
+              "src": [
+                "/C:/Users/AGS/Documents/Received Files/product-washers.webp"
+              ]
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/notification",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "notification"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "notification list",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/notification",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "notification"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "notification by id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/notification/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "notification",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "notification",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "notification_date",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "notification_heading",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "notification_description",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "notification_image",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "notification_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/notification/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "notification",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "notifications status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIwMWEwZTY3Zi04M2YyLTcwMzYtYTE4Ni1jNmJjYTllNjBhNTciLCJqdGkiOiI3MDQzN2QwMGE0ZjgyYTQ0N2UzYjhmZmYxNzQ5MTRlNWVkNjYwYjNjNTJmNzExMGU2NGUzZGEyNzU2ZGY1NWJhZDVkOTZkZTcyNGZlNDJjZCIsImlhdCI6MTc5MDc0NzE0MS44ODM5ODE5NDMxMzA0OTMxNjQwNjI1LCJuYmYiOjE3OTA3NDcxNDEuODgzOTg1OTk2MjQ2MzM3ODkwNjI1LCJleHAiOjE4MjIyODMxNDEuODU4ODA3MDg2OTQ0NTgwMDc4MTI1LCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.hgeTjWf_5hXL8_nnGzfciJcyfDblu4khbOonzwM_wl7DIytWnLP1pxck5XtboLpJ4dLWCwLLvaziC5gG9K22CnBet6iBrOc4GN4XvNtx9MUjcy_ri-9VX7qu3TaHb57cytca7DHCDKqp6yG9qMDrJdqEVVOAydpOSQX8VYqHYX1a205_IYmGgxrktz9OeLZedAuIVDT-XCxknqATrhEP1TPh9eQXXQLKQsP17MXRfBb0q7w8syZw852Wu7xoR8Imusgj0QVOpDH6JxXaeihUvyHMb3xHjM0wQ4aLfBn5rIAc049ULpD6DAAFs37AvE2Z1VxzPCXPhcx1Jw56q08SydOfBPGa8MTmnjhnmuXPgz6GtDbKcNe53qM1oMy4OhF1HFvtXwz0RpLhttRYq-GTPDhP9jvYLuWtTcQMTtw2joXK0cQzyjkyADiSaoe9YZtnBywocCKDZxymJptVzfeRRJzx8UCGoreH5F45advhiWytAGfK6kemNn9Z6jWYmjuTr-RNH2YN-MzTQhtRQ0m4zE6gW5wv9xUEQIY_bTZTwenskP3WD8OFOxYNkHpn9q9wdBMMVNfBmcfBnEfXlMKEj22u9uiM9c-0TW5tFtbnQZUYvqM1TTtKR9XKydy7fq9F69vgydKzC_UZTJVmXzzD_KwiHAGwAsTbwKk8eM0ByMc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "notification_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/notifications/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "notifications",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "enquiry list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/enquiry",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "enquiry"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "enquiry by id",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/enquiry/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "enquiry",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "enquiry",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "enquiryStatus",
+              "value": "",
+              "type": "text",
+              "description": "Pending. Cancel, Complete"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/enquiry/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "enquiry",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "enquiry",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/enquiry/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "enquiry",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "newsletter list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/newsletter",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "newsletter"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "newsletter",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/newsletter/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "newsletter",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "blog list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/blog",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "blog"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "blog",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "blog_slug",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_index",
+              "value": "",
+              "type": "text",
+              "description": "Yes/No"
+            },
+            {
+              "key": "blog_title",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_short_description",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_meta_keywords",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_description",
+              "value": "",
+              "type": "text",
+              "description": "ck editor"
+            },
+            {
+              "key": "blog_banner_image",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_banner_image_alt",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_categories_ids",
+              "value": "",
+              "type": "text",
+              "description": "only category"
+            },
+            {
+              "key": "blog_front",
+              "value": "",
+              "type": "text",
+              "description": "1/0"
+            },
+            {
+              "key": "blog_featured",
+              "value": "",
+              "type": "text",
+              "description": "1/0"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/blog",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "blog"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "blog by id",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/blog/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "blog",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "blog",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "blog_slug",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_index",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_meta_keywords",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_title",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_short_description",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_description",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_banner_image",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_banner_image_alt",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_categories_ids",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_front",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_featured",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "blog_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/blog/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "blog",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "blogs status",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "blog_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/blogs/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "blogs",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "pageTwo",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/pageTwo",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "pageTwo"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "pageOne",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/pageOne",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "pageOne"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gallery list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/gallery",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "gallery"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gallery",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "gallery_image",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/gallery",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "gallery"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gallery by id",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/gallery/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "gallery",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gallery",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "gallery_image",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "gallery_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/gallery/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "gallery",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gallerys status",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "gallery_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/gallerys/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "gallerys",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "client list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/client",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "client"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "client",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "clients_name",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "clients_image",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/client",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "client"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "client by id",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/client/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "client",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "client",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "clients_name",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "clients_image",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "clients_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/client/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "client",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "clients status",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "clients_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/clients/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "clients",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "testimonial list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/testimonial",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "testimonial"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "testimonial",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "testimonial_for",
+              "value": "",
+              "type": "text",
+              "description": "page one api"
+            },
+            {
+              "key": "testimonial_client_name",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "testimonial_description",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "testimonial_rating",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/testimonial",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "testimonial"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "testimonial by id",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/testimonial/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "testimonial",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "testimonial",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "testimonial_for",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "testimonial_client_name",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "testimonial_description",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "testimonial_rating",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "testimonial_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/testimonial/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "testimonial",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "testimonial status",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "testimonial_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/testimonials/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "testimonials",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "faq list",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/faq",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "faq"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "faq",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"faq_for\":\"\",\r\n    \"subs\" : [\r\n        {\r\n            \"faq_sort\":\"\",\r\n            \"faq_heading\":\"\",\r\n            \"faq_que\":\"\",\r\n            \"faq_ans\":\"\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/faq",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "faq"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "faq by id",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/faq/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "faq",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "faq",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"faq_for\":\"\",\r\n    \"faq_status\":\"Active\",\r\n    \"subs\" : [\r\n        {\r\n            \"id\":\"1\",\r\n            \"faq_sort\":\"\",\r\n            \"faq_heading\":\"\",\r\n            \"faq_que\":\"\",\r\n            \"faq_ans\":\"\",\r\n            \"faq_status\":\"Active\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/faq/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "faq",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "faqs status",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "faq_status",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/faqs/1/status",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "faqs",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "faq-sub",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/faq-sub/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "faq-sub",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "faq",
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://kmrlive.in/crmapi/public/api/faq/1",
+          "protocol": "https",
+          "host": [
+            "kmrlive",
+            "in"
+          ],
+          "path": [
+            "crmapi",
+            "public",
+            "api",
+            "faq",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
