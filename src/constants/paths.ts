@@ -11,6 +11,12 @@ export const PATHS = {
   // Dashboard
   overview: "/",
   vendor: "/vendor",
+  vendorSpotNew: "/vendor/spots/new",
+  vendorSpotEdit: "/vendor/spots/:id/edit",
+  vendorLiveNew: "/vendor/live/new",
+  vendorLiveEdit: "/vendor/live/:id/edit",
+  vendorRateNew: "/vendor/rates/new",
+  vendorRateEdit: "/vendor/rates/:id/edit",
   category: "/category",
   news: "/news",
   blog: "/blog",

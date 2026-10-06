@@ -185,6 +185,17 @@ export async function fetchVendorLives(): Promise<VendorLiveProduct[]> {
   return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
 }
 
+/** GET /vendor-live/:id — Fetch single live product details. */
+export async function fetchVendorLiveById(id: number | string): Promise<VendorLiveProduct> {
+  const { data } = await api.get<{ data?: VendorLiveProduct } | VendorLiveProduct>(
+    `/vendor-live/${id}`,
+  );
+  if (data && typeof data === "object" && "data" in data && data.data) {
+    return data.data;
+  }
+  return data as VendorLiveProduct;
+}
+
 /** POST /vendor-live — Create vendor live product rates. */
 export async function createVendorLive(payload: {
   products: Array<{
@@ -198,6 +209,32 @@ export async function createVendorLive(payload: {
 }): Promise<unknown> {
   const { data } = await api.post("/vendor-live", payload);
   throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor live product.");
+  return data;
+}
+
+/** PUT /vendor-live/:id — Update vendor live product (raw JSON per Postman spec). */
+export async function updateVendorLive(
+  id: number | string,
+  payload: {
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_product: string;
+    vendor_product_size: string;
+    vendor_product_rate: string | number;
+    vendor_product_status?: string;
+  },
+): Promise<unknown> {
+  const { data } = await api.put(`/vendor-live/${id}`, {
+    category_id: payload.category_id,
+    ...(payload.sub_category_id !== undefined && payload.sub_category_id !== ""
+      ? { sub_category_id: payload.sub_category_id }
+      : {}),
+    vendor_product: payload.vendor_product,
+    vendor_product_size: payload.vendor_product_size,
+    vendor_product_rate: payload.vendor_product_rate,
+    ...(payload.vendor_product_status ? { vendor_product_status: payload.vendor_product_status } : {}),
+  });
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update vendor live product.");
   return data;
 }
 
@@ -216,6 +253,46 @@ export async function updateVendorLiveStatus(
 export async function fetchVendorRates(): Promise<VendorLiveProduct[]> {
   const { data } = await api.get("/vendor-rate");
   return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
+}
+
+/** GET /vendor-rate/:id — Fetch single vendor rate details. */
+export async function fetchVendorRateById(id: number | string): Promise<VendorLiveProduct> {
+  const { data } = await api.get<{ data?: VendorLiveProduct } | VendorLiveProduct>(
+    `/vendor-rate/${id}`,
+  );
+  if (data && typeof data === "object" && "data" in data && data.data) {
+    return data.data;
+  }
+  return data as VendorLiveProduct;
+}
+
+/** PUT /vendor-rate/:id — Update vendor rate (raw JSON per curl spec:
+ * { category_id, sub_category_id, vendor_product, vendor_product_size,
+ *   vendor_product_rate, vendor_product_status }).
+ */
+export async function updateVendorRate(
+  id: number | string,
+  payload: {
+    category_id: number | string;
+    sub_category_id?: number | string;
+    vendor_product: string;
+    vendor_product_size: string;
+    vendor_product_rate: string | number;
+    vendor_product_status?: string;
+  },
+): Promise<unknown> {
+  const { data } = await api.put(`/vendor-rate/${id}`, {
+    category_id: payload.category_id,
+    ...(payload.sub_category_id !== undefined && payload.sub_category_id !== ""
+      ? { sub_category_id: payload.sub_category_id }
+      : {}),
+    vendor_product: payload.vendor_product,
+    vendor_product_size: payload.vendor_product_size,
+    vendor_product_rate: payload.vendor_product_rate,
+    ...(payload.vendor_product_status ? { vendor_product_status: payload.vendor_product_status } : {}),
+  });
+  throwIfApiError(data as { code?: number; message?: string }, "Could not update vendor rate.");
+  return data;
 }
 
 /** POST /vendor-rate — Create vendor rates. */

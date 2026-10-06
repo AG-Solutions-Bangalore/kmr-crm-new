@@ -8,14 +8,18 @@ import {
   createVendorSpot,
   fetchActiveVendors,
   fetchVendorById,
+  fetchVendorLiveById,
   fetchVendorLives,
+  fetchVendorRateById,
   fetchVendorRates,
   fetchVendors,
   fetchVendorsPage,
   fetchVendorSpotById,
   fetchVendorSpots,
   updateVendor,
+  updateVendorLive,
   updateVendorLiveStatus,
+  updateVendorRate,
   updateVendorRateStatus,
   updateVendorSpot,
   updateVendorSpotStatus,
@@ -24,6 +28,7 @@ import {
 import type {
   VendorMutationPayload,
   VendorRatePayload,
+  VendorRateUpdatePayload,
   VendorSpotPayload,
   VendorSpotUpdatePayload,
   VendorStatus,
@@ -37,7 +42,9 @@ export const vendorKeys = {
   spots: () => [...vendorKeys.all, "spots"] as const,
   spotDetail: (id: number | string) => [...vendorKeys.all, "spot", id] as const,
   lives: () => [...vendorKeys.all, "lives"] as const,
+  liveDetail: (id: number | string) => [...vendorKeys.all, "live", id] as const,
   rates: () => [...vendorKeys.all, "rates"] as const,
+  rateDetail: (id: number | string) => [...vendorKeys.all, "rate", id] as const,
 };
 
 export function useVendors() {
@@ -272,6 +279,64 @@ export function useUpdateVendorRateStatus() {
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to update rate status."));
+    },
+  });
+}
+
+export function useVendorLive(id: number | string | null | undefined) {
+  return useQuery({
+    queryKey: vendorKeys.liveDetail(id ?? ""),
+    queryFn: () => fetchVendorLiveById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useVendorRate(id: number | string | null | undefined) {
+  return useQuery({
+    queryKey: vendorKeys.rateDetail(id ?? ""),
+    queryFn: () => fetchVendorRateById(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useUpdateVendorLive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number | string;
+      payload: VendorRateUpdatePayload;
+    }) => updateVendorLive(id, payload),
+    onSuccess: () => {
+      toast.success("Live rate updated");
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.lives() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update live rate."));
+    },
+  });
+}
+
+export function useUpdateVendorRate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number | string;
+      payload: VendorRateUpdatePayload;
+    }) => updateVendorRate(id, payload),
+    onSuccess: () => {
+      toast.success("Standard rate updated");
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.rates() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update vendor rate."));
     },
   });
 }

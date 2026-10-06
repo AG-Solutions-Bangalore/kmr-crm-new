@@ -48,8 +48,13 @@ export interface VendorMutationPayload {
 export interface VendorLiveProduct {
   id: number;
   vendor_id: number | string;
+  vendor_name?: string | null;
+  vendor_image?: string | null;
+  vendor_mobile?: string | null;
   category_id: number | string;
+  categories_name?: string | null;
   sub_category_id?: number | string | null;
+  sub_categories_name?: string | null;
   vendor_product: string;
   vendor_product_size: string;
   vendor_product_rate: string | number;
@@ -106,5 +111,14 @@ export interface VendorRatePayload {
     vendor_product_size: string;
     vendor_product_rate: string | number;
   }>;
+}
+
+export interface VendorRateUpdatePayload {
+  category_id: number | string;
+  sub_category_id?: number | string;
+  vendor_product: string;
+  vendor_product_size: string;
+  vendor_product_rate: string | number;
+  vendor_product_status?: string;
 }
 

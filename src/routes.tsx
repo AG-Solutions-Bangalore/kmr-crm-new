@@ -20,6 +20,9 @@ import { OverviewPage } from "./modules/dashboard/overview/pages/OverviewPage.ts
 import { SliderPage } from "./modules/dashboard/slider/pages/SliderPage.tsx";
 import { TestimonialPage } from "./modules/dashboard/testimonial/pages/TestimonialPage.tsx";
 import { VendorPage } from "./modules/dashboard/vendor/pages/VendorPage.tsx";
+import { VendorSpotFormPage } from "./modules/dashboard/vendor/pages/VendorSpotFormPage.tsx";
+import { VendorLiveFormPage } from "./modules/dashboard/vendor/pages/VendorLiveFormPage.tsx";
+import { VendorRateFormPage } from "./modules/dashboard/vendor/pages/VendorRateFormPage.tsx";
 
 export interface AppRoute {
   path: string;
@@ -52,6 +55,36 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.vendor,
     title: "Vendors",
     element: <VendorPage />,
+  },
+  {
+    path: PATHS.vendorSpotNew,
+    title: "Create Spot Quote",
+    element: <VendorSpotFormPage />,
+  },
+  {
+    path: PATHS.vendorSpotEdit,
+    title: "Edit Spot Quote",
+    element: <VendorSpotFormPage />,
+  },
+  {
+    path: PATHS.vendorLiveNew,
+    title: "Create Live Rate",
+    element: <VendorLiveFormPage />,
+  },
+  {
+    path: PATHS.vendorLiveEdit,
+    title: "Edit Live Rate",
+    element: <VendorLiveFormPage />,
+  },
+  {
+    path: PATHS.vendorRateNew,
+    title: "Create Standard Rate",
+    element: <VendorRateFormPage />,
+  },
+  {
+    path: PATHS.vendorRateEdit,
+    title: "Edit Standard Rate",
+    element: <VendorRateFormPage />,
   },
   {
     path: PATHS.category,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
   CheckCircle2,
@@ -19,12 +19,11 @@ import {
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
+import { PATHS } from "@/constants/paths.ts";
 import { VendorFormDialog } from "../components/VendorFormDialog.tsx";
 import { VendorTable } from "../components/VendorTable.tsx";
-import { VendorSpotFormDialog } from "../components/VendorSpotFormDialog.tsx";
 import { VendorSpotTable } from "../components/VendorSpotTable.tsx";
 import { VendorRateTable } from "../components/VendorRateTable.tsx";
-import { VendorRateFormDialog } from "../components/VendorRateFormDialog.tsx";
 import {
   useVendorsPage,
   useVendorSpots,
@@ -39,6 +38,7 @@ const PAGE_SIZE = 10;
 type VendorTabKey = "vendors" | "spots" | "live" | "rates";
 
 export function VendorPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawTab = searchParams.get("tab");
   const activeTab: VendorTabKey =
@@ -110,9 +110,6 @@ export function VendorPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-  const [spotDialogOpen, setSpotDialogOpen] = useState(false);
-  const [selectedSpot, setSelectedSpot] = useState<VendorSpotItem | null>(null);
-  const [rateDialogOpen, setRateDialogOpen] = useState(false);
 
   const liveStatusMutation = useUpdateVendorLiveStatus();
   const rateStatusMutation = useUpdateVendorRateStatus();
@@ -122,10 +119,11 @@ export function VendorPage() {
       setSelectedVendor(null);
       setDialogOpen(true);
     } else if (activeTab === "spots") {
-      setSelectedSpot(null);
-      setSpotDialogOpen(true);
+      navigate(PATHS.vendorSpotNew);
+    } else if (activeTab === "live") {
+      navigate(PATHS.vendorLiveNew);
     } else {
-      setRateDialogOpen(true);
+      navigate(PATHS.vendorRateNew);
     }
   };
 
@@ -135,8 +133,15 @@ export function VendorPage() {
   };
 
   const handleOpenSpotEdit = (spot: VendorSpotItem) => {
-    setSelectedSpot(spot);
-    setSpotDialogOpen(true);
+    navigate(PATHS.vendorSpotEdit.replace(":id", String(spot.id)));
+  };
+
+  const handleOpenRateEdit = (item: VendorRateProduct, type: "live" | "standard") => {
+    if (type === "live") {
+      navigate(PATHS.vendorLiveEdit.replace(":id", String(item.id)));
+    } else {
+      navigate(PATHS.vendorRateEdit.replace(":id", String(item.id)));
+    }
   };
 
   const nextRateStatus = (item: VendorRateProduct) =>
@@ -398,6 +403,7 @@ export function VendorPage() {
           isLoading={loadingLive}
           type="live"
           onToggleStatus={handleToggleLiveStatus}
+          onEdit={(item) => handleOpenRateEdit(item, "live")}
           errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
           onRetry={() => void refetchLive()}
         />
@@ -407,6 +413,7 @@ export function VendorPage() {
           isLoading={loadingRates}
           type="standard"
           onToggleStatus={handleToggleRateStatus}
+          onEdit={(item) => handleOpenRateEdit(item, "standard")}
           errorMessage={errorRates ? getApiErrorMessage(errorRates) : null}
           onRetry={() => void refetchRates()}
         />
@@ -417,20 +424,6 @@ export function VendorPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         vendor={selectedVendor}
-      />
-
-      {/* Create / Edit Spot Quote Dialog */}
-      <VendorSpotFormDialog
-        open={spotDialogOpen}
-        onOpenChange={setSpotDialogOpen}
-        spot={selectedSpot}
-      />
-
-      {/* Create Rate Product Dialog (Live or Standard) */}
-      <VendorRateFormDialog
-        open={rateDialogOpen}
-        onOpenChange={setRateDialogOpen}
-        type={activeTab === "live" ? "live" : "standard"}
       />
     </div>
   );
