@@ -39,6 +39,8 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
   const updateMutation = useUpdateCategory();
 
   const [name, setName] = useState(category?.categories_name || "");
+  // Slug is fully auto-generated and never hand-edited: live from the name
+  // when creating, frozen to the saved value when editing.
   const [slug, setSlug] = useState(category?.categories_slug || "");
   const [parentId, setParentId] = useState(String(category?.parent_id ?? "0"));
   const [sortOrder, setSortOrder] = useState(
@@ -59,21 +61,23 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
       .filter((c) => !category || String(c.id) !== String(category.id))
       .map((c) => ({
         value: String(c.id),
-        label: `${c.categories_name} (ID: ${c.id})`,
+        label: c.categories_name,
       })),
   ];
 
+  const slugifyName = (val: string) =>
+    val
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
   const handleNameChange = (val: string) => {
     setName(val);
+    // Slug is auto-generated only — always derived from the name on create.
     if (!isEditing) {
-      setSlug(
-        val
-          .toLowerCase()
-          .trim()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/[\s_-]+/g, "-")
-          .replace(/^-+|-+$/g, ""),
-      );
+      setSlug(slugifyName(val));
     }
   };
 
@@ -104,12 +108,14 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
     }
 
     try {
+      // A hand-typed slug is always respected; a blank one falls back to the name.
+      const finalSlug = slug.trim() || slugifyName(name);
       if (isEditing && category) {
         await updateMutation.mutateAsync({
           id: category.id,
           payload: {
             categories_name: name.trim(),
-            categories_slug: slug.trim(),
+            categories_slug: finalSlug,
             parent_id: parentId,
             categories_sort_order: sortOrder,
             categories_status: status,
@@ -119,7 +125,7 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
       } else {
         await createMutation.mutateAsync({
           categories_name: name.trim(),
-          categories_slug: slug.trim(),
+          categories_slug: finalSlug,
           parent_id: parentId,
           categories_sort_order: sortOrder,
           categories_status: "Active",
@@ -166,12 +172,14 @@ function CategoryFormContent({ category, onClose }: InnerFormProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cat-slug">Slug</Label>
+          <Label htmlFor="cat-slug">Slug (auto-generated)</Label>
           <Input
             id="cat-slug"
             value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="e.g. edible-oil"
+            readOnly
+            tabIndex={-1}
+            placeholder="auto-generated from name"
+            className="bg-muted/40 text-muted-foreground"
           />
         </div>
 

@@ -35,3 +35,43 @@ export function resolveAssetImageUrl(
   }
   return `${CRM_PUBLIC_BASE}/assets/images/${folder}/${clean}`;
 }
+
+/**
+ * Gallery image URL — prefers the exact URL coming from the API.
+ * If `baseUrl` (gallery_url) is already a complete file URL it is used
+ * as-is; if it is only a base folder, the filename is joined to it;
+ * otherwise falls back to the local assets resolution.
+ */
+export function resolveGalleryImageUrl(
+  filename: string | null | undefined,
+  baseUrl: string | null | undefined,
+): string | null {
+  const apiUrl = (baseUrl || "").trim();
+  const file = (filename || "").trim();
+  if (apiUrl) {
+    const lower = apiUrl.toLowerCase();
+    const isCompleteUrl =
+      /\.(jpg|jpeg|png|webp|gif|svg|avif|bmp|mp4|pdf)(\?.*)?$/.test(lower) ||
+      (file !== "" && lower.endsWith(file.toLowerCase()));
+    if (isCompleteUrl) return apiUrl;
+    if (!file) return apiUrl;
+    return `${apiUrl.replace(/\/?$/, "/")}${file.replace(/^\/+/, "")}`;
+  }
+  if (!file) return null;
+  return resolveAssetImageUrl(file, "gallerys_images");
+}
+
+/**
+ * Text copied by gallery copy buttons: full image path + file name,
+ * e.g. `https://.../gallerys_images/1.webp\n1.webp`.
+ * Returns "" when there is nothing to copy.
+ */
+export function galleryShareText(
+  filename: string | null | undefined,
+  baseUrl: string | null | undefined,
+): string {
+  const url = resolveGalleryImageUrl(filename, baseUrl);
+  const file = (filename || "").trim();
+  if (url && file) return `${url}\n${file}`;
+  return url || file;
+}

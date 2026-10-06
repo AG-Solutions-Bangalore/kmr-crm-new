@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Edit2, ImageOff, Link2, Power, type LucideIcon } from "lucide-react";
+import { Copy, Edit2, ImageOff, Power, type LucideIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -44,8 +44,14 @@ export interface AppFeedCardProps {
   isToggling?: boolean;
   showEdit?: boolean;
   showToggle?: boolean;
-  /** Copy-link button (deep link straight to this item). Default true. */
+  /** Copy button. Only gallery shows it (copies image path + name). Default false. */
   showShare?: boolean;
+  /**
+   * Exact URL the copy-link button copies. When omitted, the card's deep
+   * link (`<page>#feed-<id>`) is copied instead. Gallery passes the full
+   * image file URL here.
+   */
+  shareUrl?: string | null;
   /** DOM anchor id for deep links. Defaults to `feed-<recordId>`. */
   domId?: string;
   /** Emphasizes the card + scrolls it into view (deep-link landing). */
@@ -83,7 +89,8 @@ export function AppFeedCard({
   isToggling = false,
   showEdit = true,
   showToggle = true,
-  showShare = true,
+  showShare = false,
+  shareUrl,
   domId,
   highlighted = false,
   onEdit,
@@ -105,7 +112,10 @@ export function AppFeedCard({
   }, [highlighted]);
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}${window.location.search}#${anchorId}`;
+    const directUrl = (shareUrl || "").trim();
+    const url =
+      directUrl ||
+      `${window.location.origin}${window.location.pathname}${window.location.search}#${anchorId}`;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -116,7 +126,11 @@ export function AppFeedCard({
       document.execCommand("copy");
       document.body.removeChild(ta);
     }
-    toast.success("Link copied — reopening it jumps straight to this item.");
+    toast.success(
+      directUrl
+        ? "Image URL copied."
+        : "Link copied — reopening it jumps straight to this item.",
+    );
   };
 
   const coverBody = (
@@ -172,7 +186,9 @@ export function AppFeedCard({
           variant="outline"
           className={cn(
             "border-0 backdrop-blur-md",
-            statusActive ? "bg-emerald-500/90 text-white" : "bg-black/55 text-white/85",
+            statusActive
+              ? "bg-emerald-500/90 text-white"
+              : "bg-black/55 text-white/85",
           )}
         >
           <span
@@ -183,7 +199,10 @@ export function AppFeedCard({
           />
           {statusText ?? (statusActive ? "Live" : "Hidden")}
         </Badge>
-        <Badge variant="outline" className="border-0 bg-black/55 font-mono text-white/85 backdrop-blur-md">
+        <Badge
+          variant="outline"
+          className="border-0 bg-black/55 font-mono text-white/85 backdrop-blur-md"
+        >
           #{recordId}
         </Badge>
       </span>
@@ -193,10 +212,13 @@ export function AppFeedCard({
         <span className="absolute inset-x-2.5 bottom-2.5 flex items-center justify-between gap-2">
           <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-black/55 py-1 pl-2 pr-2.5 backdrop-blur-md">
             {chipAccent && (
-              <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: chipAccent }} />
+              <span
+                className="size-2 shrink-0 rounded-full"
+                style={{ backgroundColor: chipAccent }}
+              />
             )}
             <span className="truncate text-[11px] font-semibold text-white">
-              {chipLabel ?? "—"}
+              {chipLabel}
             </span>
           </span>
           {updatedPill ? (
@@ -254,7 +276,9 @@ export function AppFeedCard({
               }}
               className={cn(
                 "inline-flex size-9 items-center justify-center rounded-full shadow-lg backdrop-blur-md transition-transform hover:scale-105",
-                statusActive ? "bg-emerald-500/90 text-white" : "bg-white/90 text-black",
+                statusActive
+                  ? "bg-emerald-500/90 text-white"
+                  : "bg-white/90 text-black",
                 isToggling && "animate-pulse",
               )}
             >
@@ -308,9 +332,19 @@ export function AppFeedCard({
         </div>
       )}
 
-      <CardContent className={cn("flex flex-1 flex-col", compact ? "gap-1.5 p-3" : "gap-2 p-4")}>
+      <CardContent
+        className={cn(
+          "flex flex-1 flex-col",
+          compact ? "gap-1.5 p-3" : "gap-2 p-4",
+        )}
+      >
         {canEdit ? (
-          <button type="button" onClick={() => onEdit?.()} title={title} className="cursor-pointer text-left">
+          <button
+            type="button"
+            onClick={() => onEdit?.()}
+            title={title}
+            className="cursor-pointer text-left"
+          >
             <CardTitle title={title} compact={compact} />
           </button>
         ) : (
@@ -318,7 +352,12 @@ export function AppFeedCard({
         )}
 
         {highlight && (
-          <p className={cn("font-extrabold tracking-tight text-foreground", compact ? "text-lg" : "text-[22px]")}>
+          <p
+            className={cn(
+              "font-extrabold tracking-tight text-foreground",
+              compact ? "text-lg" : "text-[22px]",
+            )}
+          >
             {highlight}
           </p>
         )}
@@ -355,11 +394,13 @@ export function AppFeedCard({
                   variant="ghost"
                   size="sm"
                   onClick={handleShare}
-                  title="Copy link to this item"
-                  aria-label="Copy link to this item"
+                  title={shareUrl ? "Copy image URL" : "Copy link to this item"}
+                  aria-label={
+                    shareUrl ? "Copy image URL" : "Copy link to this item"
+                  }
                   className="size-8 shrink-0 p-0"
                 >
-                  <Link2 className="size-4 text-muted-foreground" />
+                  <Copy className="size-4 text-muted-foreground" />
                 </Button>
               )}
               {canEdit && (
@@ -369,7 +410,10 @@ export function AppFeedCard({
                   size="sm"
                   onClick={() => onEdit?.()}
                   title="Edit"
-                  className={cn("gap-1.5 font-semibold", compact ? "h-7 px-2.5 text-[11px]" : "h-8 px-3 text-xs")}
+                  className={cn(
+                    "gap-1.5 font-semibold",
+                    compact ? "h-7 px-2.5 text-[11px]" : "h-8 px-3 text-xs",
+                  )}
                 >
                   <Edit2 className="size-3.5" />
                   Edit
@@ -389,7 +433,9 @@ export function AppFeedCard({
                   <Power
                     className={cn(
                       "size-4",
-                      statusActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground",
+                      statusActive
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-muted-foreground",
                       isToggling && "animate-pulse",
                     )}
                   />

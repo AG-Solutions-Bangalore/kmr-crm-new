@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Plus, RotateCcw, Settings2 } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Settings2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,10 @@ import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { extractCreatedId } from "@/lib/created-id.ts";
 import { PATHS } from "@/constants/paths.ts";
+import {
+  getParentCategories,
+  mergeCategories,
+} from "@/lib/category-tree.ts";
 import { SearchableSelect } from "./SearchableSelect.tsx";
 import { fetchCategories } from "@/modules/dashboard/category/api/category.api.ts";
 import {
@@ -33,6 +37,8 @@ interface QuickCreateCategoryDialogProps {
   /** Called with the new category id so the caller can auto-select it. */
   onCreated: (id: string) => void;
 }
+
+type QuickTab = "category" | "sub";
 
 function slugifyName(val: string): string {
   return val
@@ -59,24 +65,39 @@ export function QuickCreateCategoryDialog({
   const createMutation = useCreateCategory();
   const { data: activeCategories = [] } = useActiveCategories();
   const { data: allCategories = [] } = useCategories();
-  const categories = activeCategories.length > 0 ? activeCategories : allCategories;
+  const categories = mergeCategories(activeCategories, allCategories);
+  const parentCategories = getParentCategories(categories);
+
+  const defaultTab: QuickTab =
+    defaultParentId && defaultParentId !== "0" ? "sub" : "category";
+  const [tab, setTab] = useState<QuickTab>(defaultTab);
 
   const [name, setName] = useState(initialName);
-  const [slug, setSlug] = useState(initialName ? slugifyName(initialName) : "");
-  const [slugTouched, setSlugTouched] = useState(false);
+  // Slug is fully auto-generated from the name — never hand-edited.
+  const slug = slugifyName(name);
   const [parentId, setParentId] = useState(defaultParentId);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+
+  const firstParentId = parentCategories[0]?.id ? String(parentCategories[0].id) : "";
 
   // Sync initial state when dialog opens
   useEffect(() => {
     if (open) {
       const trimmed = initialName.trim();
       setName(trimmed);
-      setSlug(trimmed ? slugifyName(trimmed) : "");
-      setSlugTouched(false);
-      setParentId(defaultParentId);
+      const startTab: QuickTab =
+        defaultParentId && defaultParentId !== "0" ? "sub" : "category";
+      setTab(startTab);
+      setParentId(
+        startTab === "sub"
+          ? defaultParentId
+          : "0",
+      );
+      setImageFile(null);
       setErrorMessage(null);
       setTimeout(() => {
         if (nameInputRef.current) {
@@ -87,22 +108,49 @@ export function QuickCreateCategoryDialog({
     }
   }, [open, initialName, defaultParentId]);
 
+  // Revoke image preview on change/unmount.
+  useEffect(() => {
+    if (!imageFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(imageFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
+
   const reset = () => {
     setName("");
-    setSlug("");
-    setSlugTouched(false);
+    setTab(defaultTab);
     setParentId(defaultParentId);
+    setImageFile(null);
     setErrorMessage(null);
+  };
+
+  const handleTabChange = (next: QuickTab) => {
+    setTab(next);
+    setErrorMessage(null);
+    if (next === "category") {
+      setParentId("0");
+    } else {
+      setParentId((prev) => {
+        if (prev && prev !== "0" && parentCategories.some((c) => String(c.id) === prev)) {
+          return prev;
+        }
+        if (
+          defaultParentId &&
+          defaultParentId !== "0" &&
+          parentCategories.some((c) => String(c.id) === defaultParentId)
+        ) {
+          return defaultParentId;
+        }
+        return firstParentId;
+      });
+    }
   };
 
   const handleNameChange = (val: string) => {
     setName(val);
-    if (!slugTouched) setSlug(slugifyName(val));
-  };
-
-  const handleSlugReset = () => {
-    setSlug(slugifyName(name));
-    setSlugTouched(false);
   };
 
   const resolveNewId = async (res: unknown, finalSlug: string, finalName: string): Promise<string | null> => {
@@ -132,15 +180,21 @@ export function QuickCreateCategoryDialog({
       setErrorMessage("Category name is required.");
       return;
     }
+    const finalParentId = tab === "category" ? "0" : parentId;
+    if (tab === "sub" && (!finalParentId || finalParentId === "0")) {
+      setErrorMessage("Please select a parent category for the sub-category.");
+      return;
+    }
     const finalSlug = slug.trim() || slugifyName(name);
     setSaving(true);
     try {
       const res = await createMutation.mutateAsync({
         categories_name: name.trim(),
         categories_slug: finalSlug,
-        parent_id: parentId || "0",
+        parent_id: finalParentId || "0",
         categories_sort_order: "1",
         categories_status: "Active",
+        ...(imageFile ? { categories_image: imageFile } : {}),
       });
       const id = await resolveNewId(res, finalSlug, name.trim());
       reset();
@@ -154,19 +208,11 @@ export function QuickCreateCategoryDialog({
   };
 
   const parentOptions = useMemo(() => {
-    return [
-      { value: "0", label: "Root (No Parent)" },
-      ...categories.map((c) => {
-        const isRoot = !c.parent_id || c.parent_id === "0" || c.parent_id === 0;
-        return {
-          value: String(c.id),
-          label: isRoot
-            ? `${c.categories_name} (ID: ${c.id})`
-            : `  ↳ ${c.categories_name} (ID: ${c.id})`,
-        };
-      }),
-    ];
-  }, [categories]);
+    return parentCategories.map((c) => ({
+      value: String(c.id),
+      label: c.categories_name,
+    }));
+  }, [parentCategories]);
 
   return (
     <Dialog
@@ -191,7 +237,7 @@ export function QuickCreateCategoryDialog({
             <div className="flex items-center justify-between pr-6">
               <DialogTitle className="flex items-center gap-2 text-base">
                 <Plus className="size-4 text-primary" />
-                New Category
+                New {tab === "category" ? "Category" : "Sub-Category"}
               </DialogTitle>
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                 Quick Add
@@ -202,6 +248,24 @@ export function QuickCreateCategoryDialog({
             </DialogDescription>
           </DialogHeader>
 
+          {/* Category / Sub-Category tabs */}
+          <div className="grid grid-cols-2 gap-1 rounded-lg border border-border/70 bg-muted/40 p-1">
+            {(["category", "sub"] as QuickTab[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => handleTabChange(t)}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  tab === t
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t === "category" ? "Category" : "Sub-Category"}
+              </button>
+            ))}
+          </div>
+
           {errorMessage && (
             <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
               {errorMessage}
@@ -211,53 +275,99 @@ export function QuickCreateCategoryDialog({
           <div className="grid gap-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="qc-name">
-                Category Name <span className="text-destructive">*</span>
+                {tab === "category" ? "Category" : "Sub-Category"} Name{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 ref={nameInputRef}
                 id="qc-name"
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="e.g. Mustard Oil"
+                placeholder={tab === "category" ? "e.g. Mustard Oil" : "e.g. Filtered Mustard Oil"}
                 required
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="qc-slug">Slug</Label>
-                {slugTouched && (
-                  <button
-                    type="button"
-                    onClick={handleSlugReset}
-                    className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
-                    title="Reset slug to auto-match category name"
-                  >
-                    <RotateCcw className="size-3" />
-                    <span>Auto-sync</span>
-                  </button>
-                )}
-              </div>
+              <Label htmlFor="qc-slug">Slug (auto-generated)</Label>
               <Input
                 id="qc-slug"
                 value={slug}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSlug(val);
-                  setSlugTouched(Boolean(val.trim()));
-                }}
-                placeholder="auto-generated"
+                readOnly
+                tabIndex={-1}
+                placeholder="auto-generated from name"
+                className="bg-muted/40 text-muted-foreground"
               />
             </div>
 
+            {tab === "sub" && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="qc-parent">
+                  Parent Category <span className="text-destructive">*</span>
+                </Label>
+                <SearchableSelect
+                  id="qc-parent"
+                  value={parentId}
+                  onChange={setParentId}
+                  options={parentOptions}
+                  placeholder={
+                    parentOptions.length > 0
+                      ? "Search parent category..."
+                      : "No parent categories found"
+                  }
+                  disabled={parentOptions.length === 0}
+                  required
+                />
+              </div>
+            )}
+
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="qc-parent">Parent</Label>
-              <SearchableSelect
-                id="qc-parent"
-                value={parentId}
-                onChange={setParentId}
-                options={parentOptions}
-                placeholder="Select parent"
+              <Label htmlFor="qc-image">Image (optional)</Label>
+              {previewUrl ? (
+                <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+                  <img
+                    src={previewUrl}
+                    alt="New category preview"
+                    className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-foreground">
+                      New image preview
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {imageFile?.name}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setImageFile(null)}
+                    className="size-7 shrink-0 p-0"
+                    title="Remove selected image"
+                  >
+                    <X className="size-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <label
+                  htmlFor="qc-image"
+                  className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-input bg-background px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                >
+                  <ImagePlus className="size-4 shrink-0" />
+                  <span>Choose image — same as category creation</span>
+                </label>
+              )}
+              <Input
+                id="qc-image"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setImageFile(file);
+                  e.target.value = "";
+                }}
               />
             </div>
           </div>

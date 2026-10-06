@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { KeyRound, Loader2, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { cn } from "@/lib/utils.ts";
 import { PATHS } from "@/constants/paths.ts";
+import { useCurrentUser } from "@/modules/auth/login/hook/useCurrentUser.ts";
 import { useLogout } from "@/modules/auth/login/hook/useLogout.ts";
 import { useProfile } from "@/modules/auth/profile/hook/useProfile.ts";
 import type { AccountDialog } from "./AccountMenu.tsx";
@@ -26,6 +28,7 @@ export function AccountSection({
   const navigate = useNavigate();
   const profile = useProfile();
   const logout = useLogout();
+  const { isSuperAdmin } = useCurrentUser();
 
   const name = profile.data?.profile.name ?? "My account";
   const mobile = profile.data?.profile.mobile ?? "";
@@ -54,7 +57,19 @@ export function AccountSection({
             </AvatarFallback>
           </Avatar>
           <span className="flex min-w-0 flex-1 flex-col leading-tight">
-            <span className="truncate text-xs font-medium">{name}</span>
+            <span className="flex items-center gap-1.5">
+              <span className="truncate text-xs font-semibold">{name}</span>
+              <span
+                className={cn(
+                  "rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                  isSuperAdmin
+                    ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+                    : "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30",
+                )}
+              >
+                {isSuperAdmin ? "Superadmin" : "Admin"}
+              </span>
+            </span>
             {mobile ? (
               <span className="truncate text-[11px] text-sidebar-foreground/60">
                 {mobile}

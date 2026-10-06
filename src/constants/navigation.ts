@@ -1,142 +1,181 @@
 import {
   Bell,
+  Clock,
+  Download,
   FileText,
   FolderTree,
+  GitBranch,
   HelpCircle,
   Images,
+  IndianRupee,
   LayoutDashboard,
   Mail,
   MessageSquare,
   Newspaper,
   Quote,
+  Radio,
   SlidersHorizontal,
+  Sparkles,
   Store,
   Users,
   type LucideIcon,
 } from "lucide-react";
 import { PATHS } from "./paths.ts";
 
-export interface NavItem {
+export interface NavChildItem {
   title: string;
-  description: string;
   path: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
 }
 
-export interface NavSection {
-  label: string;
-  items: NavItem[];
+export interface NavEntry {
+  title: string;
+  path?: string;
+  icon: LucideIcon;
+  /** Allowed user types: 3 = Superadmin, 2 = Admin. If omitted, visible to both. */
+  userTypes?: number[];
+  children?: NavChildItem[];
 }
 
 /**
- * Sidebar navigation. To expose a new module in the sidebar,
- * just append `{ title, description, path, icon }` here —
- * the route itself lives in `src/routes.tsx`.
+ * Sidebar navigation matching role access:
+ * - Admin (user_type = 2): Dashboard through Enquiry->Download
+ * - Superadmin (user_type = 3): All modules including Sliders, Clients, Blog, Gallery, FAQs, Testimonials
  */
-export const NAV_SECTIONS: NavSection[] = [
+export const SIDEBAR_ITEMS: NavEntry[] = [
   {
-    label: "Main",
-    items: [
-      {
-        title: "Overview",
-        description: "Dashboard home and quick links.",
-        path: PATHS.overview,
-        icon: LayoutDashboard,
-      },
-    ],
+    title: "Dashboard",
+    path: PATHS.overview,
+    icon: LayoutDashboard,
+    userTypes: [2, 3],
   },
   {
-    label: "Catalog",
-    items: [
-      {
-        title: "Vendors",
-        description: "Manage vendors and their details.",
-        path: PATHS.vendor,
-        icon: Store,
-      },
-      {
-        title: "Categories",
-        description: "Manage product categories.",
-        path: PATHS.category,
-        icon: FolderTree,
-      },
-      {
-        title: "News",
-        description: "Publish and manage news articles.",
-        path: PATHS.news,
-        icon: Newspaper,
-      },
-      {
-        title: "Blog",
-        description: "Publish and manage blog posts.",
-        path: PATHS.blog,
-        icon: FileText,
-      },
-      {
-        title: "Gallery",
-        description: "Manage gallery images.",
-        path: PATHS.gallery,
-        icon: Images,
-      },
-      {
-        title: "Sliders",
-        description: "Manage home & category banner sliders.",
-        path: PATHS.slider,
-        icon: SlidersHorizontal,
-      },
-    ],
+    title: "Category",
+    path: PATHS.category,
+    icon: FolderTree,
+    userTypes: [2, 3],
   },
   {
-    label: "Engagement",
-    items: [
+    title: "Sub Category",
+    path: `${PATHS.category}?tab=sub`,
+    icon: GitBranch,
+    userTypes: [2, 3],
+  },
+  {
+    title: "Members",
+    icon: Users,
+    userTypes: [2, 3],
+    children: [
       {
-        title: "Enquiries",
-        description: "View and manage customer enquiries.",
-        path: PATHS.enquiry,
-        icon: MessageSquare,
-      },
-      {
-        title: "Enquiry Report",
-        description: "Full enquiry register with status overview.",
-        path: PATHS.enquiryReport,
-        icon: FileText,
-      },
-      {
-        title: "Newsletter",
-        description: "Manage newsletter subscribers.",
-        path: PATHS.newsletter,
-        icon: Mail,
-      },
-      {
-        title: "Notifications",
-        description: "Manage push notifications.",
-        path: PATHS.notification,
-        icon: Bell,
-      },
-      {
-        title: "FAQs",
-        description: "Manage frequently asked questions.",
-        path: PATHS.faq,
-        icon: HelpCircle,
-      },
-      {
-        title: "Testimonials",
-        description: "Manage customer testimonials.",
-        path: PATHS.testimonial,
-        icon: Quote,
-      },
-      {
-        title: "Clients",
-        description: "Manage clients.",
-        path: PATHS.client,
-        icon: Users,
+        title: "Trail User",
+        path: `${PATHS.member}?tab=trail`,
+        icon: Clock,
       },
       {
         title: "Members",
-        description: "Manage registered members.",
         path: PATHS.member,
         icon: Users,
       },
     ],
+  },
+  {
+    title: "Vendor",
+    path: PATHS.vendor,
+    icon: Store,
+    userTypes: [2, 3],
+  },
+  {
+    title: "APP Rates",
+    icon: IndianRupee,
+    userTypes: [2, 3],
+    children: [
+      {
+        title: "Live",
+        path: `${PATHS.vendor}?tab=live`,
+        icon: Radio,
+      },
+      {
+        title: "Rate",
+        path: `${PATHS.vendor}?tab=rates`,
+        icon: IndianRupee,
+      },
+      {
+        title: "Spot",
+        path: `${PATHS.vendor}?tab=spots`,
+        icon: Sparkles,
+      },
+    ],
+  },
+  {
+    title: "News",
+    path: PATHS.news,
+    icon: Newspaper,
+    userTypes: [2, 3],
+  },
+  {
+    title: "Notification",
+    path: PATHS.notification,
+    icon: Bell,
+    userTypes: [2, 3],
+  },
+  {
+    title: "Newsletter",
+    path: PATHS.newsletter,
+    icon: Mail,
+    userTypes: [2, 3],
+  },
+  {
+    title: "Enquiry",
+    icon: MessageSquare,
+    userTypes: [2, 3],
+    children: [
+      {
+        title: "Enquiry",
+        path: PATHS.enquiry,
+        icon: MessageSquare,
+      },
+      {
+        title: "Download",
+        path: PATHS.enquiryReport,
+        icon: Download,
+      },
+    ],
+  },
+  // Superadmin only (user_type = 3)
+  {
+    title: "Sliders",
+    path: PATHS.slider,
+    icon: SlidersHorizontal,
+    userTypes: [3],
+  },
+  {
+    title: "Clients",
+    path: PATHS.client,
+    icon: Users,
+    userTypes: [3],
+  },
+  {
+    title: "Blog Gallery",
+    path: PATHS.gallery,
+    icon: Images,
+    userTypes: [3],
+  },
+  {
+    title: "Blog",
+    path: PATHS.blog,
+    icon: FileText,
+    userTypes: [3],
+  },
+  {
+    title: "FAQs",
+    path: PATHS.faq,
+    icon: HelpCircle,
+    userTypes: [3],
+  },
+  {
+    title: "Testimonials",
+    path: PATHS.testimonial,
+    icon: Quote,
+    userTypes: [3],
   },
 ];

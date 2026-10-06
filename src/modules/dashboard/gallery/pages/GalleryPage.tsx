@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
+import { useHighlightFromHash } from "@/hooks/useHighlightFromHash.ts";
 import { GalleryFormDialog } from "../components/GalleryFormDialog.tsx";
 import { GalleryTable } from "../components/GalleryTable.tsx";
 import { GalleryCardGrid } from "../components/GalleryCardGrid.tsx";
@@ -28,6 +29,13 @@ export function GalleryPage() {
   const [view, setView] = useState<ListViewMode>(() =>
     readViewMode(VIEW_STORAGE_KEY, "card"),
   );
+
+  // Deep links (#feed-<id>) target cards — table view can't show them,
+  // so switch to card view for this session (stored preference untouched).
+  const deepLink = useHighlightFromHash();
+  useEffect(() => {
+    if (deepLink) setView("card");
+  }, [deepLink]);
 
   useEffect(() => {
     setPage(1);

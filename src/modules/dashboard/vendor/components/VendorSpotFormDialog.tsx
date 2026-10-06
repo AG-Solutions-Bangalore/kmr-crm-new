@@ -3,10 +3,6 @@ import { Copy, Loader2, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -27,6 +23,11 @@ import {
   useActiveCategories,
   useCategories,
 } from "../../category/hook/useCategory.ts";
+import {
+  getParentCategories,
+  getSubCategories,
+  mergeCategories,
+} from "@/lib/category-tree.ts";
 import type { VendorSpotItem } from "../types/vendor.types.ts";
 
 interface VendorSpotFormDialogProps {
@@ -34,6 +35,8 @@ interface VendorSpotFormDialogProps {
   onOpenChange: (open: boolean) => void;
   spot?: VendorSpotItem | null;
 }
+
+/* ------------------------------------------------------------------ */
 
 /* ------------------------------------------------------------------ */
 /* Edit — always a single product.                                     */
@@ -47,10 +50,11 @@ function VendorSpotEditContent({
   onClose: () => void;
 }) {
   const updateMutation = useUpdateVendorSpot();
-  const { data: activeCategories = [] } = useActiveCategories();
-  const { data: allCategories = [] } = useCategories();
-  const categories =
-    activeCategories.length > 0 ? activeCategories : allCategories;
+  const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
+  const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
+  const categories = mergeCategories(activeCategories, allCategories);
+  const parentCategories = getParentCategories(categories);
+  const catsLoading = activeCatsLoading || allCatsLoading;
 
   const [categoryId, setCategoryId] = useState(String(spot.category_id));
   const [subCategoryId, setSubCategoryId] = useState(
@@ -61,18 +65,24 @@ function VendorSpotEditContent({
   const [status, setStatus] = useState(spot?.vendor_spot_status || "Active");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Sub-categories = children of the selected category.
-  const subCategories = categories.filter(
-    (c) => String(c.parent_id ?? "") === String(categoryId) && String(c.id) !== String(categoryId),
-  );
+  // Strict linking: sub-category is always the direct children of the
+  // selected category. Nothing is shown until a category is picked.
+  const directChildren = getSubCategories(categories, categoryId);
+  const hasDirectChildren = directChildren.length > 0;
+  const subOptionsBase = directChildren;
 
-  // Reset sub-category when it doesn't belong to the chosen category.
+  // Reset sub-category when the category changes and the current value is
+  // not one of its direct children.
   useEffect(() => {
     if (
       subCategoryId &&
-      subCategories.length > 0 &&
-      !subCategories.some((c) => String(c.id) === String(subCategoryId))
+      categoryId &&
+      hasDirectChildren &&
+      !directChildren.some((c) => String(c.id) === String(subCategoryId))
     ) {
+      setSubCategoryId("");
+    }
+    if (!categoryId && subCategoryId) {
       setSubCategoryId("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,12 +133,12 @@ function VendorSpotEditContent({
       }}
       className="flex flex-col gap-4"
     >
-      <DialogHeader>
-        <DialogTitle>Edit Spot Quote</DialogTitle>
-        <DialogDescription>
+      <div className="flex flex-col space-y-1.5 text-center sm:text-left">
+        <h2 className="text-lg font-semibold leading-none tracking-tight">Edit Spot Quote</h2>
+        <p className="text-sm text-muted-foreground">
           {`Update spot quote #${spot?.id} (${spot?.vendor_name || `Vendor #${spot?.vendor_id}`}).`}
-        </DialogDescription>
-      </DialogHeader>
+        </p>
+      </div>
 
       {errorMessage && (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
@@ -155,45 +165,55 @@ function VendorSpotEditContent({
               value={categoryId}
               onChange={(val) => {
                 setCategoryId(val);
-                setSubCategoryId("");
               }}
-              options={categories.map((c) => ({
+              options={parentCategories.map((c) => ({
                 value: String(c.id),
-                label: `${c.categories_name} (ID: ${c.id})`,
+                label: c.categories_name,
               }))}
-              placeholder="Select category — or + to create one"
+              placeholder="Search category — or + to create one"
               required
             />
             {spot?.categories_name && (
               <p className="text-xs text-muted-foreground">
-                Current: {spot.categories_name} (ID: {spot.category_id})
+                Current: {spot.categories_name}
               </p>
             )}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="sp-subcat">Sub-Category</Label>
+            <Label htmlFor="sp-subcat">
+              Sub-Category {hasDirectChildren ? `(${directChildren.length})` : ""}
+            </Label>
             <SearchableSelect
               id="sp-subcat"
               value={subCategoryId}
               onChange={setSubCategoryId}
               options={[
-                { value: "", label: "None" },
+                { value: "", label: hasDirectChildren ? "None" : "(No sub-categories)" },
                 ...(subCategoryId &&
-                !subCategories.some((c) => String(c.id) === String(subCategoryId))
+                !subOptionsBase.some((c) => String(c.id) === String(subCategoryId))
                   ? [
                       {
                         value: subCategoryId,
-                        label: `Current: ${spot?.sub_categories_name || `#${subCategoryId}`} (ID: ${subCategoryId})`,
+                        label: `Current: ${spot?.sub_categories_name || `#${subCategoryId}`}`,
                       },
                     ]
                   : []),
-                ...subCategories.map((c) => ({
+                ...subOptionsBase.map((c) => ({
                   value: String(c.id),
-                  label: `${c.categories_name} (ID: ${c.id})`,
+                  label: c.categories_name,
                 })),
               ]}
-              placeholder="Select sub-category"
+              placeholder={
+                !categoryId
+                  ? "Select category first"
+                  : catsLoading
+                    ? "Loading sub-categories..."
+                    : hasDirectChildren
+                      ? `Select sub-category (${directChildren.length}) — type to search`
+                      : "No sub-categories for this category"
+              }
+              disabled={!categoryId || catsLoading}
             />
           </div>
         </div>
@@ -240,7 +260,7 @@ function VendorSpotEditContent({
         </div>
       </div>
 
-      <DialogFooter className="pt-2 flex-row items-center justify-between sm:justify-between">
+      <div className="flex flex-row items-center justify-between pt-2">
         <span className="hidden text-xs text-muted-foreground sm:inline">
           <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
             Ctrl+Enter
@@ -260,7 +280,7 @@ function VendorSpotEditContent({
             {updateMutation.isPending ? "Saving..." : "Update Spot Quote"}
           </Button>
         </div>
-      </DialogFooter>
+      </div>
     </form>
   );
 }
@@ -280,10 +300,11 @@ interface SpotRow {
 function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   const createMutation = useCreateVendorSpot();
   const { data: activeVendors = [] } = useActiveVendors();
-  const { data: activeCategories = [] } = useActiveCategories();
-  const { data: allCategories = [] } = useCategories();
-  const categories =
-    activeCategories.length > 0 ? activeCategories : allCategories;
+  const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
+  const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
+  const categories = mergeCategories(activeCategories, allCategories);
+  const parentCategories = getParentCategories(categories);
+  const catsLoading = activeCatsLoading || allCatsLoading;
 
   const keyRef = useRef(1);
   const [vendorId, setVendorId] = useState(
@@ -303,20 +324,8 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     });
   }, [activeVendors]);
 
-  // Default empty rows to the first real category once loaded.
-  useEffect(() => {
-    if (categories.length === 0) return;
-    setRows((prev) => {
-      if (!prev.some((r) => !r.categoryId)) return prev;
-      const fallback = String(categories[0].id);
-      return prev.map((r) => (r.categoryId ? r : { ...r, categoryId: fallback }));
-    });
-  }, [categories]);
-
-  const subsFor = (catId: string) =>
-    categories.filter(
-      (c) => String(c.parent_id ?? "") === String(catId) && String(c.id) !== String(catId),
-    );
+  // Strict linking: no category -> no sub-categories.
+  const subsFor = (catId: string) => getSubCategories(categories, catId);
 
   const updateRow = (key: number, field: keyof Omit<SpotRow, "key">, val: string) => {
     setRows((prev) =>
@@ -333,7 +342,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
       ...prev,
       {
         key: keyRef.current++,
-        categoryId: categories[0]?.id ? String(categories[0].id) : "",
+        categoryId: "",
         subCategoryId: "",
         heading: "",
         details: "",
@@ -411,12 +420,12 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
       }}
       className="flex flex-col gap-4"
     >
-      <DialogHeader>
-        <DialogTitle>Create Spot Quote</DialogTitle>
-        <DialogDescription>
+      <div className="flex flex-col space-y-1.5 text-center sm:text-left">
+        <h2 className="text-lg font-semibold leading-none tracking-tight">Create Spot Quote</h2>
+        <p className="text-sm text-muted-foreground">
           Publish one or more spot market quotes for a vendor in a single save.
-        </DialogDescription>
-      </DialogHeader>
+        </p>
+      </div>
 
       {errorMessage && (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
@@ -461,7 +470,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
             </Button>
           </div>
 
-          <div className="flex max-h-[320px] flex-col gap-3 overflow-y-auto pr-1">
+          <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto pr-1 pb-28">
             {rows.map((row, idx) => (
               <div
                 key={row.key}
@@ -504,11 +513,11 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                       id={`sp-cat-${row.key}`}
                       value={row.categoryId}
                       onChange={(val) => updateRow(row.key, "categoryId", val)}
-                      options={categories.map((c) => ({
+                      options={parentCategories.map((c) => ({
                         value: String(c.id),
-                        label: `${c.categories_name} (ID: ${c.id})`,
+                        label: c.categories_name,
                       }))}
-                      placeholder="Select category — or +"
+                      placeholder="Search category — or +"
                     />
                   </div>
 
@@ -518,14 +527,29 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                       id={`sp-subcat-${row.key}`}
                       value={row.subCategoryId}
                       onChange={(val) => updateRow(row.key, "subCategoryId", val)}
-                      options={[
-                        { value: "", label: "None" },
-                        ...subsFor(row.categoryId).map((c) => ({
-                          value: String(c.id),
-                          label: `${c.categories_name} (ID: ${c.id})`,
-                        })),
-                      ]}
-                      placeholder="Select sub-category"
+                      options={(() => {
+                        const list = subsFor(row.categoryId);
+                        return [
+                          { value: "", label: list.length > 0 ? "None" : "(No sub-categories)" },
+                          ...list.map((c) => ({
+                            value: String(c.id),
+                            label: c.categories_name,
+                          })),
+                        ];
+                      })()}
+                      placeholder={
+                        !row.categoryId
+                          ? "Select category first"
+                          : catsLoading
+                            ? "Loading sub-categories..."
+                            : (() => {
+                                const list = subsFor(row.categoryId);
+                                return list.length > 0
+                                  ? `Select sub-category (${list.length}) — type to search`
+                                  : "No sub-categories for this category";
+                              })()
+                      }
+                      disabled={!row.categoryId || catsLoading}
                     />
                   </div>
                 </div>
@@ -563,7 +587,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <DialogFooter className="pt-2 flex-row items-center justify-between sm:justify-between">
+      <div className="flex flex-row items-center justify-between pt-2">
         <span className="hidden text-xs text-muted-foreground sm:inline">
           <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
             Ctrl+Enter
@@ -587,7 +611,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                 : "Create Spot Quote"}
           </Button>
         </div>
-      </DialogFooter>
+      </div>
     </form>
   );
 }
@@ -614,7 +638,7 @@ export function VendorSpotFormDialog({
   );
 }
 
-function VendorSpotFormContainer({
+export function VendorSpotFormContainer({
   spotId,
   initialSpot,
   onClose,

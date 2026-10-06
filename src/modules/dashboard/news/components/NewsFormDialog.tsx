@@ -176,14 +176,14 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
               onChange={setCategoryId}
               options={categories.map((c) => ({
                 value: String(c.id),
-                label: `${c.categories_name} (ID: ${c.id})`,
+                label: c.categories_name,
               }))}
               placeholder="Select category — or + to create one"
               required
             />
             {news?.categories_name && (
               <p className="text-xs text-muted-foreground">
-                Current: {news.categories_name} (ID: {news.category_id})
+                Current: {news.categories_name}
               </p>
             )}
           </div>

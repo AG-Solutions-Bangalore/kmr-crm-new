@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
   CheckCircle2,
@@ -19,12 +19,11 @@ import {
 } from "@/components/ui/card.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue.ts";
+import { PATHS } from "@/constants/paths.ts";
 import { VendorFormDialog } from "../components/VendorFormDialog.tsx";
 import { VendorTable } from "../components/VendorTable.tsx";
-import { VendorSpotFormDialog } from "../components/VendorSpotFormDialog.tsx";
 import { VendorSpotTable } from "../components/VendorSpotTable.tsx";
 import { VendorRateTable } from "../components/VendorRateTable.tsx";
-import { VendorRateFormDialog } from "../components/VendorRateFormDialog.tsx";
 import {
   useVendorsPage,
   useVendorSpots,
@@ -39,25 +38,11 @@ const PAGE_SIZE = 10;
 type VendorTabKey = "vendors" | "spots" | "live" | "rates";
 
 export function VendorPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const rawTab = searchParams.get("tab");
   const activeTab: VendorTabKey =
     rawTab === "spots" || rawTab === "live" || rawTab === "rates" ? rawTab : "vendors";
-
-  const setActiveTab = (tab: VendorTabKey) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (tab === "vendors") {
-          next.delete("tab");
-        } else {
-          next.set("tab", tab);
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -110,9 +95,6 @@ export function VendorPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-  const [spotDialogOpen, setSpotDialogOpen] = useState(false);
-  const [selectedSpot, setSelectedSpot] = useState<VendorSpotItem | null>(null);
-  const [rateDialogOpen, setRateDialogOpen] = useState(false);
 
   const liveStatusMutation = useUpdateVendorLiveStatus();
   const rateStatusMutation = useUpdateVendorRateStatus();
@@ -122,10 +104,11 @@ export function VendorPage() {
       setSelectedVendor(null);
       setDialogOpen(true);
     } else if (activeTab === "spots") {
-      setSelectedSpot(null);
-      setSpotDialogOpen(true);
+      navigate(PATHS.vendorSpotNew);
+    } else if (activeTab === "live") {
+      navigate(PATHS.vendorLiveNew);
     } else {
-      setRateDialogOpen(true);
+      navigate(PATHS.vendorRateNew);
     }
   };
 
@@ -135,8 +118,15 @@ export function VendorPage() {
   };
 
   const handleOpenSpotEdit = (spot: VendorSpotItem) => {
-    setSelectedSpot(spot);
-    setSpotDialogOpen(true);
+    navigate(PATHS.vendorSpotEdit.replace(":id", String(spot.id)));
+  };
+
+  const handleOpenRateEdit = (item: VendorRateProduct, type: "live" | "standard") => {
+    if (type === "live") {
+      navigate(PATHS.vendorLiveEdit.replace(":id", String(item.id)));
+    } else {
+      navigate(PATHS.vendorRateEdit.replace(":id", String(item.id)));
+    }
   };
 
   const nextRateStatus = (item: VendorRateProduct) =>
@@ -162,16 +152,46 @@ export function VendorPage() {
   const activeCount = vendors.filter((v) => v.vendor_status === "Active").length;
   const inactiveCount = vendors.length - activeCount;
 
+  const getHeaderInfo = () => {
+    switch (activeTab) {
+      case "spots":
+        return {
+          title: "Spot Quotes",
+          description: "Real-time vendor spot market quotes and delivery terms.",
+          buttonLabel: "Create Spot Quote",
+        };
+      case "live":
+        return {
+          title: "Live Commodity Rates",
+          description: "Real-time live prices with one-click broadcast toggle.",
+          buttonLabel: "Add Live Rate",
+        };
+      case "rates":
+        return {
+          title: "Standard Commodity Rates",
+          description: "Master commodity price book and rate cards.",
+          buttonLabel: "Add Standard Rate",
+        };
+      default:
+        return {
+          title: "Vendors",
+          description: "Manage your network of vendors, trade categories, and locations.",
+          buttonLabel: "Add Vendor",
+        };
+    }
+  };
+  const headerInfo = getHeaderInfo();
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Vendors & Spot Quotes
+            {headerInfo.title}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage your network of vendors, trade categories, rates, and live spot quotes.
+            {headerInfo.description}
           </p>
         </div>
 
@@ -191,15 +211,7 @@ export function VendorPage() {
 
           <Button size="sm" onClick={handleOpenCreate} className="gap-2">
             <Plus className="size-4" />
-            <span>
-              {activeTab === "vendors"
-                ? "Add Vendor"
-                : activeTab === "spots"
-                ? "Create Spot Quote"
-                : activeTab === "live"
-                ? "Add Live Rate"
-                : "Add Standard Rate"}
-            </span>
+            <span>{headerInfo.buttonLabel}</span>
           </Button>
         </div>
       </div>
@@ -227,149 +239,152 @@ export function VendorPage() {
         </div>
       )}
 
-      {/* Metric Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Total Vendors
-            </CardTitle>
-            <Store className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : totalCount}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Metric Cards - Contextual to active view */}
+      {activeTab === "vendors" ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Total Vendors
+              </CardTitle>
+              <Store className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isLoading ? "—" : totalCount}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              Active Vendors
-            </CardTitle>
-            <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : activeCount}
-            </div>
-          </CardContent>
-        </Card>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Active Vendors
+              </CardTitle>
+              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isLoading ? "—" : activeCount}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Inactive Vendors
-            </CardTitle>
-            <Store className="size-4 text-muted-foreground opacity-60" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : inactiveCount}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-sky-600 dark:text-sky-400">
-              Vendor Spots
-            </CardTitle>
-            <Sparkles className="size-4 text-sky-600 dark:text-sky-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {spots.length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">
-              Commodity Rates
-            </CardTitle>
-            <IndianRupee className="size-4 text-amber-600 dark:text-amber-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {liveRates.length + standardRates.length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tab Switcher */}
-      <div className="flex flex-wrap border-b border-border/80 gap-1 sm:gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("vendors")}
-          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
-            activeTab === "vendors"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Store className="size-4" />
-          <span>Vendors</span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {totalCount}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("spots")}
-          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
-            activeTab === "spots"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Sparkles className="size-4" />
-          <span>Spot Rates</span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {spots.length}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("live")}
-          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
-            activeTab === "live"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="relative flex size-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
-            <span className="relative inline-flex size-2 rounded-full bg-rose-500" />
-          </span>
-          <Radio className="size-4" />
-          <span>Live</span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {liveRates.length}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("rates")}
-          className={`flex cursor-pointer items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
-            activeTab === "rates"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <IndianRupee className="size-4" />
-          <span>Rates</span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {standardRates.length}
-          </span>
-        </button>
-      </div>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Inactive Vendors
+              </CardTitle>
+              <Store className="size-4 text-muted-foreground opacity-60" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {isLoading ? "—" : inactiveCount}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : activeTab === "spots" ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                Vendor Spot Quotes
+              </CardTitle>
+              <Sparkles className="size-4 text-sky-600 dark:text-sky-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {loadingSpots ? "—" : spots.length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : activeTab === "live" ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                Total Live Rates
+              </CardTitle>
+              <Radio className="size-4 text-rose-600 dark:text-rose-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {loadingLive ? "—" : liveRates.length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Active Broadcast
+              </CardTitle>
+              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {loadingLive ? "—" : liveRates.filter((r) => r.vendor_product_status === "Active").length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Inactive Broadcast
+              </CardTitle>
+              <Radio className="size-4 text-muted-foreground opacity-60" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {loadingLive ? "—" : liveRates.filter((r) => r.vendor_product_status !== "Active").length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                Standard Rates
+              </CardTitle>
+              <IndianRupee className="size-4 text-amber-600 dark:text-amber-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {loadingRates ? "—" : standardRates.length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Active Rates
+              </CardTitle>
+              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {loadingRates ? "—" : standardRates.filter((r) => r.vendor_product_status === "Active").length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Inactive Rates
+              </CardTitle>
+              <IndianRupee className="size-4 text-muted-foreground opacity-60" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {loadingRates ? "—" : standardRates.filter((r) => r.vendor_product_status !== "Active").length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Tab Content — vendor lists stay tables (no photos to preview). */}
       {activeTab === "vendors" ? (
@@ -398,6 +413,7 @@ export function VendorPage() {
           isLoading={loadingLive}
           type="live"
           onToggleStatus={handleToggleLiveStatus}
+          onEdit={(item) => handleOpenRateEdit(item, "live")}
           errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
           onRetry={() => void refetchLive()}
         />
@@ -407,6 +423,7 @@ export function VendorPage() {
           isLoading={loadingRates}
           type="standard"
           onToggleStatus={handleToggleRateStatus}
+          onEdit={(item) => handleOpenRateEdit(item, "standard")}
           errorMessage={errorRates ? getApiErrorMessage(errorRates) : null}
           onRetry={() => void refetchRates()}
         />
@@ -417,20 +434,6 @@ export function VendorPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         vendor={selectedVendor}
-      />
-
-      {/* Create / Edit Spot Quote Dialog */}
-      <VendorSpotFormDialog
-        open={spotDialogOpen}
-        onOpenChange={setSpotDialogOpen}
-        spot={selectedSpot}
-      />
-
-      {/* Create Rate Product Dialog (Live or Standard) */}
-      <VendorRateFormDialog
-        open={rateDialogOpen}
-        onOpenChange={setRateDialogOpen}
-        type={activeTab === "live" ? "live" : "standard"}
       />
     </div>
   );

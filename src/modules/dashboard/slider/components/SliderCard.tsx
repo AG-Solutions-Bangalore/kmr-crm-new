@@ -42,7 +42,7 @@ export function SliderCard({ slider, isToggling, compact = false, highlighted = 
     <AppFeedCard
       cover={{ imageUrl, accent }}
       title={title}
-      snippet={slider.slider_url || `Display order #${slider.slider_sort_order ?? "—"}`}
+      snippet={slider.slider_url || null}
       snippetClamp={2}
       statusActive={isActive}
       statusText={slider.slider_status || "Active"}
@@ -52,7 +52,6 @@ export function SliderCard({ slider, isToggling, compact = false, highlighted = 
       ageLabel={ago ?? (slider.created_at ? formatDateDMY(slider.created_at) : null)}
       updatedPill={justUpdated ? `Updated${ago ? ` • ${ago}` : ""}` : null}
       justUpdated={justUpdated}
-      metaPrimary={`Order #${slider.slider_sort_order ?? "—"}`}
       metaSecondary={
         slider.slider_url ? (
           <span title={slider.slider_url} className="inline-flex max-w-[180px] items-center gap-1">
@@ -60,7 +59,7 @@ export function SliderCard({ slider, isToggling, compact = false, highlighted = 
             <span className="truncate font-mono">{slider.slider_url}</span>
           </span>
         ) : (
-          <span className="text-muted-foreground/70">{ago ? `Updated ${ago}` : "—"}</span>
+          ago ? <span className="text-muted-foreground/70">{`Updated ${ago}`}</span> : null
         )
       }
       compact={compact}

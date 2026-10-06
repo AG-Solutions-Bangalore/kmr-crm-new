@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { RichTextEditor } from "@/components/common/RichTextEditor.tsx";
-import { QuickCreateCategoryDialog } from "@/components/common/QuickCreateCategoryDialog.tsx";
+import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
+import { mergeCategories, getParentCategories } from "@/lib/category-tree.ts";
 import {
   useActiveCategories,
   useCategories,
@@ -45,22 +46,19 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
   const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
   const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [quickCatOpen, setQuickCatOpen] = useState(false);
 
-  const { data: activeCategories = [] } = useActiveCategories();
-  const { data: allCategories = [] } = useCategories();
-  const categories = activeCategories.length > 0 ? activeCategories : allCategories;
+  const { data: activeCategories = [], isLoading: activeCatsLoading } = useActiveCategories();
+  const { data: allCategories = [], isLoading: allCatsLoading } = useCategories();
+  const categories = mergeCategories(activeCategories, allCategories);
+  // Blog takes only parent categories — never sub-categories.
+  const parentCategories = getParentCategories(categories);
+  const catsLoading = activeCatsLoading || allCatsLoading;
 
-  // Resolve typed IDs to names so the field is never guesswork.
-  const categoryNamePreview = useMemo(() => {
-    const ids = categoriesIds.split(",").map((s) => s.trim()).filter(Boolean);
-    if (ids.length === 0) return "No category selected.";
-    const names = ids.map((id) => {
-      const found = categories.find((c) => String(c.id) === id);
-      return found ? found.categories_name : `#${id} (unknown)`;
-    });
-    return names.join(" • ");
-  }, [categoriesIds, categories]);
+  // Selected IDs as an array for chips.
+  const selectedIds = categoriesIds
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   const appendCategoryId = (id: string) => {
     setCategoriesIds((prev) => {
@@ -70,6 +68,17 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
       if (ids.length === 1 && ids[0] === "1" && !blog?.blog_categories_ids) return id;
       return [...ids, id].join(",");
     });
+  };
+
+  const removeCategoryId = (id: string) => {
+    setCategoriesIds((prev) =>
+      prev
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .filter((v) => v !== id)
+        .join(","),
+    );
   };
 
   const handleTitleChange = (val: string) => {
@@ -232,38 +241,48 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="b-cat">Category IDs</Label>
-            <div className="flex items-center gap-1.5">
-              <div className="min-w-0 flex-1">
-                <Input
-                  id="b-cat"
-                  value={categoriesIds}
-                  onChange={(e) => setCategoriesIds(e.target.value)}
-                  placeholder="e.g. 1"
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setQuickCatOpen(true)}
-                title="Create a new category without leaving this form — its ID is added automatically"
-                aria-label="Create a new category without leaving this form"
-                className="size-9 shrink-0 p-0"
-              >
-                <Plus className="size-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">{categoryNamePreview}</p>
-          </div>
-
-          {quickCatOpen && (
-            <QuickCreateCategoryDialog
-              open={quickCatOpen}
-              onOpenChange={setQuickCatOpen}
-              onCreated={appendCategoryId}
+            <Label htmlFor="b-cat">Categories</Label>
+            <CategorySelectWithCreate
+              id="b-cat"
+              value=""
+              onChange={appendCategoryId}
+              options={parentCategories.map((c) => ({
+                value: String(c.id),
+                label: c.categories_name,
+              }))}
+              placeholder={
+                catsLoading ? "Loading categories..." : "Search category — or + to create one"
+              }
             />
-          )}
+            {selectedIds.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {selectedIds.map((id) => {
+                  const found = categories.find((c) => String(c.id) === id);
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-xs font-medium text-foreground"
+                    >
+                      <span className="max-w-40 truncate">
+                        {found ? `${found.categories_name} (${id})` : `#${id} (unknown)`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeCategoryId(id)}
+                        title="Remove category"
+                        aria-label={`Remove category ${id}`}
+                        className="rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">No category selected.</p>
+            )}
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="b-meta">Meta Keywords</Label>

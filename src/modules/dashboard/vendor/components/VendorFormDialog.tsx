@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,86 @@ interface InnerFormProps {
   onClose: () => void;
 }
 
+const TRADE_OPTIONS = [
+  { value: "1", label: "Live" },
+  { value: "2", label: "Rate" },
+  { value: "3", label: "Spot" },
+];
+
+/** Multi-select dropdown for trade types. Stores comma-separated ids
+ *  (e.g. "1, 3") so the API payload stays unchanged. */
+function TradeMultiSelect({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const ids = value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const toggle = (v: string) => {
+    const next = ids.includes(v) ? ids.filter((i) => i !== v) : [...ids, v];
+    next.sort((a, b) => Number(a) - Number(b));
+    onChange(next.join(", "));
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open ]);
+
+  const selectedLabels = TRADE_OPTIONS.filter((o) => ids.includes(o.value)).map(
+    (o) => `${o.value} - ${o.label}`,
+  );
+
+  return (
+    <div ref={rootRef} className="relative w-full">
+      <button
+        id="v-trade"
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      >
+        <span className={selectedLabels.length > 0 ? "" : "text-muted-foreground"}>
+          {selectedLabels.length > 0 ? selectedLabels.join(", ") : "Select trade types"}
+        </span>
+        <ChevronDown className="size-4 shrink-0 opacity-50" />
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md">
+          {TRADE_OPTIONS.map((o) => (
+            <label
+              key={o.value}
+              className="flex cursor-pointer items-center gap-2.5 rounded-sm px-2 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <input
+                type="checkbox"
+                checked={ids.includes(o.value)}
+                onChange={() => toggle(o.value)}
+                className="size-4 shrink-0 accent-primary"
+              />
+              <span>
+                {o.value} - {o.label}
+              </span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function VendorFormContent({ vendor, onClose }: InnerFormProps) {
   const isEditing = Boolean(vendor);
   const createMutation = useCreateVendor();
@@ -47,6 +127,13 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
+
+  function handleMobileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let digits = e.target.value.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+    else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+    setMobile(digits.slice(0, 10));
+  }
 
   useEffect(() => {
     if (!imageFile) {
@@ -70,6 +157,10 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
     }
     if (!mobile.trim()) {
       setErrorMessage("Vendor mobile is required.");
+      return;
+    }
+    if (mobile.trim().length !== 10) {
+      setErrorMessage("Please enter a valid 10-digit mobile number.");
       return;
     }
 
@@ -144,8 +235,11 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
             </Label>
             <Input
               id="v-mobile"
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
               value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
+              onChange={handleMobileChange}
               placeholder="e.g. 9876543210"
               required
             />
@@ -177,13 +271,8 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
 
         <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="v-trade">Trade Categories / IDs</Label>
-            <Input
-              id="v-trade"
-              value={trade}
-              onChange={(e) => setTrade(e.target.value)}
-              placeholder="e.g. 1, 2, 3"
-            />
+            <Label htmlFor="v-trade">Trade</Label>
+            <TradeMultiSelect value={trade} onChange={setTrade} />
           </div>
 
           {isEditing && (
@@ -204,11 +293,13 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="v-address">Address</Label>
-          <Input
+          <textarea
             id="v-address"
+            rows={3}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Full physical address or warehouse"
+            className="w-full rounded-md border border-input bg-background p-2.5 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
 

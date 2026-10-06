@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AlertCircle, FolderTree, GitBranch, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -28,7 +29,9 @@ function isRootCategory(c: Category): boolean {
 }
 
 export function CategoryPage() {
-  const [tab, setTab] = useState<CategoryTab>("parent");
+  const [searchParams] = useSearchParams();
+  const tab: CategoryTab = searchParams.get("tab") === "sub" ? "sub" : "parent";
+
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -86,10 +89,12 @@ export function CategoryPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Categories
+            {tab === "sub" ? "Sub Categories" : "Categories"}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Organize and manage your product categories, sort orders, and hierarchy.
+            {tab === "sub"
+              ? "Manage sub-categories linked to primary trade categories."
+              : "Organize and manage your primary product categories and hierarchy."}
           </p>
         </div>
 
@@ -109,7 +114,7 @@ export function CategoryPage() {
 
           <Button size="sm" onClick={handleOpenCreate} className="gap-2">
             <Plus className="size-4" />
-            <span>Add Category</span>
+            <span>{tab === "sub" ? "Add Sub Category" : "Add Category"}</span>
           </Button>
         </div>
       </div>
@@ -144,11 +149,29 @@ export function CategoryPage() {
       )}
 
       {/* Metric Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Total Categories
+              {tab === "sub" ? "Total Sub Categories" : "Total Parent Categories"}
+            </CardTitle>
+            {tab === "sub" ? (
+              <GitBranch className="size-4 text-primary" />
+            ) : (
+              <FolderTree className="size-4 text-muted-foreground" />
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">
+              {isLoading ? "—" : tab === "sub" ? subs.length : parents.length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              All System Categories
             </CardTitle>
             <FolderTree className="size-4 text-muted-foreground" />
           </CardHeader>
@@ -158,54 +181,6 @@ export function CategoryPage() {
             </div>
           </CardContent>
         </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              Parent Categories
-            </CardTitle>
-            <FolderTree className="size-4 text-emerald-600 dark:text-emerald-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : parents.length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-primary">
-              Sub Categories
-            </CardTitle>
-            <GitBranch className="size-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {isLoading ? "—" : subs.length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant={tab === "parent" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setTab("parent")}
-          className="cursor-pointer"
-        >
-          Categories{isLoading ? "" : ` (${parents.length})`}
-        </Button>
-        <Button
-          variant={tab === "sub" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setTab("sub")}
-          className="cursor-pointer"
-        >
-          Sub Categories{isLoading ? "" : ` (${subs.length})`}
-        </Button>
       </div>
 
       {/* View switcher — Card View shares the common feed design. */}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, IndianRupee, Power, Search } from "lucide-react";
+import { AlertCircle, Edit2, IndianRupee, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -10,6 +10,7 @@ interface VendorRateTableProps {
   isLoading: boolean;
   type: "live" | "standard";
   onToggleStatus?: (item: VendorRateProduct) => Promise<void>;
+  onEdit?: (item: VendorRateProduct) => void;
   errorMessage?: string | null;
   onRetry?: () => void;
 }
@@ -19,6 +20,7 @@ export function VendorRateTable({
   isLoading,
   type,
   onToggleStatus,
+  onEdit,
   errorMessage,
   onRetry,
 }: VendorRateTableProps) {
@@ -30,6 +32,9 @@ export function VendorRateTable({
     return (
       r.vendor_product?.toLowerCase().includes(q) ||
       r.vendor_product_size?.toLowerCase().includes(q) ||
+      r.vendor_name?.toLowerCase().includes(q) ||
+      r.categories_name?.toLowerCase().includes(q) ||
+      r.sub_categories_name?.toLowerCase().includes(q) ||
       String(r.vendor_product_rate).includes(q) ||
       String(r.id).includes(q)
     );
@@ -143,7 +148,17 @@ export function VendorRateTable({
                         ₹{item.vendor_product_rate}
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
-                        Vendor #{item.vendor_id} | Cat #{item.category_id}
+                        <div className="font-medium text-foreground">
+                          {item.vendor_name || `Vendor #${item.vendor_id}`}
+                        </div>
+                        <div>
+                          {item.categories_name || `Cat #${item.category_id}`}
+                          {item.sub_categories_name
+                            ? ` / ${item.sub_categories_name}`
+                            : item.sub_category_id
+                              ? ` / Sub #${item.sub_category_id}`
+                              : ""}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <Badge
@@ -158,22 +173,35 @@ export function VendorRateTable({
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        {onToggleStatus && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            disabled={togglingId === item.id}
-                            onClick={() => void handleToggle(item)}
-                            title={isActive ? "Deactivate Rate" : "Activate Rate"}
-                            className="size-8 text-muted-foreground hover:text-foreground"
-                          >
-                            <Power
-                              className={`size-4 ${
-                                isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
-                              }`}
-                            />
-                          </Button>
-                        )}
+                        <div className="flex items-center justify-end gap-1">
+                          {onToggleStatus && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={togglingId === item.id}
+                              onClick={() => void handleToggle(item)}
+                              title={isActive ? "Deactivate Rate" : "Activate Rate"}
+                              className="size-8 text-muted-foreground hover:text-foreground"
+                            >
+                              <Power
+                                className={`size-4 ${
+                                  isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+                                }`}
+                              />
+                            </Button>
+                          )}
+                          {onEdit && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => onEdit(item)}
+                              title="Edit Rate"
+                              className="size-8"
+                            >
+                              <Edit2 className="size-3.5" />
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

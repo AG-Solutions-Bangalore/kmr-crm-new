@@ -20,11 +20,15 @@ import { OverviewPage } from "./modules/dashboard/overview/pages/OverviewPage.ts
 import { SliderPage } from "./modules/dashboard/slider/pages/SliderPage.tsx";
 import { TestimonialPage } from "./modules/dashboard/testimonial/pages/TestimonialPage.tsx";
 import { VendorPage } from "./modules/dashboard/vendor/pages/VendorPage.tsx";
+import { VendorSpotFormPage } from "./modules/dashboard/vendor/pages/VendorSpotFormPage.tsx";
+import { VendorLiveFormPage } from "./modules/dashboard/vendor/pages/VendorLiveFormPage.tsx";
+import { VendorRateFormPage } from "./modules/dashboard/vendor/pages/VendorRateFormPage.tsx";
 
 export interface AppRoute {
   path: string;
   title: string;
   element: ReactNode;
+  superAdminOnly?: boolean;
 }
 
 /** Routes that don't need a session. Rendered without the dashboard shell. */
@@ -54,6 +58,36 @@ export const dashboardRoutes: AppRoute[] = [
     element: <VendorPage />,
   },
   {
+    path: PATHS.vendorSpotNew,
+    title: "Create Spot Quote",
+    element: <VendorSpotFormPage />,
+  },
+  {
+    path: PATHS.vendorSpotEdit,
+    title: "Edit Spot Quote",
+    element: <VendorSpotFormPage />,
+  },
+  {
+    path: PATHS.vendorLiveNew,
+    title: "Create Live Rate",
+    element: <VendorLiveFormPage />,
+  },
+  {
+    path: PATHS.vendorLiveEdit,
+    title: "Edit Live Rate",
+    element: <VendorLiveFormPage />,
+  },
+  {
+    path: PATHS.vendorRateNew,
+    title: "Create Standard Rate",
+    element: <VendorRateFormPage />,
+  },
+  {
+    path: PATHS.vendorRateEdit,
+    title: "Edit Standard Rate",
+    element: <VendorRateFormPage />,
+  },
+  {
     path: PATHS.category,
     title: "Categories",
     element: <CategoryPage />,
@@ -67,21 +101,25 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.blog,
     title: "Blog",
     element: <BlogPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.blogNew,
     title: "Create Blog Post",
     element: <BlogFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.blogEdit,
     title: "Edit Blog Post",
     element: <BlogFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.gallery,
     title: "Gallery",
     element: <GalleryPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.enquiry,
@@ -107,26 +145,31 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.faq,
     title: "FAQs",
     element: <FaqPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.faqNew,
     title: "Create FAQ",
     element: <FaqFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.faqEdit,
     title: "Edit FAQ",
     element: <FaqFormPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.testimonial,
     title: "Testimonials",
     element: <TestimonialPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.client,
     title: "Clients",
     element: <ClientPage />,
+    superAdminOnly: true,
   },
   {
     path: PATHS.member,
@@ -137,5 +180,6 @@ export const dashboardRoutes: AppRoute[] = [
     path: PATHS.slider,
     title: "Sliders",
     element: <SliderPage />,
+    superAdminOnly: true,
   },
 ];

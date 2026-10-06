@@ -9,8 +9,10 @@ import {
 } from "@/components/common/CardStates.tsx";
 import { sortByRecency, type LatestFirstOrder } from "@/lib/sort.ts";
 import { useHighlightFromHash } from "@/hooks/useHighlightFromHash.ts";
+import { useFeedDeepLink } from "@/hooks/useFeedDeepLink.ts";
 import { cn } from "@/lib/utils.ts";
 import { useUpdateGalleryStatus } from "../hook/useGallery.ts";
+import { fetchGalleryPage } from "../api/gallery.api.ts";
 import type { GalleryItem, GalleryStatus } from "../types/gallery.types.ts";
 import { GalleryCard } from "./GalleryCard.tsx";
 
@@ -92,7 +94,21 @@ export function GalleryCardGrid({
 
   // Search is server-side (?search=); sort the loaded page latest-first.
   const visible = sortByRecency(galleryItems, order);
-  const highlight = useHighlightFromHash();
+  const highlight = useHighlightFromHash({ paused: isLoading });
+
+  // Deep link (#feed-<id>): jump to the page holding the item, even when it
+  // isn't on the current server page. Clears a hiding search filter first.
+  useFeedDeepLink({
+    highlight,
+    pageIds: galleryItems.map((g) => g.id),
+    totalPages,
+    isLoading,
+    fetchPageIds: (p) =>
+      fetchGalleryPage(p, perPage, "", "all").then((r) => r.items.map((g) => g.id)),
+    onPageChange,
+    hasActiveSearch: search.trim() !== "",
+    onClearSearch: () => onSearchChange(""),
+  });
 
   const handleToggleStatus = async (item: GalleryItem) => {
     const nextStatus = item.gallery_status === "Active" ? "Inactive" : "Active";

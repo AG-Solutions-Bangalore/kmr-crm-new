@@ -13,27 +13,66 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ initialMobile, initialEmail }: ProfileFormProps) {
-  const [mobile, setMobile] = useState(initialMobile);
+  const [mobile, setMobile] = useState(() => {
+    let digits = initialMobile.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+    else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+    return digits.slice(0, 10);
+  });
   const [email, setEmail] = useState(initialEmail);
+  const [mobileError, setMobileError] = useState<string | null>(null);
   const updateProfile = useUpdateProfile();
+
+  function handleMobileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    let digits = event.target.value.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+    const sanitized = digits.slice(0, 10);
+    setMobile(sanitized);
+    if (mobileError && sanitized.length === 10) {
+      setMobileError(null);
+    }
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (mobile.length !== 10) {
+      setMobileError("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+    setMobileError(null);
+
     updateProfile.mutate({ mobile: mobile.trim(), email: email.trim() });
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="profile-mobile">Mobile</Label>
+        <Label htmlFor="profile-mobile">Mobile Number</Label>
         <Input
           id="profile-mobile"
+          type="tel"
+          inputMode="numeric"
           autoComplete="tel"
-          placeholder="Enter mobile number"
+          placeholder="Enter 10-digit mobile number"
           value={mobile}
-          onChange={(event) => setMobile(event.target.value)}
+          onChange={handleMobileChange}
+          onBlur={() => {
+            if (mobile.length > 0 && mobile.length < 10) {
+              setMobileError("Please enter a valid 10-digit mobile number.");
+            }
+          }}
+          maxLength={10}
+          className={mobileError ? "border-destructive focus-visible:ring-destructive" : ""}
           required
         />
+        {mobileError ? (
+          <p className="text-xs text-destructive">{mobileError}</p>
+        ) : null}
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="profile-email">Email</Label>
