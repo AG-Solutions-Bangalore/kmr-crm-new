@@ -3,6 +3,7 @@ import { Edit2, Power, Search, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
 import { useUpdateVendorSpotStatus } from "../hook/useVendor.ts";
 import type { VendorSpotItem } from "../types/vendor.types.ts";
@@ -10,31 +11,34 @@ import type { VendorSpotItem } from "../types/vendor.types.ts";
 interface VendorSpotTableProps {
   spots: VendorSpotItem[];
   isLoading: boolean;
+  isFetching?: boolean;
+  page: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
   onEdit: (spot: VendorSpotItem) => void;
 }
 
 export function VendorSpotTable({
   spots,
   isLoading,
+  isFetching = false,
+  page,
+  totalPages,
+  total,
+  perPage,
+  search,
+  onSearchChange,
+  onPageChange,
   onEdit,
 }: VendorSpotTableProps) {
-  const [search, setSearch] = useState("");
   const updateStatusMutation = useUpdateVendorSpotStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
-  const filtered = spots.filter((spot) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      spot.vendor_spot_heading?.toLowerCase().includes(q) ||
-      spot.vendor_spot_details?.toLowerCase().includes(q) ||
-      spot.vendor_name?.toLowerCase().includes(q) ||
-      spot.vendor_mobile?.toLowerCase().includes(q) ||
-      spot.categories_name?.toLowerCase().includes(q) ||
-      spot.sub_categories_name?.toLowerCase().includes(q) ||
-      String(spot.id).includes(q)
-    );
-  });
+  // Search + pagination are server-side (?search=&page=); render the loaded page directly.
 
   const handleToggleStatus = async (item: VendorSpotItem) => {
     const nextStatus =
@@ -58,7 +62,7 @@ export function VendorSpotTable({
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search spot quotes by title, vendor, or details..."
             className="pl-8"
           />
@@ -93,7 +97,7 @@ export function VendorSpotTable({
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : spots.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -111,8 +115,8 @@ export function VendorSpotTable({
                   </td>
                 </tr>
               ) : (
-                filtered.map((item, index) => {
-                  const slNo = index + 1;
+                spots.map((item, index) => {
+                  const slNo = (page - 1) * perPage + index + 1;
                   const isActive = item.vendor_spot_status === "Active";
                   const isToggling = togglingId === item.id;
 
@@ -221,6 +225,16 @@ export function VendorSpotTable({
           </table>
         </div>
       </div>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

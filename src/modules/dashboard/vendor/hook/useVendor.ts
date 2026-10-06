@@ -9,13 +9,13 @@ import {
   fetchActiveVendors,
   fetchVendorById,
   fetchVendorLiveById,
-  fetchVendorLives,
+  fetchVendorLivesPage,
   fetchVendorRateById,
-  fetchVendorRates,
+  fetchVendorRatesPage,
   fetchVendors,
   fetchVendorsPage,
   fetchVendorSpotById,
-  fetchVendorSpots,
+  fetchVendorSpotsPage,
   updateVendor,
   updateVendorLive,
   updateVendorLiveStatus,
@@ -80,19 +80,21 @@ export function useVendor(id: number | string | null | undefined) {
   });
 }
 
-export function useVendorSpots() {
+export function useVendorSpots(page = 1, perPage = 10, search = "") {
   return useQuery({
-    queryKey: vendorKeys.spots(),
-    queryFn: fetchVendorSpots,
+    queryKey: [...vendorKeys.spots(), "page", page, perPage, search] as const,
+    queryFn: () => fetchVendorSpotsPage(page, perPage, search),
     retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 
-export function useVendorLives() {
+export function useVendorLives(page = 1, perPage = 10, search = "") {
   return useQuery({
-    queryKey: vendorKeys.lives(),
-    queryFn: fetchVendorLives,
+    queryKey: [...vendorKeys.lives(), "page", page, perPage, search] as const,
+    queryFn: () => fetchVendorLivesPage(page, perPage, search),
     retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -153,11 +155,12 @@ export function useUpdateVendorStatus() {
   });
 }
 
-export function useVendorRates() {
+export function useVendorRates(page = 1, perPage = 10, search = "") {
   return useQuery({
-    queryKey: vendorKeys.rates(),
-    queryFn: fetchVendorRates,
+    queryKey: [...vendorKeys.rates(), "page", page, perPage, search] as const,
+    queryFn: () => fetchVendorRatesPage(page, perPage, search),
     retry: 1,
+    placeholderData: keepPreviousData,
   });
 }
 

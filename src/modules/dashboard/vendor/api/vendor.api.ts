@@ -118,6 +118,16 @@ export async function fetchVendorSpots(): Promise<VendorSpotItem[]> {
   return parsePaginatedResponse<VendorSpotItem>(data, 1, 10).items;
 }
 
+/** GET /vendor-spot?page=N&per_page=M&search=Q — Server-side paginated spots. */
+export async function fetchVendorSpotsPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<VendorSpotItem>> {
+  const { data } = await api.get(pageQuery("/vendor-spot", page, perPage, search));
+  return parsePaginatedResponse<VendorSpotItem>(data, page, perPage);
+}
+
 /** GET /vendor-spot/:id — Fetch single vendor spot details. */
 export async function fetchVendorSpotById(id: number | string): Promise<VendorSpotItem> {
   const { data } = await api.get<{ data?: VendorSpotItem } | VendorSpotItem>(
@@ -183,6 +193,16 @@ export async function updateVendorSpotStatus(
 export async function fetchVendorLives(): Promise<VendorLiveProduct[]> {
   const { data } = await api.get("/vendor-live");
   return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
+}
+
+/** GET /vendor-live?page=N&per_page=M&search=Q — Server-side paginated live rates. */
+export async function fetchVendorLivesPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<VendorLiveProduct>> {
+  const { data } = await api.get(pageQuery("/vendor-live", page, perPage, search));
+  return parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
 }
 
 /** GET /vendor-live/:id — Fetch single live product details. */
@@ -253,6 +273,16 @@ export async function updateVendorLiveStatus(
 export async function fetchVendorRates(): Promise<VendorLiveProduct[]> {
   const { data } = await api.get("/vendor-rate");
   return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
+}
+
+/** GET /vendor-rate?page=N&per_page=M&search=Q — Server-side paginated standard rates. */
+export async function fetchVendorRatesPage(
+  page = 1,
+  perPage = 10,
+  search = "",
+): Promise<PagedResult<VendorLiveProduct>> {
+  const { data } = await api.get(pageQuery("/vendor-rate", page, perPage, search));
+  return parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
 }
 
 /** GET /vendor-rate/:id — Fetch single vendor rate details. */

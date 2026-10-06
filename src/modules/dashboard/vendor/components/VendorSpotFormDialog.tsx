@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Copy, Loader2, Plus, Trash2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -24,6 +24,7 @@ import {
   getSubCategories,
   mergeCategories,
 } from "@/lib/category-tree.ts";
+import { filterVendorsByTrade } from "../lib/vendor-trade.ts";
 import type { VendorSpotItem } from "../types/vendor.types.ts";
 
 interface VendorSpotFormDialogProps {
@@ -312,24 +313,27 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
 
-  const keyRef = useRef(1);
-  const [vendorId, setVendorId] = useState(
-    activeVendors[0]?.id ? String(activeVendors[0].id) : "1",
+  const filteredVendors = useMemo(
+    () => filterVendorsByTrade(activeVendors, "spot"),
+    [activeVendors],
   );
+
+  const keyRef = useRef(1);
+  const [vendorId, setVendorId] = useState<string>("");
   const [rows, setRows] = useState<SpotRow[]>([
     { key: 0, categoryId: "", subCategoryId: "", heading: "", details: "" },
   ]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Default to first vendor once loaded (initial state mounts before fetch).
+  // Default to first spot vendor once loaded.
   useEffect(() => {
-    if (activeVendors.length === 0) return;
+    if (filteredVendors.length === 0) return;
     setVendorId((prev) => {
-      if (prev && activeVendors.some((v) => String(v.id) === String(prev)))
+      if (prev && filteredVendors.some((v) => String(v.id) === String(prev)))
         return prev;
-      return String(activeVendors[0].id);
+      return String(filteredVendors[0].id);
     });
-  }, [activeVendors]);
+  }, [filteredVendors]);
 
   // Strict linking: no category -> no sub-categories.
   const subsFor = (catId: string) => getSubCategories(categories, catId);
@@ -393,6 +397,10 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setErrorMessage(null);
 
+    const vId =
+      vendorId ||
+      (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "1");
+
     for (let i = 0; i < rows.length; i++) {
       if (!rows[i].heading.trim()) {
         setErrorMessage(`Please enter a spot quote heading in row #${i + 1}.`);
@@ -411,7 +419,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     try {
       await createMutation.mutateAsync({
         products: rows.map((r) => ({
-          vendor_id: Number(vendorId) || 1,
+          vendor_id: Number(vId),
           category_id: r.categoryId,
           sub_category_id: r.subCategoryId || undefined,
           vendor_spot_heading: r.heading.trim(),
@@ -455,17 +463,22 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
           <Label htmlFor="sp-vendor">Select Vendor (applies to all rows)</Label>
           <VendorSelectWithCreate
             id="sp-vendor"
-            value={vendorId}
+            value={vendorId || (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "")}
             onChange={setVendorId}
+            defaultTrade="3"
             options={
-              activeVendors.length > 0
-                ? activeVendors.map((v) => ({
+              filteredVendors.length > 0
+                ? filteredVendors.map((v) => ({
                     value: String(v.id),
                     label: `${v.vendor_name} (${v.vendor_city || "No City"})`,
                   }))
-                : [{ value: "1", label: "Vendor #1" }]
+                : []
             }
-            placeholder="Select vendor — or + to create one"
+            placeholder={
+              filteredVendors.length > 0
+                ? "Select spot vendor — or + to create one"
+                : "No spot vendors available — click + to create"
+            }
             required
           />
         </div>

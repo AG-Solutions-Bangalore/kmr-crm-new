@@ -23,6 +23,8 @@ interface QuickCreateVendorDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Pre-filled vendor name from search. */
   initialName?: string;
+  /** Default trade type ID (1 for Live, 2 for Rate, 3 for Spot). */
+  defaultTrade?: string;
   /** Called with the new vendor id so the caller can auto-select it. */
   onCreated: (id: string) => void;
 }
@@ -36,6 +38,7 @@ export function QuickCreateVendorDialog({
   open,
   onOpenChange,
   initialName = "",
+  defaultTrade,
   onCreated,
 }: QuickCreateVendorDialogProps) {
   const createMutation = useCreateVendor();
@@ -109,7 +112,7 @@ export function QuickCreateVendorDialog({
         vendor_mobile: mobile.trim(),
         vendor_email: "",
         vendor_city: city.trim(),
-        vendor_trade: "",
+        vendor_trade: defaultTrade || "",
         vendor_address: "",
         vendor_status: "Active",
       });
