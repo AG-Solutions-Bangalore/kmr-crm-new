@@ -172,24 +172,6 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
       )}
 
       <div className="grid gap-3">
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="n-heading">
-              Headline / Title <span className="text-destructive">*</span>
-            </Label>
-            <span className="text-[11px] text-muted-foreground">
-              {heading.length} chars
-            </span>
-          </div>
-          <Input
-            id="n-heading"
-            value={heading}
-            onChange={(e) => setHeading(e.target.value)}
-            placeholder="e.g. Edible Oil Market Update — Midday Prices"
-            required
-          />
-        </div>
-
         <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="n-cat">Category</Label>
@@ -222,6 +204,24 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
               </select>
             </div>
           )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="n-heading">
+              Headline / Title <span className="text-destructive">*</span>
+            </Label>
+            <span className="text-[11px] text-muted-foreground">
+              {heading.length} chars
+            </span>
+          </div>
+          <Input
+            id="n-heading"
+            value={heading}
+            onChange={(e) => setHeading(e.target.value)}
+            placeholder="e.g. Edible Oil Market Update — Midday Prices"
+            required
+          />
         </div>
 
         <div className="flex flex-col gap-1.5">
