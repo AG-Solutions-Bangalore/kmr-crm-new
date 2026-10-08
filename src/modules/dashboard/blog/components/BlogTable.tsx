@@ -5,8 +5,38 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
+import { getApiNoImageUrl, resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateBlogStatus } from "../hook/useBlog.ts";
 import type { BlogItem, BlogStatus } from "../types/blog.types.ts";
+
+function BlogThumb({
+  filename,
+  title,
+}: {
+  filename?: string | null;
+  title?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const fallback = getApiNoImageUrl();
+  const directUrl = filename
+    ? resolveAssetImageUrl(filename, "blog_images", null)
+    : null;
+  const url = failed ? fallback : directUrl || fallback;
+
+  return (
+    <img
+      src={url}
+      alt={title || "Blog"}
+      loading="lazy"
+      className="size-9 shrink-0 rounded-lg border border-border/60 object-contain p-0.5 bg-muted/20 mt-0.5"
+      onError={() => {
+        if (!failed && directUrl) {
+          setFailed(true);
+        }
+      }}
+    />
+  );
+}
 
 interface BlogTableProps {
   blogs: BlogItem[];
@@ -122,9 +152,10 @@ export function BlogTable({
                       </td>
                       <td className="px-4 py-3.5 max-w-sm">
                         <div className="flex items-start gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
-                            <FileText className="size-4" />
-                          </div>
+                          <BlogThumb
+                            filename={item.blog_banner_image}
+                            title={item.blog_title}
+                          />
                           <div>
                             <div className="flex items-center gap-1.5">
                               <p className="font-medium text-foreground line-clamp-1">

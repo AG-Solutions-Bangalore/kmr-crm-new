@@ -34,6 +34,7 @@ import {
   useVendorRates,
   useUpdateVendorLiveStatus,
   useUpdateVendorRateStatus,
+  useUpdateVendorSpotStatus,
 } from "../hook/useVendor.ts";
 import type {
   Vendor,
@@ -171,6 +172,7 @@ export function VendorPage() {
 
   const liveStatusMutation = useUpdateVendorLiveStatus();
   const rateStatusMutation = useUpdateVendorRateStatus();
+  const spotStatusMutation = useUpdateVendorSpotStatus();
 
   const handleOpenCreate = () => {
     if (activeTab === "vendors") {
@@ -219,6 +221,13 @@ export function VendorPage() {
     await rateStatusMutation.mutateAsync({
       id: item.id,
       status: nextRateStatus(item),
+    });
+  };
+
+  const handleToggleSpotStatus = async (item: VendorSpotItem) => {
+    await spotStatusMutation.mutateAsync({
+      id: item.id,
+      status: item.vendor_spot_status === "Active" ? "Inactive" : "Active",
     });
   };
 
@@ -535,6 +544,7 @@ export function VendorPage() {
             search={spotSearchInput}
             onSearchChange={setSpotSearchInput}
             onPageChange={setSpotPage}
+            onToggleStatus={handleToggleSpotStatus}
             onEdit={handleOpenSpotEdit}
           />
         ) : (

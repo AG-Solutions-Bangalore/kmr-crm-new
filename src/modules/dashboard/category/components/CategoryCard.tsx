@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { categoryAccent } from "@/lib/category-color.ts";
 import type { Category } from "../types/category.types.ts";
 
@@ -15,8 +14,10 @@ interface CategoryCardProps {
 }
 
 /**
- * Category adapter over the shared AppFeedCard — image cover, slug preview,
+ * Category adapter over the shared AppFeedCard — image cover,
  * Main/Sub chip, dates in the footer.
+ * Falls back dynamically to the API no_image placeholder when no custom
+ * category image is present.
  */
 export function CategoryCard({
   category,
@@ -26,15 +27,11 @@ export function CategoryCard({
   onEdit,
   onToggleStatus,
 }: CategoryCardProps) {
-  const [imgError, setImgError] = useState(false);
   const isActive = category.categories_status === "Active";
-  const imageUrl = imgError
-    ? null
-    : resolveAssetImageUrl(category.categories_image, "category_images");
-
-  useEffect(() => {
-    setImgError(false);
-  }, [category.categories_image]);
+  const fallbackUrl = useApiNoImageUrl();
+  const directImage = category.categories_image
+    ? resolveAssetImageUrl(category.categories_image, "category_images")
+    : null;
 
   const updatedStamp = category.updated_at ?? category.created_at;
   const ago = timeAgo(updatedStamp);
@@ -43,7 +40,12 @@ export function CategoryCard({
 
   return (
     <AppFeedCard
-      cover={{ imageUrl, accent }}
+      cover={{
+        imageUrl: directImage,
+        fallbackUrl,
+        imageFit: "contain",
+        accent,
+      }}
       title={category.categories_name}
       statusActive={isActive}
       statusText={category.categories_status || "Active"}

@@ -5,8 +5,38 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useUpdateNotificationStatus } from "../hook/useNotification.ts";
 import type { NotificationItem, NotificationStatus } from "../types/notification.types.ts";
+
+function NotificationThumb({
+  filename,
+  heading,
+}: {
+  filename?: string | null;
+  heading?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const directUrl = filename
+    ? resolveAssetImageUrl(filename, "notification_images", null)
+    : null;
+  const url = failed ? fallback : directUrl || fallback;
+
+  return (
+    <img
+      src={url}
+      alt={heading || "Notification"}
+      loading="lazy"
+      className="size-9 shrink-0 rounded-lg border border-border/60 object-contain p-0.5 bg-muted/20 mt-0.5"
+      onError={() => {
+        if (!failed && directUrl) {
+          setFailed(true);
+        }
+      }}
+    />
+  );
+}
 
 interface NotificationTableProps {
   notifications: NotificationItem[];
@@ -75,7 +105,6 @@ export function NotificationTable({
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Notification Alert</th>
                 <th className="px-4 py-3">Schedule Date</th>
-                <th className="px-4 py-3">Attached Image</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -83,7 +112,7 @@ export function NotificationTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading notifications...</span>
@@ -92,7 +121,7 @@ export function NotificationTable({
                 </tr>
               ) : notifications.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Bell className="size-8 opacity-40" />
                       <p className="font-medium">No notifications found</p>
@@ -120,9 +149,16 @@ export function NotificationTable({
                       </td>
                       <td className="px-4 py-3.5 max-w-sm">
                         <div className="flex items-start gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
-                            <Bell className="size-4" />
-                          </div>
+                          {item.notification_image ? (
+                            <NotificationThumb
+                              filename={item.notification_image}
+                              heading={item.notification_heading}
+                            />
+                          ) : (
+                            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
+                              <Bell className="size-4" />
+                            </div>
+                          )}
                           <div>
                             <p className="font-medium text-foreground">
                               {item.notification_heading}
@@ -139,16 +175,6 @@ export function NotificationTable({
                           <Calendar className="size-3 text-muted-foreground" />
                           {formatDateDMY(item.notification_date)}
                         </div>
-                      </td>
-
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {item.notification_image ? (
-                          <span className="font-mono text-[11px] truncate max-w-[120px] block">
-                            {item.notification_image}
-                          </span>
-                        ) : (
-                          "—"
-                        )}
                       </td>
 
                       <td className="px-4 py-3.5">

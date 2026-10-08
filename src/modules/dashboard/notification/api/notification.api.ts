@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   NotificationItem,
@@ -10,6 +11,7 @@ import type {
 /** GET /notification — Fetch all notifications. */
 export async function fetchNotifications(): Promise<NotificationItem[]> {
   const { data } = await api.get<NotificationListResponse | NotificationItem[]>("/notification");
+  syncApiNoImageUrl(data);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -30,6 +32,7 @@ export async function fetchNotificationsPage(
   const { data } = await api.get<NotificationListResponse | NotificationItem[]>(
     pageQuery("/notification", page, perPage, search, status),
   );
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<NotificationItem>(data, page, perPage);
 }
 

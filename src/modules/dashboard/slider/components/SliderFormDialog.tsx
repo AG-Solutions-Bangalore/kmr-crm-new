@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { isRootCategory, mergeCategories } from "@/lib/category-tree.ts";
 import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import { useCreateSlider, useSlider, useUpdateSlider } from "../hook/useSlider.ts";
@@ -88,6 +88,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
   const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
   const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const apiNoImage = useApiNoImageUrl();
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -323,14 +324,11 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
             <div className="flex flex-col overflow-hidden rounded-xl border border-border/80 bg-muted/20">
               <div className="relative aspect-[16/7] w-full overflow-hidden bg-black/10">
                 {existingImgError ? (
-                  <div className="flex size-full flex-col items-center justify-center p-4 text-center">
-                    <span className="text-xs font-medium text-destructive">
-                      Preview not available at current URL
-                    </span>
-                    <span className="text-[11px] text-muted-foreground mt-1">
-                      Upload a new file below to replace it.
-                    </span>
-                  </div>
+                  <img
+                    src={apiNoImage}
+                    alt="No image placeholder"
+                    className="size-full object-cover"
+                  />
                 ) : (
                   <img
                     src={existingImageUrl}

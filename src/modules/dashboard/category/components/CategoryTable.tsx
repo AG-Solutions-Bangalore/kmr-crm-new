@@ -3,8 +3,38 @@ import { Edit2, FolderTree, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useCategories, useUpdateCategoryStatus } from "../hook/useCategory.ts";
 import type { Category } from "../types/category.types.ts";
+
+function CategoryThumb({
+  filename,
+  name,
+}: {
+  filename?: string | null;
+  name?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const directUrl = filename
+    ? resolveAssetImageUrl(filename, "category_images")
+    : null;
+  const url = failed ? fallback : directUrl || fallback;
+
+  return (
+    <img
+      src={url}
+      alt={name || "Category"}
+      loading="lazy"
+      className="size-9 shrink-0 rounded-lg border border-border/60 object-cover"
+      onError={() => {
+        if (!failed && directUrl) {
+          setFailed(true);
+        }
+      }}
+    />
+  );
+}
 
 interface CategoryTableProps {
   categories: Category[];
@@ -18,6 +48,7 @@ interface CategoryTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (category: Category) => void;
+  showParentColumn?: boolean;
 }
 
 function pageWindow(current: number, total: number): number[] {
@@ -40,6 +71,7 @@ export function CategoryTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  showParentColumn = true,
 }: CategoryTableProps) {
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -77,7 +109,7 @@ export function CategoryTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search categories by name or slug..."
+            placeholder="Search categories by name..."
             className="pl-8"
           />
         </div>
@@ -91,8 +123,7 @@ export function CategoryTable({
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Slug</th>
-                <th className="px-4 py-3">Parent Category</th>
+                {showParentColumn && <th className="px-4 py-3">Parent Category</th>}
                 <th className="px-4 py-3">Sort Order</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -101,7 +132,7 @@ export function CategoryTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={showParentColumn ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading categories...</span>
@@ -110,7 +141,7 @@ export function CategoryTable({
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={showParentColumn ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FolderTree className="size-8 opacity-40" />
                       <p className="font-medium">No categories found</p>
@@ -147,9 +178,10 @@ export function CategoryTable({
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <FolderTree className="size-4" />
-                          </div>
+                          <CategoryThumb
+                            filename={cat.categories_image}
+                            name={cat.categories_name}
+                          />
                           <div>
                             <p className="font-medium text-foreground">
                               {cat.categories_name}
@@ -158,13 +190,11 @@ export function CategoryTable({
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                        {cat.categories_slug || "—"}
-                      </td>
-
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {parentName}
-                      </td>
+                      {showParentColumn && (
+                        <td className="px-4 py-3.5 text-xs text-muted-foreground">
+                          {parentName}
+                        </td>
+                      )}
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
                         {cat.categories_sort_order ?? "1"}
@@ -175,7 +205,7 @@ export function CategoryTable({
                           variant={isActive ? "default" : "secondary"}
                           className={
                             isActive
-                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-medium"
+                              ? "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-medium"
                               : "bg-muted text-muted-foreground font-medium"
                           }
                         >
@@ -195,7 +225,7 @@ export function CategoryTable({
                           >
                             <Power
                               className={`size-3.5 ${
-                                isActive ? "text-emerald-600" : "text-muted-foreground"
+                                isActive ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"
                               }`}
                             />
                             <span className="sr-only">Toggle Status</span>

@@ -225,6 +225,7 @@ export function CategoryPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          showParentColumn={tab === "sub"}
         />
       )}
 

@@ -77,7 +77,7 @@ export function VendorSpotTable({
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Vendor</th>
-                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Category / Sub-Category</th>
                 <th className="px-4 py-3">Spot</th>
                 <th className="px-4 py-3">Created</th>
                 <th className="px-4 py-3">Status</th>
@@ -146,7 +146,11 @@ export function VendorSpotTable({
                           </span>
                           {item.sub_categories_name ? (
                             <span className="text-[11px] text-muted-foreground">
-                              {item.sub_categories_name}
+                              Sub: {item.sub_categories_name}
+                            </span>
+                          ) : item.sub_category_id ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              Sub #{item.sub_category_id}
                             </span>
                           ) : null}
                         </div>

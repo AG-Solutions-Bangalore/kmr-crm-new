@@ -1,4 +1,95 @@
+import { useSyncExternalStore } from "react";
+
 const CRM_PUBLIC_BASE = "https://kmrlive.in/crmapi/public";
+
+export const API_DEFAULT_NO_IMAGE_URL = `${CRM_PUBLIC_BASE}/assets/images/no_image.jpg`;
+
+let dynamicNoImageUrl: string = API_DEFAULT_NO_IMAGE_URL;
+
+const noImageListeners = new Set<() => void>();
+
+function notifyNoImageListeners(): void {
+  for (const cb of noImageListeners) {
+    try {
+      cb();
+    } catch {
+      // ignore listener errors
+    }
+  }
+}
+
+function subscribeNoImage(cb: () => void): () => void {
+  noImageListeners.add(cb);
+  return () => {
+    noImageListeners.delete(cb);
+  };
+}
+
+export function setApiNoImageUrl(url?: string | null): void {
+  if (url && typeof url === "string" && url.trim()) {
+    const next = url.trim();
+    if (next !== dynamicNoImageUrl) {
+      dynamicNoImageUrl = next;
+      notifyNoImageListeners();
+    }
+  }
+}
+
+export function getApiNoImageUrl(): string {
+  return dynamicNoImageUrl;
+}
+
+export function getNoImageSnapshot(): string {
+  return dynamicNoImageUrl;
+}
+
+/**
+ * Reactive accessor for the API `No Image` placeholder.
+ * Re-renders when `/category` returns a new `image_url` entry,
+ * so cards switch from the bundled default to the live URL automatically.
+ */
+export function useApiNoImageUrl(): string {
+  return useSyncExternalStore(
+    subscribeNoImage,
+    getNoImageSnapshot,
+    getNoImageSnapshot,
+  );
+}
+
+/**
+ * Pull the dynamic `No Image` placeholder out of any API list response.
+ * Every list endpoint returns:
+ *   "image_url": [{ "image_for": "No Image", "image_url": "https://.../no_image.jpg" }, ...]
+ * Call with the raw response body (`data` from axios) right after fetching.
+ * Safe to call on any shape — no-ops when no entry is present.
+ */
+export function syncApiNoImageUrl(res: unknown): void {
+  if (!res || typeof res !== "object") return;
+  const list = (res as { image_url?: Array<{ image_for?: string; image_url?: string }> })
+    .image_url;
+  if (!Array.isArray(list)) return;
+  const noImg = list.find(
+    (it) => it?.image_for?.trim().toLowerCase() === "no image",
+  );
+  if (noImg?.image_url) {
+    setApiNoImageUrl(noImg.image_url);
+  }
+}
+
+/**
+ * Resolve any module image with dynamic API `no_image` fallback.
+ * Use everywhere instead of bare `resolveAssetImageUrl(...)` so a
+ * `null` filename never renders a static placeholder.
+ */
+export function resolveDynamicImageUrl(
+  value: string | null | undefined,
+  folder: string,
+): string {
+  return (
+    resolveAssetImageUrl(value, folder, getApiNoImageUrl()) ||
+    getApiNoImageUrl()
+  );
+}
 
 /**
  * Build a viewable image URL from whatever the API returns.
@@ -9,10 +100,11 @@ const CRM_PUBLIC_BASE = "https://kmrlive.in/crmapi/public";
 export function resolveAssetImageUrl(
   value: string | null | undefined,
   folder: string,
+  fallbackUrl: string | null = null,
 ): string | null {
-  if (!value) return null;
+  if (!value) return fallbackUrl;
   const v = value.trim();
-  if (!v) return null;
+  if (!v) return fallbackUrl;
   if (
     v.startsWith("http://") ||
     v.startsWith("https://") ||
@@ -34,6 +126,17 @@ export function resolveAssetImageUrl(
     return `${CRM_PUBLIC_BASE}/assets/${clean}`;
   }
   return `${CRM_PUBLIC_BASE}/assets/images/${folder}/${clean}`;
+}
+
+/**
+ * Resolves category image or falls back to the dynamic API no_image placeholder.
+ */
+export function resolveCategoryImageUrl(
+  value: string | null | undefined,
+  useFallback = true,
+): string | null {
+  const fallback = useFallback ? getApiNoImageUrl() : null;
+  return resolveAssetImageUrl(value, "category_images", fallback) || fallback;
 }
 
 /**

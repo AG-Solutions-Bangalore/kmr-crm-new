@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FileText, Loader2, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { isRootCategory, mergeCategories } from "@/lib/category-tree.ts";
 import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import { useCreateNews, useNewsItem, useUpdateNews } from "../hook/useNews.ts";
@@ -21,6 +21,7 @@ import {
   useCategories,
 } from "../../category/hook/useCategory.ts";
 import type { NewsItem, NewsStatus } from "../types/news.types.ts";
+import { AttachmentChip, AttachmentIcon } from "./NewsAttachment.tsx";
 
 interface NewsFormDialogProps {
   open: boolean;
@@ -82,6 +83,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
   const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
   const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const apiNoImage = useApiNoImageUrl();
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -280,13 +282,13 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             ) : (
               existingImageUrl && (
                 <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
-                  {existingImgError ? (
-                    <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 p-1 text-center">
-                      <span className="text-[10px] font-medium leading-tight text-destructive">
-                        Preview not available
-                      </span>
-                    </div>
-                  ) : (
+                {existingImgError ? (
+                  <img
+                    src={apiNoImage}
+                    alt="No image placeholder"
+                    className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                  />
+                ) : (
                     <img
                       src={existingImageUrl}
                       alt={heading || "Currently uploaded"}
@@ -317,6 +319,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             <Input
               id="n-other-image"
               type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg,.webp,.gif"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
                 setOtherImageFile(file);
@@ -324,7 +327,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             />
             {otherImageFile ? (
               <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
-                <FileText className="size-5 shrink-0 text-muted-foreground" />
+                <AttachmentIcon filename={otherImageFile.name} className="size-5" />
                 <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
                   {otherImageFile.name}
                 </p>
@@ -341,9 +344,12 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
               </div>
             ) : (
               news?.news_other_image && (
-                <p className="truncate text-xs text-muted-foreground">
-                  Current: {news.news_other_image}
-                </p>
+                <div className="flex items-center gap-2">
+                  <AttachmentChip filename={news.news_other_image} />
+                  <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+                    {news.news_other_image}
+                  </p>
+                </div>
               )
             )}
           </div>

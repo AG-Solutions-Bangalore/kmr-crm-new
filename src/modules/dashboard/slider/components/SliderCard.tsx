@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { categoryAccent } from "@/lib/category-color.ts";
 import type { SliderItem } from "../types/slider.types.ts";
 
@@ -19,13 +18,9 @@ interface SliderCardProps {
  * target URL preview, and action buttons inline with the title.
  */
 export function SliderCard({ slider, isToggling, compact = false, highlighted = false, onEdit, onToggleStatus }: SliderCardProps) {
-  const [imgError, setImgError] = useState(false);
   const isActive = slider.slider_status === "Active";
-  const imageUrl = imgError ? null : resolveAssetImageUrl(slider.slider_image, "slider_images");
-
-  useEffect(() => {
-    setImgError(false);
-  }, [slider.slider_image]);
+  const fallbackUrl = useApiNoImageUrl();
+  const imageUrl = resolveAssetImageUrl(slider.slider_image, "slider_images");
 
   const updatedStamp = slider.updated_at ?? slider.created_at;
   const ago = timeAgo(updatedStamp);
@@ -39,7 +34,7 @@ export function SliderCard({ slider, isToggling, compact = false, highlighted = 
 
   return (
     <AppFeedCard
-      cover={{ imageUrl, accent }}
+      cover={{ imageUrl, fallbackUrl, accent }}
       title={title}
       snippet={slider.slider_url || null}
       snippetClamp={2}

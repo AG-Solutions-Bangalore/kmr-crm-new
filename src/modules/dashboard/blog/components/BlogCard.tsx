@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { categoryAccent } from "@/lib/category-color.ts";
 import type { BlogItem } from "../types/blog.types.ts";
 
@@ -24,13 +23,9 @@ function isOn(value: string | number | null | undefined): boolean {
  * title + SEO summary with app-like clamping, flags in the footer.
  */
 export function BlogCard({ blog, isToggling, compact = false, highlighted = false, onEdit, onToggleStatus }: BlogCardProps) {
-  const [imgError, setImgError] = useState(false);
   const isActive = blog.blog_status === "Active";
-  const imageUrl = imgError ? null : resolveAssetImageUrl(blog.blog_banner_image, "blog_images");
-
-  useEffect(() => {
-    setImgError(false);
-  }, [blog.blog_banner_image]);
+  const fallbackUrl = useApiNoImageUrl();
+  const imageUrl = resolveAssetImageUrl(blog.blog_banner_image, "blog_images");
 
   const updatedStamp =
     blog.updated_at ?? blog.blog_updated_date ?? blog.created_at ?? blog.blog_created_date;
@@ -42,7 +37,7 @@ export function BlogCard({ blog, isToggling, compact = false, highlighted = fals
 
   return (
     <AppFeedCard
-      cover={{ imageUrl, accent }}
+      cover={{ imageUrl, fallbackUrl, accent }}
       title={blog.blog_title}
       snippet={blog.blog_short_description || blog.blog_description}
       snippetClamp={3}

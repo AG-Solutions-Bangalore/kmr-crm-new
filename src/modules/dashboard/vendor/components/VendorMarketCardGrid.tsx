@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Calendar,
   Clock,
@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { CardEmptyState } from "@/components/common/CardStates.tsx";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { formatDateDMY } from "@/lib/date.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { cn } from "@/lib/utils.ts";
-import { useCategories } from "../../category/hook/useCategory.ts";
 import type { VendorRateProduct, VendorSpotItem } from "../types/vendor.types.ts";
 
 export type MarketItemType = "rates" | "live" | "spots";
@@ -41,8 +41,26 @@ function formatCardDate(item: VendorRateProduct | VendorSpotItem): {
 } {
   const isSpot = "vendor_spot_heading" in item;
   if (isSpot && item.vendor_spot_created_date) {
-    const time = item.vendor_spot_created_time || "—";
-    return { date: item.vendor_spot_created_date, time };
+    const rawTime = (item.vendor_spot_created_time || "").trim();
+    return {
+      date: formatDateDMY(item.vendor_spot_created_date),
+      time: rawTime ? rawTime.slice(0, 8) : "—",
+    };
+  }
+
+  // Standard / Live rates: API returns vendor_product_created_date + vendor_product_created_time
+  // (e.g. "2026-10-06" + "15:58:38"), not created_at/updated_at.
+  const rateFields = item as Partial<VendorRateProduct> & {
+    vendor_product_created_date?: string | null;
+    vendor_product_created_time?: string | null;
+  };
+  const prodDate = (rateFields.vendor_product_created_date || "").trim();
+  if (prodDate) {
+    const prodTime = (rateFields.vendor_product_created_time || "").trim();
+    return {
+      date: formatDateDMY(prodDate),
+      time: prodTime ? prodTime.slice(0, 8) : "—",
+    };
   }
 
   const rawDate = item.updated_at || item.created_at;
@@ -80,30 +98,29 @@ function formatCardDate(item: VendorRateProduct | VendorSpotItem): {
   };
 }
 
-function NoImagePlaceholder() {
+function VendorMarketThumb({
+  imageUrl,
+  name,
+}: {
+  imageUrl?: string | null;
+  name?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const url = failed ? fallback : imageUrl || fallback;
+
   return (
-    <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 p-1 text-center">
-      <svg
-        className="size-6 text-muted-foreground/50"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.5" />
-        <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" strokeWidth="0" />
-        <path
-          d="M21 15l-5-5L5 21"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span className="mt-1 text-[8px] font-bold leading-tight tracking-tight text-muted-foreground/60">
-        NO IMAGE
-        <br />
-        AVAILABLE
-      </span>
-    </div>
+    <img
+      src={url}
+      alt={name || "Product"}
+      loading="lazy"
+      className="size-16 shrink-0 rounded-xl border border-border/60 object-contain p-1 bg-muted/20"
+      onError={() => {
+        if (!failed && imageUrl) {
+          setFailed(true);
+        }
+      }}
+    />
   );
 }
 
@@ -124,19 +141,27 @@ export function VendorMarketCardGrid({
 }: VendorMarketCardGridProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [togglingId, setTogglingId] = useState<number | null>(null);
-  const { data: allCategories = [] } = useCategories();
 
-  // Extract unique category names from loaded items and available categories
+  // Extract unique category names only from available products/items
   const categoryPills = useMemo(() => {
     const names = new Set<string>();
     for (const it of items) {
-      if (it.categories_name) names.add(it.categories_name.trim());
+      const cat = it.categories_name?.trim();
+      if (cat) names.add(cat);
     }
-    for (const c of allCategories) {
-      if (c.categories_name) names.add(c.categories_name.trim());
+    const sorted = Array.from(names).sort((a, b) => a.localeCompare(b));
+    return ["All", ...sorted];
+  }, [items]);
+
+  // If items change and selected category no longer exists, reset to "All"
+  useEffect(() => {
+    if (
+      selectedCategory !== "All" &&
+      !categoryPills.some((p) => p.toLowerCase() === selectedCategory.toLowerCase())
+    ) {
+      setSelectedCategory("All");
     }
-    return ["All", ...Array.from(names).filter(Boolean)];
-  }, [items, allCategories]);
+  }, [categoryPills, selectedCategory]);
 
   // Client-filter items by active category pill
   const filteredItems = useMemo(() => {
@@ -172,8 +197,8 @@ export function VendorMarketCardGrid({
               className={cn(
                 "rounded-full px-4 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors shadow-sm",
                 isActive
-                  ? "bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                  : "bg-emerald-50/70 text-emerald-900 border border-emerald-200/70 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800/60 dark:hover:bg-emerald-900/50",
+                  ? "bg-blue-600 text-white dark:bg-blue-600 dark:text-white"
+                  : "bg-blue-50/80 text-blue-900 border border-blue-200/80 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60 dark:hover:bg-blue-900/50",
               )}
             >
               {catName}
@@ -242,15 +267,7 @@ export function VendorMarketCardGrid({
                 {/* Upper Section */}
                 <div className="flex items-start gap-3">
                   {/* Left Thumbnail Box */}
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={vendorName}
-                      className="size-16 shrink-0 rounded-xl border border-border/60 object-cover"
-                    />
-                  ) : (
-                    <NoImagePlaceholder />
-                  )}
+                  <VendorMarketThumb imageUrl={imageUrl} name={vendorName} />
 
                   {/* Middle Content + Price Badge */}
                   <div className="min-w-0 flex-1">
@@ -264,13 +281,13 @@ export function VendorMarketCardGrid({
 
                       {/* Right Badge: Rate */}
                       {rateItem && (
-                        <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/80 whitespace-nowrap">
+                        <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800/80 whitespace-nowrap">
                           ₹ {rateItem.vendor_product_rate}
                         </span>
                       )}
 
                       {spotItem && (
-                        <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/80 whitespace-nowrap">
+                        <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800/80 whitespace-nowrap">
                           Spot
                         </span>
                       )}
@@ -280,6 +297,18 @@ export function VendorMarketCardGrid({
                     <p className="mt-1 text-xs font-semibold uppercase text-muted-foreground truncate">
                       {categoryName}
                     </p>
+                    {(item.sub_categories_name || item.sub_category_id) && (
+                      <p
+                        className="mt-0.5 truncate text-[11px] text-muted-foreground"
+                        title={
+                          item.sub_categories_name
+                            ? `Sub: ${item.sub_categories_name}`
+                            : `Sub #${item.sub_category_id}`
+                        }
+                      >
+                        Sub: {item.sub_categories_name || `#${item.sub_category_id}`}
+                      </p>
+                    )}
 
                     {/* Product / Size Details */}
                     {rateItem && (
@@ -307,11 +336,11 @@ export function VendorMarketCardGrid({
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <div className="flex flex-col gap-0.5 min-w-0">
                     <div className="flex items-center gap-1.5 text-[11px]">
-                      <Calendar className="size-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <Calendar className="size-3 text-blue-600 dark:text-blue-400 shrink-0" />
                       <span className="truncate">{date}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px]">
-                      <Clock className="size-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <Clock className="size-3 text-blue-600 dark:text-blue-400 shrink-0" />
                       <span>{time}</span>
                     </div>
                   </div>
@@ -330,7 +359,7 @@ export function VendorMarketCardGrid({
                         <Power
                           className={cn(
                             "size-3.5",
-                            isActive ? "text-emerald-600" : "text-muted-foreground",
+                            isActive ? "text-blue-600" : "text-muted-foreground",
                           )}
                         />
                       </Button>
@@ -338,7 +367,7 @@ export function VendorMarketCardGrid({
 
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => onEdit(item)}
                       title="Edit"
@@ -346,14 +375,6 @@ export function VendorMarketCardGrid({
                     >
                       <Edit2 className="size-3.5" />
                     </Button>
-
-                    <button
-                      type="button"
-                      onClick={() => onEdit(item)}
-                      className="inline-flex items-center gap-0.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
-                    >
-                      View More &gt;
-                    </button>
                   </div>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { formatDateDMY } from "@/lib/date.ts";
 import type { VendorRateProduct } from "../types/vendor.types.ts";
 
 interface VendorRateTableProps {
@@ -93,10 +94,11 @@ export function VendorRateTable({
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
+                <th className="px-4 py-3">Vendor / Category / Sub</th>
                 <th className="px-4 py-3">Product Name</th>
                 <th className="px-4 py-3">Size / Unit</th>
                 <th className="px-4 py-3">Rate</th>
-                <th className="px-4 py-3">Vendor / Category</th>
+                <th className="px-4 py-3">Created</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -104,7 +106,7 @@ export function VendorRateTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading {type === "live" ? "live" : "standard"} rates...</span>
@@ -113,7 +115,7 @@ export function VendorRateTable({
                 </tr>
               ) : rates.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <IndianRupee className="size-8 text-muted-foreground/40" />
                       <p className="font-medium text-foreground">
@@ -134,6 +136,15 @@ export function VendorRateTable({
                     item.vendor_product_status === "Active" ||
                     (item as { status?: string }).status === "Active" ||
                     item.vendor_product_status === "1";
+                  // API returns vendor_product_created_date/time (e.g. "2026-10-06" + "15:58:38").
+                  const createdDate =
+                    (item.vendor_product_created_date || "").trim() ||
+                    item.created_at ||
+                    item.updated_at ||
+                    null;
+                  const createdTime = (
+                    item.vendor_product_created_time || ""
+                  ).trim();
 
                   return (
                     <tr
@@ -142,6 +153,25 @@ export function VendorRateTable({
                     >
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         {slNo}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-foreground">
+                            {item.vendor_name || `Vendor #${item.vendor_id}`}
+                          </span>
+                          <span className="text-xs font-medium text-foreground">
+                            {item.categories_name || `Cat #${item.category_id}`}
+                          </span>
+                          {item.sub_categories_name ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              Sub: {item.sub_categories_name}
+                            </span>
+                          ) : item.sub_category_id ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              Sub #{item.sub_category_id}
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-4 py-3 font-medium text-foreground">
                         {item.vendor_product}
@@ -152,17 +182,14 @@ export function VendorRateTable({
                       <td className="px-4 py-3 font-semibold text-foreground">
                         ₹{item.vendor_product_rate}
                       </td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">
-                        <div className="font-medium text-foreground">
-                          {item.vendor_name || `Vendor #${item.vendor_id}`}
-                        </div>
-                        <div>
-                          {item.categories_name || `Cat #${item.category_id}`}
-                          {item.sub_categories_name
-                            ? ` / ${item.sub_categories_name}`
-                            : item.sub_category_id
-                              ? ` / Sub #${item.sub_category_id}`
-                              : ""}
+                      <td className="px-4 py-3 text-xs">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-foreground">
+                            {createdDate ? formatDateDMY(createdDate) : "—"}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {createdTime ? createdTime.slice(0, 8) : "—"}
+                          </span>
                         </div>
                       </td>
                       <td className="px-4 py-3">

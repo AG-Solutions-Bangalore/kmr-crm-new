@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import {
   useCategories,
@@ -66,6 +66,7 @@ function CategoryFormContent({
   const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
   const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const apiNoImage = useApiNoImageUrl();
 
   const { data: allCategories = [] } = useCategories();
   // In Parent Category only root categories (parent_id is null / 0) should appear
@@ -228,18 +229,6 @@ function CategoryFormContent({
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cat-slug">Slug (auto-generated)</Label>
-          <Input
-            id="cat-slug"
-            value={slug}
-            readOnly
-            tabIndex={-1}
-            placeholder="auto-generated from name"
-            className="bg-muted/40 text-muted-foreground"
-          />
-        </div>
-
         {isEditing && (
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
@@ -270,7 +259,8 @@ function CategoryFormContent({
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="cat-image">
-            {isSub ? "Sub Category Image" : "Category Image"}
+            {isSub ? "Sub Category Image" : "Category Image"}{" "}
+            <span className="text-xs font-normal text-muted-foreground">(Optional)</span>
           </Label>
           <Input
             id="cat-image"
@@ -311,11 +301,11 @@ function CategoryFormContent({
             existingImageUrl && (
               <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
                 {existingImgError ? (
-                  <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 p-1 text-center">
-                    <span className="text-[10px] font-medium leading-tight text-destructive">
-                      Preview not available
-                    </span>
-                  </div>
+                  <img
+                    src={apiNoImage}
+                    alt="No image placeholder"
+                    className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                  />
                 ) : (
                   <img
                     src={existingImageUrl}

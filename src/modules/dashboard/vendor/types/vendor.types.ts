@@ -59,6 +59,8 @@ export interface VendorLiveProduct {
   vendor_product_size: string;
   vendor_product_rate: string | number;
   vendor_product_status?: string;
+  vendor_product_created_date?: string | null;
+  vendor_product_created_time?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 }

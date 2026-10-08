@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   Vendor,
@@ -12,6 +13,7 @@ import type {
 /** GET /vendor — Fetch all vendors. */
 export async function fetchVendors(): Promise<Vendor[]> {
   const { data } = await api.get<VendorListResponse | Vendor[]>("/vendor");
+  syncApiNoImageUrl(data);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -32,12 +34,14 @@ export async function fetchVendorsPage(
   const { data } = await api.get<VendorListResponse | Vendor[]>(
     pageQuery("/vendor", page, perPage, search, status),
   );
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<Vendor>(data, page, perPage);
 }
 
 /** GET /activeVendors — Fetch only active vendors. */
 export async function fetchActiveVendors(): Promise<Vendor[]> {
   const { data } = await api.get<VendorListResponse | Vendor[]>("/activeVendors");
+  syncApiNoImageUrl(data);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -115,6 +119,7 @@ export async function updateVendorStatus(
 /** GET /vendor-spot — Fetch vendor spots. */
 export async function fetchVendorSpots(): Promise<VendorSpotItem[]> {
   const { data } = await api.get("/vendor-spot");
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<VendorSpotItem>(data, 1, 10).items;
 }
 
@@ -125,6 +130,7 @@ export async function fetchVendorSpotsPage(
   search = "",
 ): Promise<PagedResult<VendorSpotItem>> {
   const { data } = await api.get(pageQuery("/vendor-spot", page, perPage, search));
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<VendorSpotItem>(data, page, perPage);
 }
 
@@ -192,6 +198,7 @@ export async function updateVendorSpotStatus(
 /** GET /vendor-live — Fetch vendor live products. */
 export async function fetchVendorLives(): Promise<VendorLiveProduct[]> {
   const { data } = await api.get("/vendor-live");
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
 }
 
@@ -202,7 +209,10 @@ export async function fetchVendorLivesPage(
   search = "",
 ): Promise<PagedResult<VendorLiveProduct>> {
   const { data } = await api.get(pageQuery("/vendor-live", page, perPage, search));
-  return parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  syncApiNoImageUrl(data);
+  const parsed = parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  console.log(`[VendorLive:fetch] page=${page} perPage=${perPage} search="${search}" items=${parsed.items.length} total=${parsed.total}`, parsed.items.map((i) => i.id));
+  return parsed;
 }
 
 /** GET /vendor-live/:id — Fetch single live product details. */
@@ -227,7 +237,9 @@ export async function createVendorLive(payload: {
     vendor_product_rate: string | number;
   }>;
 }): Promise<unknown> {
+  console.log(`[VendorLive:create] POST /vendor-live products=${payload.products.length}`, payload);
   const { data } = await api.post("/vendor-live", payload);
+  console.log(`[VendorLive:create] response`, data);
   throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor live product.");
   return data;
 }
@@ -272,6 +284,7 @@ export async function updateVendorLiveStatus(
 /** GET /vendor-rate — Fetch vendor rates. */
 export async function fetchVendorRates(): Promise<VendorLiveProduct[]> {
   const { data } = await api.get("/vendor-rate");
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<VendorLiveProduct>(data, 1, 10).items;
 }
 
@@ -282,7 +295,10 @@ export async function fetchVendorRatesPage(
   search = "",
 ): Promise<PagedResult<VendorLiveProduct>> {
   const { data } = await api.get(pageQuery("/vendor-rate", page, perPage, search));
-  return parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  syncApiNoImageUrl(data);
+  const parsed = parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  console.log(`[VendorRate:fetch] page=${page} perPage=${perPage} search="${search}" items=${parsed.items.length} total=${parsed.total}`, parsed.items.map((i) => i.id));
+  return parsed;
 }
 
 /** GET /vendor-rate/:id — Fetch single vendor rate details. */
@@ -336,7 +352,9 @@ export async function createVendorRate(payload: {
     vendor_product_rate: string | number;
   }>;
 }): Promise<unknown> {
+  console.log(`[VendorRate:create] POST /vendor-rate products=${payload.products.length}`, payload);
   const { data } = await api.post("/vendor-rate", payload);
+  console.log(`[VendorRate:create] response`, data);
   throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor rate.");
   return data;
 }

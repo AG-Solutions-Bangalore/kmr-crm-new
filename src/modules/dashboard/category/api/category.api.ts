@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import type {
   Category,
   CategoryDetailResponse,
@@ -6,6 +7,10 @@ import type {
   CategoryMutationPayload,
   CategoryStatus,
 } from "../types/category.types.ts";
+
+function syncApiImageUrls(res: unknown): void {
+  syncApiNoImageUrl(res);
+}
 
 /** GET /category — Fetch all categories (full list for dropdowns, server-filtered). */
 export async function fetchCategories(search = "", status = "all"): Promise<Category[]> {
@@ -19,6 +24,7 @@ export async function fetchCategories(search = "", status = "all"): Promise<Cate
   const { data } = await api.get<CategoryListResponse | Category[]>(
     `/category?per_page=500${q ? `&search=${encodeURIComponent(q)}` : ""}${statusPart}`,
   );
+  syncApiImageUrls(data);
 
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
@@ -54,6 +60,7 @@ export async function fetchCategoriesPage(
   const { data } = await api.get<CategoryListResponse | Category[]>(
     `/category?page=${page}&per_page=${perPage}${q ? `&search=${encodeURIComponent(q)}` : ""}${statusPart}`,
   );
+  syncApiImageUrls(data);
 
   if (Array.isArray(data)) {
     return {
@@ -102,6 +109,7 @@ export async function fetchActiveCategories(): Promise<Category[]> {
   const { data } = await api.get<CategoryListResponse | Category[]>(
     "/activeCategories",
   );
+  syncApiImageUrls(data);
   
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
@@ -122,47 +130,22 @@ export async function fetchCategoryById(id: number | string): Promise<Category> 
   return data as Category;
 }
 
-function createPlaceholderImageFile(): File {
-  const base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-  const binaryString = typeof atob === "function" ? atob(base64) : "";
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return new File([bytes], "placeholder.png", { type: "image/png" });
-}
-
 /** POST /category — Create new category. Image is optional. */
 export async function createCategory(payload: CategoryMutationPayload): Promise<unknown> {
-  const buildFormData = (imgFile?: File) =>
-    toFormData({
-      parent_id: payload.parent_id ?? "0",
-      categories_sort_order: payload.categories_sort_order ?? "1",
-      categories_name: payload.categories_name,
-      categories_slug: payload.categories_slug ?? "",
-      ...(imgFile instanceof File ? { categories_image: imgFile } : {}),
-      categories_status: payload.categories_status ?? "Active",
-    });
+  const formData = toFormData({
+    parent_id: payload.parent_id ?? "0",
+    categories_sort_order: payload.categories_sort_order ?? "1",
+    categories_name: payload.categories_name,
+    categories_slug: payload.categories_slug ?? "",
+    ...(payload.categories_image instanceof File
+      ? { categories_image: payload.categories_image }
+      : {}),
+    categories_status: payload.categories_status ?? "Active",
+  });
 
-  const fileToSend =
-    payload.categories_image instanceof File ? payload.categories_image : undefined;
-
-  try {
-    const { data } = await api.post("/category", buildFormData(fileToSend));
-    throwIfApiError(data as { code?: number; message?: string }, "Could not create category.");
-    return data;
-  } catch (err: unknown) {
-    // If backend still strictly requires an image file and none was chosen,
-    // fulfill it transparently with a 1x1 placeholder image so creation succeeds.
-    const errMsg = String((err as { message?: string })?.message || "").toLowerCase();
-    if (!fileToSend && (errMsg.includes("image") || errMsg.includes("category image"))) {
-      const fallbackFile = createPlaceholderImageFile();
-      const { data } = await api.post("/category", buildFormData(fallbackFile));
-      throwIfApiError(data as { code?: number; message?: string }, "Could not create category.");
-      return data;
-    }
-    throw err;
-  }
+  const { data } = await api.post("/category", formData);
+  throwIfApiError(data as { code?: number; message?: string }, "Could not create category.");
+  return data;
 }
 
 /** PUT /category/:id — Update existing category (using _method: PUT for multipart Laravel support). */
@@ -170,7 +153,6 @@ export async function updateCategory(
   id: number | string,
   payload: CategoryMutationPayload,
 ): Promise<unknown> {
-  // Omit image when unchanged — sending "" trips backend required validation.
   const formData = toFormData({
     _method: "PUT",
     parent_id: payload.parent_id ?? "0",

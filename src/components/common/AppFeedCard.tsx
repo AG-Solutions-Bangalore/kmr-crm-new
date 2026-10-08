@@ -4,11 +4,15 @@ import toast from "react-hot-toast";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent } from "@/components/ui/card.tsx";
+import { getApiNoImageUrl } from "@/lib/image.ts";
 import { cn } from "@/lib/utils.ts";
 
 export interface FeedCover {
   /** Photo URL. When absent, a monogram tile (icon/initial) renders instead. */
   imageUrl?: string | null;
+  fallbackUrl?: string | null;
+  /** Image object-fit mode: 'contain' fits complete image; 'cover' crops to fill. Defaults to 'contain'. */
+  imageFit?: "cover" | "contain";
   noImageLabel?: string;
   monogramText?: string;
   monogramIcon?: LucideIcon;
@@ -102,8 +106,32 @@ export function AppFeedCard({
   onEdit,
   onToggleStatus,
 }: AppFeedCardProps) {
-  const [imgError, setImgError] = useState(false);
-  const imageUrl = imgError ? null : (cover.imageUrl ?? null);
+  const [mainError, setMainError] = useState(false);
+  const [fallbackError, setFallbackError] = useState(false);
+  const mainUrl = cover.imageUrl ?? null;
+  const apiFallback = getApiNoImageUrl();
+  const fallbackUrl = cover.fallbackUrl ?? apiFallback;
+  // Dynamic API placeholder first, static monogram only as last resort:
+  // main -> dynamic fallback -> static placeholder.
+  const imageUrl =
+    !mainError && mainUrl
+      ? mainUrl
+      : !fallbackError && fallbackUrl
+        ? fallbackUrl
+        : null;
+
+  const handleImgError = () => {
+    if (imageUrl && fallbackUrl && imageUrl !== fallbackUrl) {
+      setMainError(true);
+    } else {
+      setFallbackError(true);
+    }
+  };
+
+  useEffect(() => {
+    setMainError(false);
+    setFallbackError(false);
+  }, [cover.imageUrl, cover.fallbackUrl]);
   const MonogramIcon = cover.monogramIcon;
   const canEdit = showEdit && Boolean(onEdit);
   const canToggle = showToggle && Boolean(onToggleStatus);
@@ -147,8 +175,11 @@ export function AppFeedCard({
           alt=""
           aria-hidden="true"
           loading="lazy"
-          onError={() => setImgError(true)}
-          className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+          onError={handleImgError}
+          className={cn(
+            "size-full transition-transform duration-300 group-hover:scale-[1.02]",
+            cover.imageFit === "cover" ? "object-cover" : "object-contain p-2.5",
+          )}
         />
       ) : (
         <span
@@ -182,9 +213,8 @@ export function AppFeedCard({
           )}
         </span>
       )}
-      {/* Readability gradients for overlay chips. */}
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/55 to-transparent" />
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/65 to-transparent" />
+      {/* Overlay — ONLY on hover per user requirement */}
+      <span className="pointer-events-none absolute inset-0 bg-black/25 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
 
       {/* Top row: status + id. */}
       <span className="absolute inset-x-2.5 top-2.5 flex items-center justify-between">
@@ -193,8 +223,8 @@ export function AppFeedCard({
           className={cn(
             "border-0 backdrop-blur-md",
             statusActive
-              ? "bg-emerald-500/90 text-white"
-              : "bg-black/55 text-white/85",
+              ? "bg-blue-600 text-white shadow-sm"
+              : "bg-black/60 text-white/90 shadow-sm",
           )}
         >
           <span
@@ -204,12 +234,6 @@ export function AppFeedCard({
             )}
           />
           {statusText ?? (statusActive ? "Active" : "Inactive")}
-        </Badge>
-        <Badge
-          variant="outline"
-          className="border-0 bg-black/55 font-mono text-white/85 backdrop-blur-md"
-        >
-          #{recordId}
         </Badge>
       </span>
 
@@ -283,7 +307,7 @@ export function AppFeedCard({
               className={cn(
                 "inline-flex size-9 items-center justify-center rounded-full shadow-lg backdrop-blur-md transition-transform hover:scale-105",
                 statusActive
-                  ? "bg-emerald-500/90 text-white"
+                  ? "bg-blue-600 text-white"
                   : "bg-white/90 text-black",
                 isToggling && "animate-pulse",
               )}
@@ -299,7 +323,7 @@ export function AppFeedCard({
   const hasActions = canEdit || canToggle || showShare;
   const hasMeta = Boolean(metaPrimary || metaSecondary);
   const showFooter =
-    actionPlacement === "title" ? hasMeta : (hasMeta || hasActions);
+    actionPlacement === "title" ? hasMeta : hasMeta || hasActions;
 
   const renderActions = () => {
     if (!hasActions) return null;
@@ -315,9 +339,7 @@ export function AppFeedCard({
               void handleShare();
             }}
             title={shareUrl ? "Copy image URL" : "Copy link to this item"}
-            aria-label={
-              shareUrl ? "Copy image URL" : "Copy link to this item"
-            }
+            aria-label={shareUrl ? "Copy image URL" : "Copy link to this item"}
             className="size-8 shrink-0 p-0"
           >
             <Copy className="size-4 text-muted-foreground" />
@@ -360,7 +382,7 @@ export function AppFeedCard({
               className={cn(
                 "size-4",
                 statusActive
-                  ? "text-emerald-600 dark:text-emerald-400"
+                  ? "text-blue-600 dark:text-blue-400"
                   : "text-muted-foreground",
                 isToggling && "animate-pulse",
               )}
@@ -396,8 +418,8 @@ export function AppFeedCard({
             }
           }}
           className={cn(
-            "relative block w-full cursor-pointer overflow-hidden bg-gradient-to-br from-primary/15 via-muted to-muted",
-            compact ? "aspect-[16/7]" : "aspect-[16/9]",
+            "relative block w-full cursor-pointer overflow-hidden bg-muted/20 border-b border-border/50",
+            compact ? "aspect-[16/9]" : "aspect-[16/9]",
           )}
         >
           {coverBody}
@@ -405,8 +427,8 @@ export function AppFeedCard({
       ) : (
         <div
           className={cn(
-            "relative block w-full overflow-hidden bg-gradient-to-br from-primary/15 via-muted to-muted",
-            compact ? "aspect-[16/7]" : "aspect-[16/9]",
+            "relative block w-full overflow-hidden bg-muted/20 border-b border-border/50",
+            compact ? "aspect-[16/9]" : "aspect-[16/9]",
           )}
         >
           {coverBody}
@@ -428,11 +450,19 @@ export function AppFeedCard({
                 title={title}
                 className="min-w-0 flex-1 cursor-pointer text-left"
               >
-                <CardTitle title={title} compact={compact} fixedHeight={false} />
+                <CardTitle
+                  title={title}
+                  compact={compact}
+                  fixedHeight={false}
+                />
               </button>
             ) : (
               <div className="min-w-0 flex-1">
-                <CardTitle title={title} compact={compact} fixedHeight={false} />
+                <CardTitle
+                  title={title}
+                  compact={compact}
+                  fixedHeight={false}
+                />
               </div>
             )}
             {renderActions()}
