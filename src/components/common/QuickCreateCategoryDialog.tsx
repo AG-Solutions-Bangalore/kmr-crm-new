@@ -34,6 +34,8 @@ interface QuickCreateCategoryDialogProps {
   initialName?: string;
   /** Pre-selected parent for the new category. Defaults to root ("0"). */
   defaultParentId?: string;
+  /** Pre-selected tab: "category" or "sub". */
+  initialTab?: "category" | "sub";
   /** Called with the new category id so the caller can auto-select it. */
   onCreated: (id: string) => void;
 }
@@ -60,6 +62,7 @@ export function QuickCreateCategoryDialog({
   onOpenChange,
   initialName = "",
   defaultParentId = "0",
+  initialTab,
   onCreated,
 }: QuickCreateCategoryDialogProps) {
   const createMutation = useCreateCategory();
@@ -69,7 +72,8 @@ export function QuickCreateCategoryDialog({
   const parentCategories = getParentCategories(categories);
 
   const defaultTab: QuickTab =
-    defaultParentId && defaultParentId !== "0" ? "sub" : "category";
+    initialTab ??
+    (defaultParentId && defaultParentId !== "0" ? "sub" : "category");
   const [tab, setTab] = useState<QuickTab>(defaultTab);
 
   const [name, setName] = useState(initialName);
@@ -90,11 +94,12 @@ export function QuickCreateCategoryDialog({
       const trimmed = initialName.trim();
       setName(trimmed);
       const startTab: QuickTab =
-        defaultParentId && defaultParentId !== "0" ? "sub" : "category";
+        initialTab ??
+        (defaultParentId && defaultParentId !== "0" ? "sub" : "category");
       setTab(startTab);
       setParentId(
         startTab === "sub"
-          ? defaultParentId
+          ? (defaultParentId && defaultParentId !== "0" ? defaultParentId : firstParentId)
           : "0",
       );
       setImageFile(null);

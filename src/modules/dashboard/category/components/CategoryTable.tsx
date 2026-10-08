@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Edit2, FolderTree, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { useUpdateCategoryStatus } from "../hook/useCategory.ts";
+import { useCategories, useUpdateCategoryStatus } from "../hook/useCategory.ts";
 import type { Category } from "../types/category.types.ts";
 
 interface CategoryTableProps {
@@ -44,6 +44,15 @@ export function CategoryTable({
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
+  const { data: allCategories = [] } = useCategories();
+  const parentNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const c of allCategories) {
+      map.set(String(c.id), c.categories_name);
+    }
+    return map;
+  }, [allCategories]);
+
   // Search is server-side (?search=); render the categories prop directly.
 
   const handleToggleStatus = async (cat: Category) => {
@@ -83,7 +92,7 @@ export function CategoryTable({
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Slug</th>
-                <th className="px-4 py-3">Parent ID</th>
+                <th className="px-4 py-3">Parent Category</th>
                 <th className="px-4 py-3">Sort Order</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -118,6 +127,15 @@ export function CategoryTable({
                   const slNo = (page - 1) * perPage + index + 1;
                   const isActive = cat.categories_status === "Active";
                   const isToggling = togglingId === cat.id;
+                  const isRoot =
+                    cat.parent_id === null ||
+                    cat.parent_id === undefined ||
+                    cat.parent_id === "" ||
+                    cat.parent_id === 0 ||
+                    cat.parent_id === "0";
+                  const parentName = !isRoot
+                    ? parentNameMap.get(String(cat.parent_id)) || `#${cat.parent_id}`
+                    : "—";
 
                   return (
                     <tr
@@ -145,11 +163,7 @@ export function CategoryTable({
                       </td>
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {cat.parent_id === null ||
-                        cat.parent_id === undefined ||
-                        cat.parent_id === ""
-                          ? "—"
-                          : String(cat.parent_id)}
+                        {parentName}
                       </td>
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">

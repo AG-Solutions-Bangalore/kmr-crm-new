@@ -240,19 +240,19 @@ function CategoryFormContent({
           />
         </div>
 
-        <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cat-sort">Sort Order</Label>
-            <Input
-              id="cat-sort"
-              type="number"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              min="0"
-            />
-          </div>
+        {isEditing && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="cat-sort">Sort Order</Label>
+              <Input
+                id="cat-sort"
+                type="number"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                min="0"
+              />
+            </div>
 
-          {isEditing && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="cat-status">Status</Label>
               <select
@@ -265,8 +265,8 @@ function CategoryFormContent({
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="cat-image">
