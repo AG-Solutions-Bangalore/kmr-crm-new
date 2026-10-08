@@ -97,7 +97,6 @@ export function ClientTable({
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Client</th>
-                <th className="px-4 py-3">Logo</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -105,7 +104,7 @@ export function ClientTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading clients...</span>
@@ -114,7 +113,7 @@ export function ClientTable({
                 </tr>
               ) : clients.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Users className="size-8 opacity-40" />
                       <p className="font-medium">No clients found</p>
@@ -154,10 +153,6 @@ export function ClientTable({
                             </p>
                           </div>
                         </div>
-                      </td>
-
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground font-mono truncate max-w-[160px]">
-                        {item.clients_image || "—"}
                       </td>
 
                       <td className="px-4 py-3.5">
