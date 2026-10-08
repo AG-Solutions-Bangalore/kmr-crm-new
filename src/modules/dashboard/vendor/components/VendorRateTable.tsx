@@ -94,10 +94,10 @@ export function VendorRateTable({
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
+                <th className="px-4 py-3">Vendor / Category</th>
                 <th className="px-4 py-3">Product Name</th>
                 <th className="px-4 py-3">Size / Unit</th>
                 <th className="px-4 py-3">Rate</th>
-                <th className="px-4 py-3">Vendor / Category</th>
                 <th className="px-4 py-3">Created</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -154,15 +154,6 @@ export function VendorRateTable({
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         {slNo}
                       </td>
-                      <td className="px-4 py-3 font-medium text-foreground">
-                        {item.vendor_product}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {item.vendor_product_size || "—"}
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-foreground">
-                        ₹{item.vendor_product_rate}
-                      </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         <div className="font-medium text-foreground">
                           {item.vendor_name || `Vendor #${item.vendor_id}`}
@@ -175,6 +166,15 @@ export function VendorRateTable({
                               ? ` / Sub #${item.sub_category_id}`
                               : ""}
                         </div>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-foreground">
+                        {item.vendor_product}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {item.vendor_product_size || "—"}
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-foreground">
+                        ₹{item.vendor_product_rate}
                       </td>
                       <td className="px-4 py-3 text-xs">
                         <div className="flex flex-col gap-0.5">
