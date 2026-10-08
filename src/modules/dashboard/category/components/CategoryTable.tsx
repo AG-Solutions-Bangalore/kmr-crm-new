@@ -48,6 +48,7 @@ interface CategoryTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (category: Category) => void;
+  showParentColumn?: boolean;
 }
 
 function pageWindow(current: number, total: number): number[] {
@@ -70,6 +71,7 @@ export function CategoryTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  showParentColumn = true,
 }: CategoryTableProps) {
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -121,7 +123,7 @@ export function CategoryTable({
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Parent Category</th>
+                {showParentColumn && <th className="px-4 py-3">Parent Category</th>}
                 <th className="px-4 py-3">Sort Order</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -130,7 +132,7 @@ export function CategoryTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={showParentColumn ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading categories...</span>
@@ -139,7 +141,7 @@ export function CategoryTable({
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={showParentColumn ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FolderTree className="size-8 opacity-40" />
                       <p className="font-medium">No categories found</p>
@@ -188,9 +190,11 @@ export function CategoryTable({
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                        {parentName}
-                      </td>
+                      {showParentColumn && (
+                        <td className="px-4 py-3.5 text-xs text-muted-foreground">
+                          {parentName}
+                        </td>
+                      )}
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
                         {cat.categories_sort_order ?? "1"}
