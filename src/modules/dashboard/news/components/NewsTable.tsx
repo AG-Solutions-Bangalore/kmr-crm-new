@@ -8,6 +8,7 @@ import { formatDateDMY } from "@/lib/date.ts";
 import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useUpdateNewsStatus } from "../hook/useNews.ts";
 import type { NewsItem } from "../types/news.types.ts";
+import { AttachmentChip } from "./NewsAttachment.tsx";
 
 function NewsThumb({
   filename,
@@ -169,7 +170,7 @@ export function NewsTable({
                       </td>
 
                       <td className="px-4 py-3.5 text-xs">
-                        <Badge variant="outline" className="font-normal">
+                        <Badge variant="secondary" className="text-[11px]">
                           {item.categories_name || "—"}
                         </Badge>
                       </td>
@@ -188,9 +189,7 @@ export function NewsTable({
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">
                         {item.news_other_image ? (
-                          <span className="font-mono text-[11px] truncate max-w-[120px] block">
-                            {item.news_other_image}
-                          </span>
+                          <AttachmentChip filename={item.news_other_image} />
                         ) : (
                           "—"
                         )}

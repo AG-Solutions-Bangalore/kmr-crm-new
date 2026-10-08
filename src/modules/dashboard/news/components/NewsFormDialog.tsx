@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FileText, Loader2, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ import {
   useCategories,
 } from "../../category/hook/useCategory.ts";
 import type { NewsItem, NewsStatus } from "../types/news.types.ts";
+import { AttachmentChip, AttachmentIcon } from "./NewsAttachment.tsx";
 
 interface NewsFormDialogProps {
   open: boolean;
@@ -318,6 +319,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             <Input
               id="n-other-image"
               type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg,.webp,.gif"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
                 setOtherImageFile(file);
@@ -325,7 +327,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             />
             {otherImageFile ? (
               <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
-                <FileText className="size-5 shrink-0 text-muted-foreground" />
+                <AttachmentIcon filename={otherImageFile.name} className="size-5" />
                 <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
                   {otherImageFile.name}
                 </p>
@@ -342,9 +344,12 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
               </div>
             ) : (
               news?.news_other_image && (
-                <p className="truncate text-xs text-muted-foreground">
-                  Current: {news.news_other_image}
-                </p>
+                <div className="flex items-center gap-2">
+                  <AttachmentChip filename={news.news_other_image} />
+                  <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+                    {news.news_other_image}
+                  </p>
+                </div>
               )
             )}
           </div>

@@ -1,9 +1,9 @@
-import { FileText } from "lucide-react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
 import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { categoryAccent } from "@/lib/category-color.ts";
 import type { NewsItem } from "../types/news.types.ts";
+import { AttachmentChip } from "./NewsAttachment.tsx";
 
 interface NewsCardProps {
   article: NewsItem;
@@ -45,13 +45,7 @@ export function NewsCard({ article, isToggling, compact = false, highlighted = f
       metaPrimary={`${formatDateDMY(article.news_created_date)}${article.news_created_time ? ` • ${article.news_created_time}` : ""}`}
       metaSecondary={
         article.news_other_image ? (
-          <span title={article.news_other_image} className="inline-flex items-center gap-1">
-            <FileText className="size-3 shrink-0 text-primary" />
-            <span className="max-w-[130px] truncate font-mono">{article.news_other_image}</span>
-            <span className="shrink-0 rounded bg-primary/10 px-1 text-[9px] font-bold uppercase text-primary">
-              PDF
-            </span>
-          </span>
+          <AttachmentChip filename={article.news_other_image} />
         ) : (
           <span className="text-muted-foreground/70">{ago ? `Updated ${ago}` : "No attachment"}</span>
         )
