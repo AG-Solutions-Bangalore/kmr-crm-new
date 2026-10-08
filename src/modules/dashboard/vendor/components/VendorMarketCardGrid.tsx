@@ -172,8 +172,8 @@ export function VendorMarketCardGrid({
               className={cn(
                 "rounded-full px-4 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors shadow-sm",
                 isActive
-                  ? "bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white"
-                  : "bg-emerald-50/70 text-emerald-900 border border-emerald-200/70 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800/60 dark:hover:bg-emerald-900/50",
+                  ? "bg-blue-600 text-white dark:bg-blue-600 dark:text-white"
+                  : "bg-blue-50/80 text-blue-900 border border-blue-200/80 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60 dark:hover:bg-blue-900/50",
               )}
             >
               {catName}
@@ -264,13 +264,13 @@ export function VendorMarketCardGrid({
 
                       {/* Right Badge: Rate */}
                       {rateItem && (
-                        <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/80 whitespace-nowrap">
+                        <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800/80 whitespace-nowrap">
                           ₹ {rateItem.vendor_product_rate}
                         </span>
                       )}
 
                       {spotItem && (
-                        <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/80 whitespace-nowrap">
+                        <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800/80 whitespace-nowrap">
                           Spot
                         </span>
                       )}
@@ -307,11 +307,11 @@ export function VendorMarketCardGrid({
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <div className="flex flex-col gap-0.5 min-w-0">
                     <div className="flex items-center gap-1.5 text-[11px]">
-                      <Calendar className="size-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <Calendar className="size-3 text-blue-600 dark:text-blue-400 shrink-0" />
                       <span className="truncate">{date}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px]">
-                      <Clock className="size-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <Clock className="size-3 text-blue-600 dark:text-blue-400 shrink-0" />
                       <span>{time}</span>
                     </div>
                   </div>
@@ -330,7 +330,7 @@ export function VendorMarketCardGrid({
                         <Power
                           className={cn(
                             "size-3.5",
-                            isActive ? "text-emerald-600" : "text-muted-foreground",
+                            isActive ? "text-blue-600" : "text-muted-foreground",
                           )}
                         />
                       </Button>
@@ -350,7 +350,7 @@ export function VendorMarketCardGrid({
                     <button
                       type="button"
                       onClick={() => onEdit(item)}
-                      className="inline-flex items-center gap-0.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
+                      className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       View More &gt;
                     </button>
