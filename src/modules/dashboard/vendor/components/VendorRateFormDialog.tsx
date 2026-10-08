@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
   Copy,
   IndianRupee,
   Loader2,
+  Pencil,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -11,6 +13,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Dialog, DialogContent } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
+import { PATHS } from "@/constants/paths.ts";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   CategorySelectWithCreate,
@@ -25,7 +28,9 @@ import {
   useUpdateVendorLive,
   useUpdateVendorRate,
   useVendorLive,
+  useVendorLives,
   useVendorRate,
+  useVendorRates,
 } from "../hook/useVendor.ts";
 import {
   useActiveCategories,
@@ -69,6 +74,126 @@ const blankRow = (key: number): RateRow => ({
 /*         vendor_product_size, vendor_product_rate,                     */
 /*         vendor_product_status }.                                       */
 /* ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ */
+/* Siblings — other products from the same vendor. Edit is per-record  */
+/* (PUT /vendor-rate/:id), so products added via "+ Add Product" become */
+/* separate rows. This section lists them inline so nothing looks lost. */
+/* ------------------------------------------------------------------ */
+
+function SiblingRateList({
+  vendorId,
+  currentId,
+}: {
+  vendorId: number | string;
+  currentId: number | string;
+}) {
+  const navigate = useNavigate();
+  const { data, isLoading } = useVendorRates(1, 50, "");
+  const siblings = (data?.items ?? []).filter(
+    (s) => String(s.vendor_id) === String(vendorId) && String(s.id) !== String(currentId),
+  );
+
+  return (
+    <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Other products from this vendor ({siblings.length})
+        </span>
+        {isLoading && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
+      </div>
+      {siblings.length === 0 ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {isLoading ? "Loading..." : "No other products yet — use Add Product below."}
+        </p>
+      ) : (
+        <div className="mt-2 flex flex-col gap-1.5">
+          {siblings.map((s) => (
+            <div
+              key={s.id}
+              className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-card px-2.5 py-1.5 text-xs"
+            >
+              <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+                {s.vendor_product || `#${s.id}`}
+                <span className="ml-1.5 font-normal text-muted-foreground">
+                  {s.vendor_product_size || "Unit"} • ₹{s.vendor_product_rate}
+                </span>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(PATHS.vendorRateEdit.replace(":id", String(s.id)))}
+                className="h-7 gap-1 px-2 text-xs"
+                title={`Edit #${s.id}`}
+              >
+                <Pencil className="size-3" />
+                <span>#{s.id}</span>
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SiblingLiveList({
+  vendorId,
+  currentId,
+}: {
+  vendorId: number | string;
+  currentId: number | string;
+}) {
+  const navigate = useNavigate();
+  const { data, isLoading } = useVendorLives(1, 50, "");
+  const siblings = (data?.items ?? []).filter(
+    (s) => String(s.vendor_id) === String(vendorId) && String(s.id) !== String(currentId),
+  );
+
+  return (
+    <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Other products from this vendor ({siblings.length})
+        </span>
+        {isLoading && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
+      </div>
+      {siblings.length === 0 ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {isLoading ? "Loading..." : "No other products yet — use Add Product below."}
+        </p>
+      ) : (
+        <div className="mt-2 flex flex-col gap-1.5">
+          {siblings.map((s) => (
+            <div
+              key={s.id}
+              className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-card px-2.5 py-1.5 text-xs"
+            >
+              <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+                {s.vendor_product || `#${s.id}`}
+                <span className="ml-1.5 font-normal text-muted-foreground">
+                  {s.vendor_product_size || "Unit"} • ₹{s.vendor_product_rate}
+                </span>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(PATHS.vendorLiveEdit.replace(":id", String(s.id)))}
+                className="h-7 gap-1 px-2 text-xs"
+                title={`Edit #${s.id}`}
+              >
+                <Pencil className="size-3" />
+                <span>#{s.id}</span>
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function VendorRateEditContent({
   rate,
@@ -216,6 +341,13 @@ function VendorRateEditContent({
       }
     }
 
+    console.log(`[VendorRate:${type}:edit] submit id=${rate.id} extraRows=${extraRows.length}`, {
+      type,
+      rateId: rate.id,
+      primary: { categoryId, subCategoryId, productName, productSize, productRate, status },
+      extraRows,
+    });
+
     try {
       await updateMutation.mutateAsync({
         id: rate.id,
@@ -228,9 +360,10 @@ function VendorRateEditContent({
           vendor_product_status: status,
         },
       });
+      console.log(`[VendorRate:${type}:edit] primary PUT ok id=${rate.id}`);
 
       if (extraRows.length > 0) {
-        await createMutation.mutateAsync({
+        const extraPayload = {
           products: extraRows.map((r) => ({
             vendor_id: Number(rate.vendor_id),
             category_id: Number(r.categoryId),
@@ -239,11 +372,15 @@ function VendorRateEditContent({
             vendor_product_size: r.productSize.trim() || "Unit",
             vendor_product_rate: r.productRate.trim(),
           })),
-        });
+        };
+        console.log(`[VendorRate:${type}:edit] extra POST products=${extraPayload.products.length}`, extraPayload);
+        const extraResult = await createMutation.mutateAsync(extraPayload);
+        console.log(`[VendorRate:${type}:edit] extra POST success`, extraResult);
       }
 
       onClose();
     } catch (err) {
+      console.error(`[VendorRate:${type}:edit] failed id=${rate.id}`, err);
       setErrorMessage(getApiErrorMessage(err, "Failed to update rates."));
     }
   };
@@ -406,6 +543,13 @@ function VendorRateEditContent({
           </select>
         </div>
       </div>
+
+      {/* Siblings — same vendor, separate records (see log [VendorRate:*:edit]). */}
+      {type === "live" ? (
+        <SiblingLiveList vendorId={rate.vendor_id} currentId={rate.id} />
+      ) : (
+        <SiblingRateList vendorId={rate.vendor_id} currentId={rate.id} />
+      )}
 
       {/* Additional Products Section */}
       <div className="flex items-center justify-between border-t border-border/60 pt-3">
@@ -712,6 +856,12 @@ function VendorRateCreateContent({
       vendorId ||
       (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "1");
 
+    console.log(`[VendorRate:${type}:create] submit rows=${rows.length}`, {
+      type,
+      vendorId: vId,
+      rows,
+    });
+
     for (let i = 0; i < rows.length; i++) {
       if (!rows[i].categoryId) {
         setErrorMessage(`Please select a category in row #${i + 1}.`);
@@ -740,16 +890,21 @@ function VendorRateCreateContent({
       })),
     };
 
+    console.log(`[VendorRate:${type}:create] payload products=${payload.products.length}`, payload);
+
     try {
+      let result: unknown = null;
       if (type === "live") {
-        await createLiveMutation.mutateAsync(payload);
+        result = await createLiveMutation.mutateAsync(payload);
       } else {
-        await createRateMutation.mutateAsync(payload);
+        result = await createRateMutation.mutateAsync(payload);
       }
+      console.log(`[VendorRate:${type}:create] success response`, result);
       onClose();
       // Reset form
       setRows([blankRow(keyRef.current++)]);
     } catch (err) {
+      console.error(`[VendorRate:${type}:create] failed`, err);
       setErrorMessage(
         getApiErrorMessage(
           err,

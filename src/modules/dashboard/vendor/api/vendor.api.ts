@@ -210,7 +210,9 @@ export async function fetchVendorLivesPage(
 ): Promise<PagedResult<VendorLiveProduct>> {
   const { data } = await api.get(pageQuery("/vendor-live", page, perPage, search));
   syncApiNoImageUrl(data);
-  return parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  const parsed = parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  console.log(`[VendorLive:fetch] page=${page} perPage=${perPage} search="${search}" items=${parsed.items.length} total=${parsed.total}`, parsed.items.map((i) => i.id));
+  return parsed;
 }
 
 /** GET /vendor-live/:id — Fetch single live product details. */
@@ -235,7 +237,9 @@ export async function createVendorLive(payload: {
     vendor_product_rate: string | number;
   }>;
 }): Promise<unknown> {
+  console.log(`[VendorLive:create] POST /vendor-live products=${payload.products.length}`, payload);
   const { data } = await api.post("/vendor-live", payload);
+  console.log(`[VendorLive:create] response`, data);
   throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor live product.");
   return data;
 }
@@ -292,7 +296,9 @@ export async function fetchVendorRatesPage(
 ): Promise<PagedResult<VendorLiveProduct>> {
   const { data } = await api.get(pageQuery("/vendor-rate", page, perPage, search));
   syncApiNoImageUrl(data);
-  return parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  const parsed = parsePaginatedResponse<VendorLiveProduct>(data, page, perPage);
+  console.log(`[VendorRate:fetch] page=${page} perPage=${perPage} search="${search}" items=${parsed.items.length} total=${parsed.total}`, parsed.items.map((i) => i.id));
+  return parsed;
 }
 
 /** GET /vendor-rate/:id — Fetch single vendor rate details. */
@@ -346,7 +352,9 @@ export async function createVendorRate(payload: {
     vendor_product_rate: string | number;
   }>;
 }): Promise<unknown> {
+  console.log(`[VendorRate:create] POST /vendor-rate products=${payload.products.length}`, payload);
   const { data } = await api.post("/vendor-rate", payload);
+  console.log(`[VendorRate:create] response`, data);
   throwIfApiError(data as { code?: number; message?: string }, "Could not create vendor rate.");
   return data;
 }
