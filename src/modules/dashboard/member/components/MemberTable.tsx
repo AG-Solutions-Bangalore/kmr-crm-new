@@ -233,8 +233,8 @@ export function MemberTable({
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Member</th>
                 <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Validity</th>
                 <th className="px-4 py-3">Registered</th>
+                <th className="px-4 py-3">Validity</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -313,6 +313,10 @@ export function MemberTable({
                         </div>
                       </td>
 
+                      <td className="px-4 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
+                        {formatDateDMY(item.register_date)}
+                      </td>
+
                       <td className="px-4 py-3.5 text-xs">
                         <div className="flex flex-col gap-0.5">
                           <span className="font-medium text-foreground">
@@ -324,10 +328,6 @@ export function MemberTable({
                             </span>
                           ) : null}
                         </div>
-                      </td>
-
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
-                        {formatDateDMY(item.register_date)}
                       </td>
 
                       <td className="px-4 py-3.5">
