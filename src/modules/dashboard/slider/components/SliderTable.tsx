@@ -4,23 +4,22 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveDynamicImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useUpdateSliderStatus } from "../hook/useSlider.ts";
 import type { SliderItem, SliderStatus } from "../types/slider.types.ts";
 
 function SliderThumb({ filename }: { filename?: string | null }) {
-  const [failed, setFailed] = useState(false);
-  const url = resolveAssetImageUrl(filename, "slider_images");
-  if (!url || failed) {
-    return <SlidersHorizontal className="size-4 text-muted-foreground" />;
-  }
+  const [error, setError] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const url = resolveDynamicImageUrl(filename, "slider_images");
+  const src = error ? fallback : url;
   return (
     <img
-      src={url}
+      src={src}
       alt="Slider"
       loading="lazy"
       className="h-full w-full object-cover"
-      onError={() => setFailed(true)}
+      onError={() => setError(true)}
     />
   );
 }

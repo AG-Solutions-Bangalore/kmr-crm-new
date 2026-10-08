@@ -4,8 +4,30 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
+import { getApiNoImageUrl, resolveAssetImageUrl } from "@/lib/image.ts";
 import { useUpdateClientStatus } from "../hook/useClient.ts";
 import type { ClientItem, ClientStatus } from "../types/client.types.ts";
+
+function ClientThumb({ filename, name }: { filename?: string | null; name?: string }) {
+  const [failed, setFailed] = useState(false);
+  const fallback = getApiNoImageUrl();
+  const directUrl = filename ? resolveAssetImageUrl(filename, "client_images", null) : null;
+  const url = failed ? fallback : directUrl || fallback;
+
+  return (
+    <img
+      src={url}
+      alt={name || "Client"}
+      loading="lazy"
+      className="h-full w-full object-contain p-0.5 bg-muted/20"
+      onError={() => {
+        if (!failed && directUrl) {
+          setFailed(true);
+        }
+      }}
+    />
+  );
+}
 
 interface ClientTableProps {
   clients: ClientItem[];
@@ -120,19 +142,11 @@ export function ClientTable({
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/30 font-mono text-xs overflow-hidden">
-                            {item.clients_image ? (
-                              <img
-                                src={`https://kmrlive.in/crmapi/public/assets/images/client_images/${item.clients_image}`}
-                                alt={item.clients_name}
-                                className="h-full w-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLElement).style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              <Users className="size-4 text-muted-foreground" />
-                            )}
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/30 overflow-hidden">
+                            <ClientThumb
+                              filename={item.clients_image}
+                              name={item.clients_name}
+                            />
                           </div>
                           <div>
                             <p className="font-medium text-foreground">

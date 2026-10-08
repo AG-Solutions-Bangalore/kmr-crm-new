@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { isRootCategory, mergeCategories } from "@/lib/category-tree.ts";
 import { CategorySelectWithCreate } from "@/components/common/EntitySelectWithCreate.tsx";
 import { useCreateNews, useNewsItem, useUpdateNews } from "../hook/useNews.ts";
@@ -82,6 +82,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
   const [newPreviewUrl, setNewPreviewUrl] = useState<string | null>(null);
   const [existingImgError, setExistingImgError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const apiNoImage = useApiNoImageUrl();
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -280,13 +281,13 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             ) : (
               existingImageUrl && (
                 <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
-                  {existingImgError ? (
-                    <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 p-1 text-center">
-                      <span className="text-[10px] font-medium leading-tight text-destructive">
-                        Preview not available
-                      </span>
-                    </div>
-                  ) : (
+                {existingImgError ? (
+                  <img
+                    src={apiNoImage}
+                    alt="No image placeholder"
+                    className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
+                  />
+                ) : (
                     <img
                       src={existingImageUrl}
                       alt={heading || "Currently uploaded"}

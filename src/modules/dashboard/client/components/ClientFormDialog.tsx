@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useClient, useCreateClient, useUpdateClient } from "../hook/useClient.ts";
 import type { ClientItem, ClientStatus } from "../types/client.types.ts";
 
@@ -40,6 +41,8 @@ function ClientFormContent({ client, onClose }: InnerFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const apiNoImage = useApiNoImageUrl();
+  const [existingImgError, setExistingImgError] = useState(false);
 
   // Preview for newly selected file (revoke on change/unmount).
   useEffect(() => {
@@ -52,11 +55,10 @@ function ClientFormContent({ client, onClose }: InnerFormProps) {
     return () => URL.revokeObjectURL(url);
   }, [imageFile]);
 
-  const existingImageUrl = client?.clients_image
-    ? client.clients_image.startsWith("http")
-      ? client.clients_image
-      : `https://kmrlive.in/crmapi/public/assets/images/client_images/${client.clients_image}`
-    : null;
+  const existingImageUrl = resolveAssetImageUrl(
+    client?.clients_image,
+    "client_images",
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,12 +179,10 @@ function ClientFormContent({ client, onClose }: InnerFormProps) {
             existingImageUrl && (
               <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
                 <img
-                  src={existingImageUrl}
+                  src={existingImgError ? apiNoImage : existingImageUrl}
                   alt={client?.clients_name || "Client logo"}
                   className="size-16 shrink-0 rounded-md border border-border/60 object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
+                  onError={() => setExistingImgError(true)}
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-foreground">

@@ -4,14 +4,14 @@
  * without storing any extra data. Reusable for Rates / Live / Spot.
  */
 const ACCENTS = [
-  "#10b981", // emerald
-  "#0ea5e9", // sky
-  "#f59e0b", // amber
-  "#8b5cf6", // violet
-  "#f43f5e", // rose
-  "#06b6d4", // cyan
-  "#f97316", // orange
-  "#84cc16", // lime
+  "#2563eb", // blue-600
+  "#0284c7", // sky-600
+  "#3b82f6", // blue-500
+  "#4f46e5", // indigo-600
+  "#0ea5e9", // sky-500
+  "#6366f1", // indigo-500
+  "#0284c7", // light-blue
+  "#1d4ed8", // blue-700
 ];
 
 export function categoryAccent(name?: string | null): string {

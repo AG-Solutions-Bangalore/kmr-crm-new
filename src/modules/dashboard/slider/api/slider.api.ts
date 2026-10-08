@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   SliderItem,
@@ -10,6 +11,7 @@ import type {
 /** GET /slider — Fetch all sliders. */
 export async function fetchSliders(): Promise<SliderItem[]> {
   const { data } = await api.get<SliderListResponse | SliderItem[]>("/slider");
+  syncApiNoImageUrl(data);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -37,6 +39,7 @@ export async function fetchSlidersPage(
   const { data } = await api.get<SliderListResponse | SliderItem[]>(
     `${base}${typePart}`,
   );
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<SliderItem>(data, page, perPage);
 }
 

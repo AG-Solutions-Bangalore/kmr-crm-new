@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
-import { resolveGalleryImageUrl } from "@/lib/image.ts";
+import { getApiNoImageUrl, resolveGalleryImageUrl } from "@/lib/image.ts";
 import { useUpdateGalleryStatus } from "../hook/useGallery.ts";
 import type { GalleryItem, GalleryStatus } from "../types/gallery.types.ts";
 
@@ -16,29 +16,21 @@ function GalleryThumb({
   baseUrl?: string | null;
 }) {
   const [failed, setFailed] = useState(false);
-  // Exact URL coming from the API (or local assets fallback) — the copy
-  // button copies this same value.
-  const url = resolveGalleryImageUrl(filename, baseUrl);
-  if (!url || failed) {
-    return (
-      <div
-        className="flex h-full w-full flex-col items-center justify-center gap-1 p-1 text-center"
-        title={filename || "No file"}
-      >
-        <Images className="size-5 text-muted-foreground" />
-        <span className="text-[9px] leading-tight text-muted-foreground">
-          {filename ? "No preview" : "No file"}
-        </span>
-      </div>
-    );
-  }
+  const fallback = getApiNoImageUrl();
+  const directUrl = resolveGalleryImageUrl(filename, baseUrl);
+  const url = failed ? fallback : directUrl || fallback;
+
   return (
     <img
       src={url}
       alt="Gallery"
       loading="lazy"
-      className="h-full w-full object-cover"
-      onError={() => setFailed(true)}
+      className="h-full w-full object-contain p-1 bg-muted/20"
+      onError={() => {
+        if (!failed && directUrl) {
+          setFailed(true);
+        }
+      }}
     />
   );
 }

@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
-import { resolveGalleryImageUrl } from "@/lib/image.ts";
+import { resolveGalleryImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { categoryAccent } from "@/lib/category-color.ts";
 import type { GalleryItem } from "../types/gallery.types.ts";
 
@@ -20,15 +19,11 @@ interface GalleryCardProps {
  * full image file URL (not the page deep link).
  */
 export function GalleryCard({ item, isToggling, compact = false, highlighted = false, onEdit, onToggleStatus }: GalleryCardProps) {
-  const [imgError, setImgError] = useState(false);
   const isActive = item.gallery_status === "Active";
-  const imageUrl = imgError ? null : resolveGalleryImageUrl(item.gallery_image, item.gallery_url);
+  const fallbackUrl = useApiNoImageUrl();
+  const imageUrl = resolveGalleryImageUrl(item.gallery_image, item.gallery_url);
   // Card copy button: the full image URL only.
-  const shareText = imageUrl ?? "";
-
-  useEffect(() => {
-    setImgError(false);
-  }, [item.gallery_image, item.gallery_url]);
+  const shareText = imageUrl ?? fallbackUrl ?? "";
 
   const updatedStamp = item.updated_at ?? item.created_at;
   const ago = timeAgo(updatedStamp);
@@ -37,7 +32,7 @@ export function GalleryCard({ item, isToggling, compact = false, highlighted = f
 
   return (
     <AppFeedCard
-      cover={{ imageUrl, accent }}
+      cover={{ imageUrl, fallbackUrl, accent }}
       title={item.gallery_image || `Image #${item.id}`}
       snippetClamp={2}
       statusActive={isActive}

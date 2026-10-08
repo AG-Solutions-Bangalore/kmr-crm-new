@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   GalleryItem,
@@ -10,6 +11,7 @@ import type {
 /** GET /gallery — Fetch all gallery images. */
 export async function fetchGallery(): Promise<GalleryItem[]> {
   const { data } = await api.get<GalleryListResponse | GalleryItem[]>("/gallery");
+  syncApiNoImageUrl(data);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -30,6 +32,7 @@ export async function fetchGalleryPage(
   const { data } = await api.get<GalleryListResponse | GalleryItem[]>(
     pageQuery("/gallery", page, perPage, search, status),
   );
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<GalleryItem>(data, page, perPage);
 }
 

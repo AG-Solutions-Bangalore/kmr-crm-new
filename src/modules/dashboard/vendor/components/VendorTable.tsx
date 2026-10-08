@@ -5,27 +5,22 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveDynamicImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useUpdateVendorStatus } from "../hook/useVendor.ts";
 import type { Vendor } from "../types/vendor.types.ts";
 
 function VendorThumb({ filename, name }: { filename?: string | null; name?: string }) {
-  const [failed, setFailed] = useState(false);
-  const url = resolveAssetImageUrl(filename, "vendor_images");
-  if (!url || failed) {
-    return (
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        <Store className="size-4" />
-      </div>
-    );
-  }
+  const [error, setError] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const url = resolveDynamicImageUrl(filename, "vendor_images");
+  const src = error ? fallback : url;
   return (
     <img
-      src={url}
+      src={src}
       alt={name || "Vendor"}
       loading="lazy"
       className="size-9 shrink-0 rounded-lg border border-border/60 object-cover"
-      onError={() => setFailed(true)}
+      onError={() => setError(true)}
     />
   );
 }

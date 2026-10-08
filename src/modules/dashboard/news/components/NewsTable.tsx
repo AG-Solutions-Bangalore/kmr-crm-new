@@ -5,8 +5,38 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useUpdateNewsStatus } from "../hook/useNews.ts";
 import type { NewsItem } from "../types/news.types.ts";
+
+function NewsThumb({
+  filename,
+  heading,
+}: {
+  filename?: string | null;
+  heading?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const directUrl = filename
+    ? resolveAssetImageUrl(filename, "news_images", null)
+    : null;
+  const url = failed ? fallback : directUrl || fallback;
+
+  return (
+    <img
+      src={url}
+      alt={heading || "News"}
+      loading="lazy"
+      className="size-9 shrink-0 rounded-lg border border-border/60 object-contain p-0.5 bg-muted/20 mt-0.5"
+      onError={() => {
+        if (!failed && directUrl) {
+          setFailed(true);
+        }
+      }}
+    />
+  );
+}
 
 interface NewsTableProps {
   articles: NewsItem[];
@@ -123,9 +153,10 @@ export function NewsTable({
                       </td>
                       <td className="px-4 py-3.5 max-w-sm">
                         <div className="flex items-start gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
-                            <Newspaper className="size-4" />
-                          </div>
+                          <NewsThumb
+                            filename={item.news_image}
+                            heading={item.news_heading}
+                          />
                           <div>
                             <p className="font-medium text-foreground line-clamp-1">
                               {item.news_heading}

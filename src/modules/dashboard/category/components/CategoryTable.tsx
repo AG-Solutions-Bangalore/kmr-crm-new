@@ -3,8 +3,38 @@ import { Edit2, FolderTree, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { useCategories, useUpdateCategoryStatus } from "../hook/useCategory.ts";
 import type { Category } from "../types/category.types.ts";
+
+function CategoryThumb({
+  filename,
+  name,
+}: {
+  filename?: string | null;
+  name?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const directUrl = filename
+    ? resolveAssetImageUrl(filename, "category_images")
+    : null;
+  const url = failed ? fallback : directUrl || fallback;
+
+  return (
+    <img
+      src={url}
+      alt={name || "Category"}
+      loading="lazy"
+      className="size-9 shrink-0 rounded-lg border border-border/60 object-cover"
+      onError={() => {
+        if (!failed && directUrl) {
+          setFailed(true);
+        }
+      }}
+    />
+  );
+}
 
 interface CategoryTableProps {
   categories: Category[];
@@ -146,9 +176,10 @@ export function CategoryTable({
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <FolderTree className="size-4" />
-                          </div>
+                          <CategoryThumb
+                            filename={cat.categories_image}
+                            name={cat.categories_name}
+                          />
                           <div>
                             <p className="font-medium text-foreground">
                               {cat.categories_name}
@@ -170,7 +201,7 @@ export function CategoryTable({
                           variant={isActive ? "default" : "secondary"}
                           className={
                             isActive
-                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-medium"
+                              ? "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-medium"
                               : "bg-muted text-muted-foreground font-medium"
                           }
                         >
@@ -190,7 +221,7 @@ export function CategoryTable({
                           >
                             <Power
                               className={`size-3.5 ${
-                                isActive ? "text-emerald-600" : "text-muted-foreground"
+                                isActive ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"
                               }`}
                             />
                             <span className="sr-only">Toggle Status</span>

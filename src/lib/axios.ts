@@ -3,6 +3,7 @@ import axios, {
   type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from "axios";
+import { setApiNoImageUrl } from "./image.ts";
 
 const TOKEN_KEY = "kmr-crm-token";
 const USER_KEY = "kmr-crm-user";
@@ -151,7 +152,23 @@ api.interceptors.request.use(
 
 // Global response / error handling
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Automatically capture dynamic "No Image" placeholder from any backend response
+    const data = response?.data;
+    if (
+      data &&
+      typeof data === "object" &&
+      "image_url" in data &&
+      Array.isArray((data as { image_url?: unknown }).image_url)
+    ) {
+      const list = (data as { image_url: Array<{ image_for?: string; image_url?: string }> }).image_url;
+      const noImg = list.find((it) => it?.image_for?.trim().toLowerCase() === "no image");
+      if (noImg?.image_url) {
+        setApiNoImageUrl(noImg.image_url);
+      }
+    }
+    return response;
+  },
   (error: AxiosError<{ message?: string }>) => {
     const status = error.response?.status;
 

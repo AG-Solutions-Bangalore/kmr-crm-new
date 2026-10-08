@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   ClientItem,
@@ -10,6 +11,7 @@ import type {
 /** GET /client — Fetch all clients. */
 export async function fetchClients(): Promise<ClientItem[]> {
   const { data } = await api.get<ClientListResponse | ClientItem[]>("/client");
+  syncApiNoImageUrl(data);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -30,6 +32,7 @@ export async function fetchClientsPage(
   const { data } = await api.get<ClientListResponse | ClientItem[]>(
     pageQuery("/client", page, perPage, search, status),
   );
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<ClientItem>(data, page, perPage);
 }
 

@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import { pageQuery, parsePaginatedResponse, type PagedResult } from "@/lib/pagination.ts";
 import type {
   BlogItem,
@@ -10,6 +11,7 @@ import type {
 /** GET /blog — Fetch all blog posts. */
 export async function fetchBlogs(): Promise<BlogItem[]> {
   const { data } = await api.get<BlogListResponse | BlogItem[]>("/blog");
+  syncApiNoImageUrl(data);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     if (Array.isArray(data.data)) return data.data;
@@ -30,6 +32,7 @@ export async function fetchBlogsPage(
   const { data } = await api.get<BlogListResponse | BlogItem[]>(
     pageQuery("/blog", page, perPage, search, status),
   );
+  syncApiNoImageUrl(data);
   return parsePaginatedResponse<BlogItem>(data, page, perPage);
 }
 

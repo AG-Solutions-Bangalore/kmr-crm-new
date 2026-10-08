@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { FileText } from "lucide-react";
 import { AppFeedCard } from "@/components/common/AppFeedCard.tsx";
 import { formatDateDMY, isWithinHours, timeAgo } from "@/lib/date.ts";
-import { resolveAssetImageUrl } from "@/lib/image.ts";
+import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { categoryAccent } from "@/lib/category-color.ts";
 import type { NewsItem } from "../types/news.types.ts";
 
@@ -20,14 +19,9 @@ interface NewsCardProps {
  * onto the common feed design. No visual logic lives here.
  */
 export function NewsCard({ article, isToggling, compact = false, highlighted = false, onEdit, onToggleStatus }: NewsCardProps) {
-  const [imgError, setImgError] = useState(false);
   const isActive = article.news_status === "Active";
-  const imageUrl = imgError ? null : resolveAssetImageUrl(article.news_image, "news_images");
-
-  // Retry the cover if the article's image changes (e.g. after an edit).
-  useEffect(() => {
-    setImgError(false);
-  }, [article.news_image]);
+  const fallbackUrl = useApiNoImageUrl();
+  const imageUrl = resolveAssetImageUrl(article.news_image, "news_images");
 
   const updatedStamp = article.updated_at ?? article.created_at ?? article.news_created_date;
   const ago = timeAgo(updatedStamp);
@@ -36,7 +30,7 @@ export function NewsCard({ article, isToggling, compact = false, highlighted = f
 
   return (
     <AppFeedCard
-      cover={{ imageUrl, accent }}
+      cover={{ imageUrl, fallbackUrl, accent }}
       title={article.news_heading}
       snippet={article.news_details}
       snippetClamp={3}

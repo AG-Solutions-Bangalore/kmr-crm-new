@@ -1,4 +1,5 @@
 import { api, throwIfApiError, toFormData } from "@/lib/axios.ts";
+import { syncApiNoImageUrl } from "@/lib/image.ts";
 import type {
   Category,
   CategoryDetailResponse,
@@ -6,6 +7,10 @@ import type {
   CategoryMutationPayload,
   CategoryStatus,
 } from "../types/category.types.ts";
+
+function syncApiImageUrls(res: unknown): void {
+  syncApiNoImageUrl(res);
+}
 
 /** GET /category — Fetch all categories (full list for dropdowns, server-filtered). */
 export async function fetchCategories(search = "", status = "all"): Promise<Category[]> {
@@ -19,6 +24,7 @@ export async function fetchCategories(search = "", status = "all"): Promise<Cate
   const { data } = await api.get<CategoryListResponse | Category[]>(
     `/category?per_page=500${q ? `&search=${encodeURIComponent(q)}` : ""}${statusPart}`,
   );
+  syncApiImageUrls(data);
 
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
@@ -54,6 +60,7 @@ export async function fetchCategoriesPage(
   const { data } = await api.get<CategoryListResponse | Category[]>(
     `/category?page=${page}&per_page=${perPage}${q ? `&search=${encodeURIComponent(q)}` : ""}${statusPart}`,
   );
+  syncApiImageUrls(data);
 
   if (Array.isArray(data)) {
     return {
@@ -102,6 +109,7 @@ export async function fetchActiveCategories(): Promise<Category[]> {
   const { data } = await api.get<CategoryListResponse | Category[]>(
     "/activeCategories",
   );
+  syncApiImageUrls(data);
   
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
