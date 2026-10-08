@@ -114,7 +114,7 @@ function SiblingRateList({
               className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-card px-2.5 py-1.5 text-xs"
             >
               <span className="min-w-0 flex-1 truncate font-medium text-foreground">
-                {s.vendor_product || `#${s.id}`}
+                {s.vendor_product}
                 <span className="ml-1.5 font-normal text-muted-foreground">
                   {s.vendor_product_size || "Unit"} • ₹{s.vendor_product_rate}
                 </span>
@@ -125,10 +125,9 @@ function SiblingRateList({
                 size="sm"
                 onClick={() => navigate(PATHS.vendorRateEdit.replace(":id", String(s.id)))}
                 className="h-7 gap-1 px-2 text-xs"
-                title={`Edit #${s.id}`}
+                title="Edit"
               >
                 <Pencil className="size-3" />
-                <span>#{s.id}</span>
               </Button>
             </div>
           ))}
@@ -171,7 +170,7 @@ function SiblingLiveList({
               className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-card px-2.5 py-1.5 text-xs"
             >
               <span className="min-w-0 flex-1 truncate font-medium text-foreground">
-                {s.vendor_product || `#${s.id}`}
+                {s.vendor_product}
                 <span className="ml-1.5 font-normal text-muted-foreground">
                   {s.vendor_product_size || "Unit"} • ₹{s.vendor_product_rate}
                 </span>
@@ -182,10 +181,9 @@ function SiblingLiveList({
                 size="sm"
                 onClick={() => navigate(PATHS.vendorLiveEdit.replace(":id", String(s.id)))}
                 className="h-7 gap-1 px-2 text-xs"
-                title={`Edit #${s.id}`}
+                title="Edit"
               >
                 <Pencil className="size-3" />
-                <span>#{s.id}</span>
               </Button>
             </div>
           ))}
