@@ -94,7 +94,7 @@ export function VendorRateTable({
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
-                <th className="px-4 py-3">Vendor / Category</th>
+                <th className="px-4 py-3">Vendor / Category / Sub</th>
                 <th className="px-4 py-3">Product Name</th>
                 <th className="px-4 py-3">Size / Unit</th>
                 <th className="px-4 py-3">Rate</th>
@@ -155,16 +155,22 @@ export function VendorRateTable({
                         {slNo}
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
-                        <div className="font-medium text-foreground">
-                          {item.vendor_name || `Vendor #${item.vendor_id}`}
-                        </div>
-                        <div>
-                          {item.categories_name || `Cat #${item.category_id}`}
-                          {item.sub_categories_name
-                            ? ` / ${item.sub_categories_name}`
-                            : item.sub_category_id
-                              ? ` / Sub #${item.sub_category_id}`
-                              : ""}
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-foreground">
+                            {item.vendor_name || `Vendor #${item.vendor_id}`}
+                          </span>
+                          <span className="text-xs font-medium text-foreground">
+                            {item.categories_name || `Cat #${item.category_id}`}
+                          </span>
+                          {item.sub_categories_name ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              Sub: {item.sub_categories_name}
+                            </span>
+                          ) : item.sub_category_id ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              Sub #{item.sub_category_id}
+                            </span>
+                          ) : null}
                         </div>
                       </td>
                       <td className="px-4 py-3 font-medium text-foreground">

@@ -297,6 +297,18 @@ export function VendorMarketCardGrid({
                     <p className="mt-1 text-xs font-semibold uppercase text-muted-foreground truncate">
                       {categoryName}
                     </p>
+                    {(item.sub_categories_name || item.sub_category_id) && (
+                      <p
+                        className="mt-0.5 truncate text-[11px] text-muted-foreground"
+                        title={
+                          item.sub_categories_name
+                            ? `Sub: ${item.sub_categories_name}`
+                            : `Sub #${item.sub_category_id}`
+                        }
+                      >
+                        Sub: {item.sub_categories_name || `#${item.sub_category_id}`}
+                      </p>
+                    )}
 
                     {/* Product / Size Details */}
                     {rateItem && (
