@@ -328,7 +328,10 @@ export function QuickCreateCategoryDialog({
             )}
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="qc-image">Image (optional)</Label>
+              <Label htmlFor="qc-image">
+                {tab === "sub" ? "Sub Category Image" : "Category Image"}{" "}
+                <span className="text-xs font-normal text-muted-foreground">(Optional)</span>
+              </Label>
               {previewUrl ? (
                 <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
                   <img

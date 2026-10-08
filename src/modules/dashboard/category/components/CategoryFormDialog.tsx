@@ -270,7 +270,8 @@ function CategoryFormContent({
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="cat-image">
-            {isSub ? "Sub Category Image" : "Category Image"}
+            {isSub ? "Sub Category Image" : "Category Image"}{" "}
+            <span className="text-xs font-normal text-muted-foreground">(Optional)</span>
           </Label>
           <Input
             id="cat-image"
