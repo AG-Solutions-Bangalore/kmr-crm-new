@@ -77,7 +77,7 @@ export function CategoryTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search categories by name or slug..."
+            placeholder="Search categories by name..."
             className="pl-8"
           />
         </div>
@@ -91,7 +91,6 @@ export function CategoryTable({
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
                 <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Slug</th>
                 <th className="px-4 py-3">Parent Category</th>
                 <th className="px-4 py-3">Sort Order</th>
                 <th className="px-4 py-3">Status</th>
@@ -101,7 +100,7 @@ export function CategoryTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading categories...</span>
@@ -110,7 +109,7 @@ export function CategoryTable({
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FolderTree className="size-8 opacity-40" />
                       <p className="font-medium">No categories found</p>
@@ -156,10 +155,6 @@ export function CategoryTable({
                             </p>
                           </div>
                         </div>
-                      </td>
-
-                      <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                        {cat.categories_slug || "—"}
                       </td>
 
                       <td className="px-4 py-3.5 text-xs text-muted-foreground">

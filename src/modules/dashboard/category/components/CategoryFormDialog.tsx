@@ -228,18 +228,6 @@ function CategoryFormContent({
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cat-slug">Slug (auto-generated)</Label>
-          <Input
-            id="cat-slug"
-            value={slug}
-            readOnly
-            tabIndex={-1}
-            placeholder="auto-generated from name"
-            className="bg-muted/40 text-muted-foreground"
-          />
-        </div>
-
         {isEditing && (
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">

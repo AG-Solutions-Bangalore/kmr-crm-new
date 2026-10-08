@@ -138,7 +138,7 @@ export function CategoryCardGrid({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               onKeyDown={handleSearchKey}
-              placeholder="Search categories by name or slug... ( / )"
+              placeholder="Search categories by name... ( / )"
               className="pl-8 pr-9"
               aria-label="Search categories"
             />

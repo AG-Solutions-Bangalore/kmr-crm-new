@@ -293,18 +293,6 @@ export function QuickCreateCategoryDialog({
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="qc-slug">Slug (auto-generated)</Label>
-              <Input
-                id="qc-slug"
-                value={slug}
-                readOnly
-                tabIndex={-1}
-                placeholder="auto-generated from name"
-                className="bg-muted/40 text-muted-foreground"
-              />
-            </div>
-
             {tab === "sub" && (
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="qc-parent">
