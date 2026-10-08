@@ -141,11 +141,6 @@ export function SliderTable({
                           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/30 font-mono text-xs overflow-hidden">
                             <SliderThumb filename={slider.slider_image} />
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground text-xs font-mono truncate max-w-[160px]">
-                              {slider.slider_image || "—"}
-                            </p>
-                          </div>
                         </div>
                       </td>
 
