@@ -231,59 +231,6 @@ function VendorRateEditContent({
   const [status, setStatus] = useState(rate.vendor_product_status || "Active");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const createLiveMutation = useCreateVendorLive();
-  const createRateMutation = useCreateVendorRate();
-  const createMutation = type === "live" ? createLiveMutation : createRateMutation;
-
-  const extraKeyRef = useRef(1);
-  const [extraRows, setExtraRows] = useState<RateRow[]>([]);
-
-  const handleAddExtraProduct = () => {
-    setExtraRows((prev) => [
-      ...prev,
-      {
-        key: extraKeyRef.current++,
-        categoryId: categoryId,
-        subCategoryId: subCategoryId,
-        productName: "",
-        productSize: "",
-        productRate: "",
-      },
-    ]);
-  };
-
-  const handleAddExtraSize = () => {
-    const prev = extraRows.length > 0 ? extraRows[extraRows.length - 1] : null;
-    const cat = prev ? prev.categoryId : categoryId;
-    const subCat = prev ? prev.subCategoryId : subCategoryId;
-    const name = prev ? prev.productName : productName;
-    setExtraRows((old) => [
-      ...old,
-      {
-        key: extraKeyRef.current++,
-        categoryId: cat,
-        subCategoryId: subCat,
-        productName: name,
-        productSize: "",
-        productRate: "",
-      },
-    ]);
-  };
-
-  const updateExtraRow = <K extends keyof RateRow>(
-    key: number,
-    field: K,
-    val: RateRow[K],
-  ) => {
-    setExtraRows((prev) =>
-      prev.map((r) => (r.key === key ? { ...r, [field]: val } : r)),
-    );
-  };
-
-  const handleRemoveExtraRow = (key: number) => {
-    setExtraRows((prev) => prev.filter((r) => r.key !== key));
-  };
-
   // Strict linking: sub-category is always the direct children of the
   // selected category. Nothing is shown until a category is picked.
   const directChildren = getSubCategories(categories, categoryId);
@@ -307,7 +254,7 @@ function VendorRateEditContent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId]);
 
-  const isSaving = updateMutation.isPending || createMutation.isPending;
+  const isSaving = updateMutation.isPending;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -326,26 +273,10 @@ function VendorRateEditContent({
       return;
     }
 
-    for (let i = 0; i < extraRows.length; i++) {
-      if (!extraRows[i].categoryId) {
-        setErrorMessage(`Please select a category for product #${i + 2}.`);
-        return;
-      }
-      if (!extraRows[i].productName.trim()) {
-        setErrorMessage(`Product name is required for product #${i + 2}.`);
-        return;
-      }
-      if (!extraRows[i].productRate.trim()) {
-        setErrorMessage(`Product rate is required for product #${i + 2}.`);
-        return;
-      }
-    }
-
-    console.log(`[VendorRate:${type}:edit] submit id=${rate.id} extraRows=${extraRows.length}`, {
+    console.log(`[VendorRate:${type}:edit] submit id=${rate.id}`, {
       type,
       rateId: rate.id,
       primary: { categoryId, subCategoryId, productName, productSize, productRate, status },
-      extraRows,
     });
 
     try {
@@ -361,22 +292,6 @@ function VendorRateEditContent({
         },
       });
       console.log(`[VendorRate:${type}:edit] primary PUT ok id=${rate.id}`);
-
-      if (extraRows.length > 0) {
-        const extraPayload = {
-          products: extraRows.map((r) => ({
-            vendor_id: Number(rate.vendor_id),
-            category_id: Number(r.categoryId),
-            ...(r.subCategoryId ? { sub_category_id: Number(r.subCategoryId) } : {}),
-            vendor_product: r.productName.trim(),
-            vendor_product_size: r.productSize.trim() || "Unit",
-            vendor_product_rate: r.productRate.trim(),
-          })),
-        };
-        console.log(`[VendorRate:${type}:edit] extra POST products=${extraPayload.products.length}`, extraPayload);
-        const extraResult = await createMutation.mutateAsync(extraPayload);
-        console.log(`[VendorRate:${type}:edit] extra POST success`, extraResult);
-      }
 
       onClose();
     } catch (err) {
@@ -551,166 +466,6 @@ function VendorRateEditContent({
         <SiblingRateList vendorId={rate.vendor_id} currentId={rate.id} />
       )}
 
-      {/* Additional Products Section */}
-      <div className="flex items-center justify-between border-t border-border/60 pt-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {extraRows.length > 0 ? `Additional Products (${extraRows.length})` : "Add Multiple Products"}
-        </span>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAddExtraSize}
-            className="h-7 gap-1.5 text-xs"
-            title="Add another size row keeping category and product name"
-          >
-            <Plus className="size-3" />
-            <span>Add Size</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAddExtraProduct}
-            className="h-7 gap-1.5 text-xs"
-          >
-            <Plus className="size-3" />
-            <span>Add Product</span>
-          </Button>
-        </div>
-      </div>
-
-      {extraRows.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {extraRows.map((row, idx) => {
-            const subCats = getSubCategories(categories, row.categoryId);
-            return (
-              <div
-                key={row.key}
-                className="relative flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-foreground">
-                    #{idx + 2} (New)
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveExtraRow(row.key)}
-                    className="size-7 p-0 text-destructive hover:bg-destructive/10"
-                    title="Remove product"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-1 items-start gap-2.5 md:grid-cols-12">
-                  {/* Category */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-3">
-                    <Label htmlFor={`extra-cat-${row.key}`}>
-                      Category <span className="text-destructive">*</span>
-                    </Label>
-                    <CategorySelectWithCreate
-                      id={`extra-cat-${row.key}`}
-                      direction="auto"
-                      value={row.categoryId}
-                      onChange={(val) => {
-                        updateExtraRow(row.key, "categoryId", val);
-                        updateExtraRow(row.key, "subCategoryId", "");
-                      }}
-                      options={parentCategories.map((c) => ({
-                        value: String(c.id),
-                        label: c.categories_name,
-                      }))}
-                      placeholder="Search category — or +"
-                    />
-                  </div>
-
-                  {/* Sub-Category */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
-                    <Label htmlFor={`extra-subcat-${row.key}`}>
-                      Sub-Category
-                    </Label>
-                    <SubCategorySelectWithCreate
-                      id={`extra-subcat-${row.key}`}
-                      parentId={row.categoryId}
-                      direction="auto"
-                      value={row.subCategoryId}
-                      onChange={(val) =>
-                        updateExtraRow(row.key, "subCategoryId", val)
-                      }
-                      clearable
-                      options={subCats.map((c) => ({
-                        value: String(c.id),
-                        label: c.categories_name,
-                      }))}
-                      placeholder={
-                        !row.categoryId
-                          ? "Select category first"
-                          : catsLoading
-                            ? "Loading..."
-                            : subCats.length > 0
-                              ? "Search sub-category"
-                              : "No sub-categories"
-                      }
-                      disabled={!row.categoryId || catsLoading}
-                    />
-                  </div>
-
-                  {/* Product Name */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-3">
-                    <Label htmlFor={`extra-product-${row.key}`}>
-                      Product Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id={`extra-product-${row.key}`}
-                      placeholder="e.g. Sunflower Oil, Mustard..."
-                      value={row.productName}
-                      onChange={(e) =>
-                        updateExtraRow(row.key, "productName", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-
-                  {/* Size / Unit */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
-                    <Label htmlFor={`extra-size-${row.key}`}>Size / Unit</Label>
-                    <Input
-                      id={`extra-size-${row.key}`}
-                      placeholder="e.g. 15 kg Tin, 1 Ltr"
-                      value={row.productSize}
-                      onChange={(e) =>
-                        updateExtraRow(row.key, "productSize", e.target.value)
-                      }
-                    />
-                  </div>
-
-                  {/* Rate */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
-                    <Label htmlFor={`extra-price-${row.key}`}>
-                      Rate (₹) <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id={`extra-price-${row.key}`}
-                      type="number"
-                      placeholder="e.g. 1450"
-                      value={row.productRate}
-                      onChange={(e) =>
-                        updateExtraRow(row.key, "productRate", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       <div className="mt-2 flex flex-row items-center justify-between">
         <span className="hidden text-xs text-muted-foreground sm:inline">
           <kbd className="rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px]">
@@ -735,11 +490,7 @@ function VendorRateEditContent({
             {isSaving && (
               <Loader2 className="size-4 animate-spin" />
             )}
-            <span>
-              {extraRows.length > 0
-                ? `Update Rate & Add ${extraRows.length} Product${extraRows.length > 1 ? "s" : ""}`
-                : "Update Rate"}
-            </span>
+            <span>Update Rate</span>
           </Button>
         </div>
       </div>
