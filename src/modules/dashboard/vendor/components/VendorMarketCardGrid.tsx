@@ -367,7 +367,7 @@ export function VendorMarketCardGrid({
 
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => onEdit(item)}
                       title="Edit"
@@ -375,14 +375,6 @@ export function VendorMarketCardGrid({
                     >
                       <Edit2 className="size-3.5" />
                     </Button>
-
-                    <button
-                      type="button"
-                      onClick={() => onEdit(item)}
-                      className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      View More &gt;
-                    </button>
                   </div>
                 </div>
               </div>
