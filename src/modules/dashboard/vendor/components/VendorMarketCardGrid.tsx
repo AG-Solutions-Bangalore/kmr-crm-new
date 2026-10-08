@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Calendar,
   Clock,
@@ -14,7 +14,6 @@ import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { CardEmptyState } from "@/components/common/CardStates.tsx";
 import { resolveAssetImageUrl } from "@/lib/image.ts";
 import { cn } from "@/lib/utils.ts";
-import { useCategories } from "../../category/hook/useCategory.ts";
 import type { VendorRateProduct, VendorSpotItem } from "../types/vendor.types.ts";
 
 export type MarketItemType = "rates" | "live" | "spots";
@@ -124,19 +123,27 @@ export function VendorMarketCardGrid({
 }: VendorMarketCardGridProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [togglingId, setTogglingId] = useState<number | null>(null);
-  const { data: allCategories = [] } = useCategories();
 
-  // Extract unique category names from loaded items and available categories
+  // Extract unique category names only from available products/items
   const categoryPills = useMemo(() => {
     const names = new Set<string>();
     for (const it of items) {
-      if (it.categories_name) names.add(it.categories_name.trim());
+      const cat = it.categories_name?.trim();
+      if (cat) names.add(cat);
     }
-    for (const c of allCategories) {
-      if (c.categories_name) names.add(c.categories_name.trim());
+    const sorted = Array.from(names).sort((a, b) => a.localeCompare(b));
+    return ["All", ...sorted];
+  }, [items]);
+
+  // If items change and selected category no longer exists, reset to "All"
+  useEffect(() => {
+    if (
+      selectedCategory !== "All" &&
+      !categoryPills.some((p) => p.toLowerCase() === selectedCategory.toLowerCase())
+    ) {
+      setSelectedCategory("All");
     }
-    return ["All", ...Array.from(names).filter(Boolean)];
-  }, [items, allCategories]);
+  }, [categoryPills, selectedCategory]);
 
   // Client-filter items by active category pill
   const filteredItems = useMemo(() => {
