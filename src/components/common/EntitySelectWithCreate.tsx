@@ -75,6 +75,64 @@ export function CategorySelectWithCreate({
 }
 
 /**
+ * Sub-Category dropdown with an inline `+` and creatable search.
+ * Users can click `+` or type a new sub-category name to create it directly,
+ * pre-associating it with the parent category.
+ */
+export function SubCategorySelectWithCreate({
+  parentId,
+  ...selectProps
+}: BaseProps & { parentId?: string }) {
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [pendingName, setPendingName] = useState("");
+
+  const handleCreateNew = (typedName: string) => {
+    setPendingName(typedName);
+    setQuickOpen(true);
+  };
+
+  return (
+    <>
+      <div className="flex items-center gap-1.5">
+        <div className="min-w-0 flex-1">
+          <SearchableSelect
+            {...selectProps}
+            onCreateNew={handleCreateNew}
+            createLabel={(q) => `Create sub-category "${q}"`}
+          />
+        </div>
+        {!selectProps.disabled && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleCreateNew("")}
+            title="Create a new sub-category without leaving this form"
+            aria-label="Create a new sub-category without leaving this form"
+            className="size-9 shrink-0 p-0"
+          >
+            <Plus className="size-4" />
+          </Button>
+        )}
+      </div>
+      {quickOpen && (
+        <QuickCreateCategoryDialog
+          open={quickOpen}
+          onOpenChange={(v) => {
+            setQuickOpen(v);
+            if (!v) setPendingName("");
+          }}
+          initialName={pendingName}
+          defaultParentId={parentId}
+          initialTab="sub"
+          onCreated={selectProps.onChange}
+        />
+      )}
+    </>
+  );
+}
+
+/**
  * Vendor dropdown with an inline `+` and creatable search.
  * Users can type a vendor name, press Enter or click "+ Create",
  * and quick-create the vendor prefilled, focusing directly on the mobile field.

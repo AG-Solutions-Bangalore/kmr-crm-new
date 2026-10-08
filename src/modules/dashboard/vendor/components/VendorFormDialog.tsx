@@ -155,11 +155,7 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
       setErrorMessage("Vendor name is required.");
       return;
     }
-    if (!mobile.trim()) {
-      setErrorMessage("Vendor mobile is required.");
-      return;
-    }
-    if (mobile.trim().length !== 10) {
+    if (mobile.trim() && mobile.trim().length !== 10) {
       setErrorMessage("Please enter a valid 10-digit mobile number.");
       return;
     }
@@ -230,9 +226,7 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="v-mobile">
-              Mobile Number <span className="text-destructive">*</span>
-            </Label>
+            <Label htmlFor="v-mobile">Mobile Number</Label>
             <Input
               id="v-mobile"
               type="tel"
@@ -241,7 +235,6 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
               value={mobile}
               onChange={handleMobileChange}
               placeholder="e.g. 9876543210"
-              required
             />
           </div>
         </div>

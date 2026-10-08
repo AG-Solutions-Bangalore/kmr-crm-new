@@ -4,9 +4,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
-import { SearchableSelect } from "@/components/common/SearchableSelect.tsx";
 import {
   CategorySelectWithCreate,
+  SubCategorySelectWithCreate,
   VendorSelectWithCreate,
 } from "@/components/common/EntitySelectWithCreate.tsx";
 import {
@@ -184,8 +184,9 @@ function VendorSpotEditContent({
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="sp-subcat">Sub-Category</Label>
-            <SearchableSelect
+            <SubCategorySelectWithCreate
               id="sp-subcat"
+              parentId={categoryId}
               direction="up"
               value={subCategoryId}
               onChange={setSubCategoryId}
@@ -555,8 +556,9 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
 
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor={`sp-subcat-${row.key}`}>Sub-Category</Label>
-                    <SearchableSelect
+                    <SubCategorySelectWithCreate
                       id={`sp-subcat-${row.key}`}
+                      parentId={row.categoryId}
                       direction="up"
                       value={row.subCategoryId}
                       onChange={(val) =>

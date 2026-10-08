@@ -101,10 +101,6 @@ export function QuickCreateVendorDialog({
       setErrorMessage("Vendor name is required.");
       return;
     }
-    if (!mobile.trim()) {
-      setErrorMessage("Vendor mobile is required.");
-      return;
-    }
     setSaving(true);
     try {
       const res = await createMutation.mutateAsync({
@@ -184,16 +180,13 @@ export function QuickCreateVendorDialog({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="qv-mobile">
-                  Mobile <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="qv-mobile">Mobile</Label>
                 <Input
                   ref={mobileInputRef}
                   id="qv-mobile"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value.replace(/[^\d+\s-]/g, ""))}
                   placeholder="e.g. 9830000000"
-                  required
                 />
               </div>
               <div className="flex flex-col gap-1.5">

@@ -24,6 +24,9 @@ import { VendorFormDialog } from "../components/VendorFormDialog.tsx";
 import { VendorTable } from "../components/VendorTable.tsx";
 import { VendorSpotTable } from "../components/VendorSpotTable.tsx";
 import { VendorRateTable } from "../components/VendorRateTable.tsx";
+import { VendorMarketCardGrid } from "../components/VendorMarketCardGrid.tsx";
+import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
+import { readViewMode, writeViewMode, type ListViewMode } from "@/lib/view-mode.ts";
 import {
   useVendorsPage,
   useVendorSpots,
@@ -38,7 +41,8 @@ import type {
   VendorSpotItem,
 } from "../types/vendor.types.ts";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
+const MARKET_VIEW_STORAGE_KEY = "kmr-vendor-market-view";
 type VendorTabKey = "vendors" | "spots" | "live" | "rates";
 
 export function VendorPage() {
@@ -49,6 +53,16 @@ export function VendorPage() {
     rawTab === "spots" || rawTab === "live" || rawTab === "rates"
       ? rawTab
       : "vendors";
+
+  const [marketView, setMarketView] = useState<ListViewMode>(() =>
+    readViewMode(MARKET_VIEW_STORAGE_KEY, "card"),
+  );
+
+  const handleMarketViewChange = (mode: ListViewMode) => {
+    setMarketView(mode);
+    writeViewMode(MARKET_VIEW_STORAGE_KEY, mode);
+  };
+
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
@@ -478,7 +492,21 @@ export function VendorPage() {
         </div>
       )}
 
-      {/* Tab Content — vendor lists stay tables (no photos to preview). */}
+      {/* View Switcher for Market Tabs (Spots, Live, Rates) */}
+      {activeTab !== "vendors" && (
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            {activeTab === "spots"
+              ? `${spotsTotal} spot quotes • ${marketView === "card" ? "4-per-row card view" : "Table view"}`
+              : activeTab === "live"
+                ? `${liveTotal} live rates • ${marketView === "card" ? "4-per-row card view" : "Table view"}`
+                : `${ratesTotal} standard rates • ${marketView === "card" ? "4-per-row card view" : "Table view"}`}
+          </p>
+          <ListViewToggle mode={marketView} onChange={handleMarketViewChange} />
+        </div>
+      )}
+
+      {/* Tab Content */}
       {activeTab === "vendors" ? (
         <VendorTable
           vendors={vendors}
@@ -494,36 +522,87 @@ export function VendorPage() {
           onEdit={handleOpenEdit}
         />
       ) : activeTab === "spots" ? (
-        <VendorSpotTable
-          spots={spots}
-          isLoading={loadingSpots}
-          isFetching={fetchingSpots}
-          page={spotPage}
-          totalPages={spotsTotalPages}
-          total={spotsTotal}
-          perPage={PAGE_SIZE}
-          search={spotSearchInput}
-          onSearchChange={setSpotSearchInput}
-          onPageChange={setSpotPage}
-          onEdit={handleOpenSpotEdit}
-        />
+        marketView === "card" ? (
+          <VendorMarketCardGrid
+            type="spots"
+            items={spots}
+            isLoading={loadingSpots}
+            isFetching={fetchingSpots}
+            page={spotPage}
+            totalPages={spotsTotalPages}
+            total={spotsTotal}
+            perPage={PAGE_SIZE}
+            search={spotSearchInput}
+            onSearchChange={setSpotSearchInput}
+            onPageChange={setSpotPage}
+            onEdit={handleOpenSpotEdit}
+          />
+        ) : (
+          <VendorSpotTable
+            spots={spots}
+            isLoading={loadingSpots}
+            isFetching={fetchingSpots}
+            page={spotPage}
+            totalPages={spotsTotalPages}
+            total={spotsTotal}
+            perPage={PAGE_SIZE}
+            search={spotSearchInput}
+            onSearchChange={setSpotSearchInput}
+            onPageChange={setSpotPage}
+            onEdit={handleOpenSpotEdit}
+          />
+        )
       ) : activeTab === "live" ? (
-        <VendorRateTable
-          rates={liveRates}
-          isLoading={loadingLive}
-          isFetching={fetchingLive}
-          type="live"
-          page={livePage}
-          totalPages={liveTotalPages}
-          total={liveTotal}
+        marketView === "card" ? (
+          <VendorMarketCardGrid
+            type="live"
+            items={liveRates}
+            isLoading={loadingLive}
+            isFetching={fetchingLive}
+            page={livePage}
+            totalPages={liveTotalPages}
+            total={liveTotal}
+            perPage={PAGE_SIZE}
+            search={liveSearchInput}
+            onSearchChange={setLiveSearchInput}
+            onPageChange={setLivePage}
+            onToggleStatus={handleToggleLiveStatus}
+            onEdit={(item) => handleOpenRateEdit(item, "live")}
+          />
+        ) : (
+          <VendorRateTable
+            rates={liveRates}
+            isLoading={loadingLive}
+            isFetching={fetchingLive}
+            type="live"
+            page={livePage}
+            totalPages={liveTotalPages}
+            total={liveTotal}
+            perPage={PAGE_SIZE}
+            search={liveSearchInput}
+            onSearchChange={setLiveSearchInput}
+            onPageChange={setLivePage}
+            onToggleStatus={handleToggleLiveStatus}
+            onEdit={(item) => handleOpenRateEdit(item, "live")}
+            errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
+            onRetry={() => void refetchLive()}
+          />
+        )
+      ) : marketView === "card" ? (
+        <VendorMarketCardGrid
+          type="rates"
+          items={standardRates}
+          isLoading={loadingRates}
+          isFetching={fetchingRates}
+          page={ratePage}
+          totalPages={ratesTotalPages}
+          total={ratesTotal}
           perPage={PAGE_SIZE}
-          search={liveSearchInput}
-          onSearchChange={setLiveSearchInput}
-          onPageChange={setLivePage}
-          onToggleStatus={handleToggleLiveStatus}
-          onEdit={(item) => handleOpenRateEdit(item, "live")}
-          errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
-          onRetry={() => void refetchLive()}
+          search={rateSearchInput}
+          onSearchChange={setRateSearchInput}
+          onPageChange={setRatePage}
+          onToggleStatus={handleToggleRateStatus}
+          onEdit={(item) => handleOpenRateEdit(item, "standard")}
         />
       ) : (
         <VendorRateTable

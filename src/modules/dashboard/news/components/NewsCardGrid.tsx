@@ -69,9 +69,11 @@ export function NewsCardGrid({
   const [order, setOrder] = useState<LatestFirstOrder>("latest");
   const [density, setDensity] = useState<Density>(() => {
     try {
-      return localStorage.getItem(DENSITY_KEY) === "compact" ? "compact" : "cozy";
+      const stored = localStorage.getItem(DENSITY_KEY);
+      if (stored === "cozy" || stored === "compact") return stored;
+      return "compact";
     } catch {
-      return "cozy";
+      return "compact";
     }
   });
   const searchRef = useRef<HTMLInputElement>(null);
