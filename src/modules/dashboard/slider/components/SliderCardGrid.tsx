@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownWideNarrow, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowDownWideNarrow, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
@@ -28,6 +29,8 @@ interface SliderCardGridProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (slider: SliderItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 const SORT_OPTIONS: Array<{ value: LatestFirstOrder; label: string }> = [
@@ -57,6 +60,8 @@ export function SliderCardGrid({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: SliderCardGridProps) {
   const updateStatusMutation = useUpdateSliderStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -181,6 +186,12 @@ export function SliderCardGrid({
                 </button>
               ))}
             </div>
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || "Upload Banner"}</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

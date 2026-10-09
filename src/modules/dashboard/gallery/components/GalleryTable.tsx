@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, Edit2, Images, Power, Search } from "lucide-react";
+import { Check, Copy, Edit2, Images, Plus, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -52,6 +52,8 @@ interface GalleryTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (item: GalleryItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function GalleryTable({
@@ -66,6 +68,8 @@ export function GalleryTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: GalleryTableProps) {
   const updateStatusMutation = useUpdateGalleryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -119,6 +123,12 @@ export function GalleryTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Upload Image"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}

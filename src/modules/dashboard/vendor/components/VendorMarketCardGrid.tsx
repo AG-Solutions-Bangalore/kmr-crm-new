@@ -4,6 +4,7 @@ import {
   Clock,
   Edit2,
   IndianRupee,
+  Plus,
   Power,
   Search,
   Sparkles,
@@ -33,6 +34,8 @@ interface VendorMarketCardGridProps {
   onPageChange: (page: number) => void;
   onEdit: (item: any) => void;
   onToggleStatus?: (item: any) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 function formatCardDate(item: VendorRateProduct | VendorSpotItem): {
@@ -138,6 +141,8 @@ export function VendorMarketCardGrid({
   onPageChange,
   onEdit,
   onToggleStatus,
+  onAdd,
+  addLabel,
 }: VendorMarketCardGridProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -218,6 +223,12 @@ export function VendorMarketCardGrid({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || (type === "spots" ? "Add Spot" : type === "live" ? "Add Live" : "Add Rate")}</span>
+          </Button>
+        )}
       </div>
 
       {/* Grid: 4 per row on desktop (matches requirement and image 4) */}

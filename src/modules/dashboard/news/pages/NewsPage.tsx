@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Newspaper, Plus, RefreshCw } from "lucide-react";
+import { AlertCircle, CheckCircle2, Newspaper, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -96,11 +96,6 @@ export function NewsPage() {
               className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>Publish News</span>
           </Button>
         </div>
       </div>
@@ -201,6 +196,8 @@ export function NewsPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Publish News"
         />
       ) : (
         <NewsTable
@@ -215,6 +212,8 @@ export function NewsPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Publish News"
         />
       )}
 

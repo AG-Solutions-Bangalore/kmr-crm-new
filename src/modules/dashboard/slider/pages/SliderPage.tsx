@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Home, Layers, Plus, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { AlertCircle, CheckCircle2, Home, Layers, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -95,11 +95,6 @@ export function SliderPage() {
               className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>Upload Banner</span>
           </Button>
         </div>
       </div>
@@ -213,6 +208,8 @@ export function SliderPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Upload Banner"
         />
       ) : (
         <SliderTable
@@ -227,6 +224,8 @@ export function SliderPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Upload Banner"
         />
       )}
 

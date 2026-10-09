@@ -220,7 +220,7 @@ function GalleryFormContent({ galleryItem, onClose }: InnerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update Image" : "Upload Image"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </DialogFooter>
     </form>

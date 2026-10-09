@@ -30,7 +30,7 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
   const [shortDesc, setShortDesc] = useState(blog?.blog_short_description || "");
   const [description, setDescription] = useState(blog?.blog_description || "");
   const [categoriesIds, setCategoriesIds] = useState(
-    blog?.blog_categories_ids || "1",
+    blog?.blog_categories_ids || "",
   );
   const [metaKeywords, setMetaKeywords] = useState(
     blog?.blog_meta_keywords || "",
@@ -448,7 +448,7 @@ function BlogFormContent({ blog, onClose }: InnerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update Post" : "Publish Post"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </div>
     </form>

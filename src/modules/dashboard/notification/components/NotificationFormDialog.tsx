@@ -278,11 +278,7 @@ function NotificationFormContent({ notification, onClose }: InnerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending
-            ? "Scheduling..."
-            : isEditing
-              ? "Update Alert"
-              : "Broadcast Alert"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </DialogFooter>
     </form>

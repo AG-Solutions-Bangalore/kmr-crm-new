@@ -4,7 +4,6 @@ import {
   AlertCircle,
   CheckCircle2,
   IndianRupee,
-  Plus,
   Radio,
   RefreshCw,
   Sparkles,
@@ -253,19 +252,19 @@ export function VendorPage() {
           title: "Spot Quotes",
           description:
             "Real-time vendor spot market quotes and delivery terms.",
-          buttonLabel: "Spot Rate",
+          buttonLabel: "Add Spot",
         };
       case "live":
         return {
           title: "Live Commodity Rates",
           description: "Real-time live prices with one-click broadcast toggle.",
-          buttonLabel: "Add Live Rate",
+          buttonLabel: "Add Live",
         };
       case "rates":
         return {
           title: "Standard Commodity Rates",
           description: "Master commodity price book and rate cards.",
-          buttonLabel: "Add Standard Rate",
+          buttonLabel: "Add Rate",
         };
       default:
         return {
@@ -303,11 +302,6 @@ export function VendorPage() {
               className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>{headerInfo.buttonLabel}</span>
           </Button>
         </div>
       </div>
@@ -529,6 +523,8 @@ export function VendorPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Add Vendor"
         />
       ) : activeTab === "spots" ? (
         marketView === "card" ? (
@@ -546,6 +542,8 @@ export function VendorPage() {
             onPageChange={setSpotPage}
             onToggleStatus={handleToggleSpotStatus}
             onEdit={handleOpenSpotEdit}
+            onAdd={handleOpenCreate}
+            addLabel="Add Spot"
           />
         ) : (
           <VendorSpotTable
@@ -560,6 +558,8 @@ export function VendorPage() {
             onSearchChange={setSpotSearchInput}
             onPageChange={setSpotPage}
             onEdit={handleOpenSpotEdit}
+            onAdd={handleOpenCreate}
+            addLabel="Add Spot"
           />
         )
       ) : activeTab === "live" ? (
@@ -578,6 +578,8 @@ export function VendorPage() {
             onPageChange={setLivePage}
             onToggleStatus={handleToggleLiveStatus}
             onEdit={(item) => handleOpenRateEdit(item, "live")}
+            onAdd={handleOpenCreate}
+            addLabel="Add Live"
           />
         ) : (
           <VendorRateTable
@@ -596,6 +598,8 @@ export function VendorPage() {
             onEdit={(item) => handleOpenRateEdit(item, "live")}
             errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
             onRetry={() => void refetchLive()}
+            onAdd={handleOpenCreate}
+            addLabel="Add Live"
           />
         )
       ) : marketView === "card" ? (
@@ -613,6 +617,8 @@ export function VendorPage() {
           onPageChange={setRatePage}
           onToggleStatus={handleToggleRateStatus}
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
+          onAdd={handleOpenCreate}
+          addLabel="Add Rate"
         />
       ) : (
         <VendorRateTable
@@ -631,6 +637,8 @@ export function VendorPage() {
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
           errorMessage={errorRates ? getApiErrorMessage(errorRates) : null}
           onRetry={() => void refetchRates()}
+          onAdd={handleOpenCreate}
+          addLabel="Add Rate"
         />
       )}
 

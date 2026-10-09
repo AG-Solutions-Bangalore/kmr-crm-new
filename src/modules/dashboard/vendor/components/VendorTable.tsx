@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, MapPin, Phone, Power, Search, Store } from "lucide-react";
+import { Edit2, MapPin, Phone, Plus, Power, Search, Store } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -37,6 +37,8 @@ interface VendorTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (vendor: Vendor) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function VendorTable({
@@ -51,6 +53,8 @@ export function VendorTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: VendorTableProps) {
   const updateStatusMutation = useUpdateVendorStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -83,6 +87,12 @@ export function VendorTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Add Vendor"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table Container */}

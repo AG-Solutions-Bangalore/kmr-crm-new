@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, Power, Search, Sparkles } from "lucide-react";
+import { Edit2, Plus, Power, Search, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -20,6 +20,8 @@ interface VendorSpotTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (spot: VendorSpotItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function VendorSpotTable({
@@ -34,6 +36,8 @@ export function VendorSpotTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: VendorSpotTableProps) {
   const updateStatusMutation = useUpdateVendorSpotStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -67,6 +71,12 @@ export function VendorSpotTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Add Spot"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}
