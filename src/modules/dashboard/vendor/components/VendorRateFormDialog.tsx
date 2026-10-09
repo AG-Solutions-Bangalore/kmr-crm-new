@@ -532,6 +532,7 @@ function VendorRateCreateContent({
   const [rows, setRows] = useState<RateRow[]>([blankRow(0)]);
   const keyRef = useRef(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [focusedKey, setFocusedKey] = useState<number | null>(null);
 
   useEffect(() => {
     if (filteredVendors.length === 0) return;
@@ -752,8 +753,14 @@ function VendorRateCreateContent({
             return (
               <div
                 key={row.key}
-                style={{ zIndex: rows.length - idx }}
-                className="relative flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 transition-colors hover:border-border focus-within:z-30"
+                style={{ zIndex: focusedKey === row.key ? 50 : rows.length - idx }}
+                onFocusCapture={() => setFocusedKey(row.key)}
+                onBlurCapture={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setFocusedKey((k) => (k === row.key ? null : k));
+                  }
+                }}
+                className="relative flex flex-col gap-2 rounded-lg border border-border/70 bg-card p-3 transition-colors hover:border-border"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-foreground">
@@ -785,15 +792,15 @@ function VendorRateCreateContent({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 items-start gap-2.5 md:grid-cols-12">
+                <div className="grid grid-cols-1 items-start gap-2.5 sm:grid-cols-6">
                   {/* 1. Category */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-3">
+                  <div className="min-w-0 flex flex-col gap-1.5 sm:col-span-3 lg:col-span-2">
                     <Label htmlFor={`rate-cat-${row.key}`}>
                       Category <span className="text-destructive">*</span>
                     </Label>
                     <CategorySelectWithCreate
                       id={`rate-cat-${row.key}`}
-                      direction="auto"
+                      direction="down"
                       value={row.categoryId}
                       onChange={(val) => {
                         updateRow(row.key, "categoryId", val);
@@ -808,14 +815,14 @@ function VendorRateCreateContent({
                   </div>
 
                   {/* 2. Sub-Category */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
+                  <div className="min-w-0 flex flex-col gap-1.5 sm:col-span-3 lg:col-span-2">
                     <Label htmlFor={`rate-subcat-${row.key}`}>
                       Sub-Category
                     </Label>
                     <SubCategorySelectWithCreate
                       id={`rate-subcat-${row.key}`}
                       parentId={row.categoryId}
-                      direction="auto"
+                      direction="down"
                       value={row.subCategoryId}
                       onChange={(val) =>
                         updateRow(row.key, "subCategoryId", val)
@@ -839,7 +846,7 @@ function VendorRateCreateContent({
                   </div>
 
                   {/* 3. Product Name */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-3">
+                  <div className="min-w-0 flex flex-col gap-1.5 sm:col-span-6 lg:col-span-2">
                     <Label htmlFor={`rate-product-${row.key}`}>
                       Product Name <span className="text-destructive">*</span>
                     </Label>
@@ -855,7 +862,7 @@ function VendorRateCreateContent({
                   </div>
 
                   {/* 4. Size / Unit */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
+                  <div className="min-w-0 flex flex-col gap-1.5 sm:col-span-3 lg:col-span-2">
                     <Label htmlFor={`rate-size-${row.key}`}>Size / Unit</Label>
                     <Input
                       id={`rate-size-${row.key}`}
@@ -868,7 +875,7 @@ function VendorRateCreateContent({
                   </div>
 
                   {/* 5. Rate (₹) */}
-                  <div className="min-w-0 flex flex-col gap-1.5 md:col-span-2">
+                  <div className="min-w-0 flex flex-col gap-1.5 sm:col-span-3 lg:col-span-2">
                     <Label htmlFor={`rate-price-${row.key}`}>
                       Rate (₹) <span className="text-destructive">*</span>
                     </Label>

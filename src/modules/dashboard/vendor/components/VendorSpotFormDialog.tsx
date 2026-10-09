@@ -325,6 +325,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     { key: 0, categoryId: "", subCategoryId: "", heading: "", details: "" },
   ]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [focusedKey, setFocusedKey] = useState<number | null>(null);
 
   // Default to first spot vendor once loaded.
   useEffect(() => {
@@ -505,8 +506,14 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
             {rows.map((row, idx) => (
               <div
                 key={row.key}
-                style={{ zIndex: rows.length - idx }}
-                className="relative flex flex-col gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 focus-within:z-30"
+                style={{ zIndex: focusedKey === row.key ? 50 : rows.length - idx }}
+                onFocusCapture={() => setFocusedKey(row.key)}
+                onBlurCapture={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setFocusedKey((k) => (k === row.key ? null : k));
+                  }
+                }}
+                className="relative flex flex-col gap-2 rounded-lg border border-border/70 bg-card p-3"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-foreground">
@@ -543,7 +550,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                     <Label htmlFor={`sp-cat-${row.key}`}>Category</Label>
                     <CategorySelectWithCreate
                       id={`sp-cat-${row.key}`}
-                      direction="up"
+                      direction="down"
                       value={row.categoryId}
                       onChange={(val) => updateRow(row.key, "categoryId", val)}
                       options={parentCategories.map((c) => ({
@@ -559,7 +566,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
                     <SubCategorySelectWithCreate
                       id={`sp-subcat-${row.key}`}
                       parentId={row.categoryId}
-                      direction="up"
+                      direction="down"
                       value={row.subCategoryId}
                       onChange={(val) =>
                         updateRow(row.key, "subCategoryId", val)
