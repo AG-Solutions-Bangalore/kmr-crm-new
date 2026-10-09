@@ -140,8 +140,10 @@ export function SearchableSelect({
         return;
       }
 
-      // Flip up only when room below is tight (< 220px) and there's ample room above
-      setOpenUp(spaceBelow < 220 && spaceAbove > spaceBelow);
+      // Flip up only when there is clearly no room below AND ample room above.
+      // Inside modals / multi-row create forms, opening up covers labels and
+      // the previous row, which looks like overlapping. Prefer down.
+      setOpenUp(spaceBelow < 160 && spaceAbove > 320 && spaceAbove > spaceBelow * 1.5);
     };
 
     checkDirection();
@@ -268,7 +270,7 @@ export function SearchableSelect({
       {open && (
         <div
           className={cn(
-            "absolute z-50 w-full min-w-[200px] rounded-md border border-border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 duration-100",
+            "absolute left-0 z-[100] w-full max-w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-2xl animate-in fade-in-0 zoom-in-95 duration-100",
             openUp ? "bottom-full mb-1" : "top-full mt-1",
           )}
         >
