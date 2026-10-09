@@ -87,7 +87,7 @@ export function ClientTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search clients by name..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

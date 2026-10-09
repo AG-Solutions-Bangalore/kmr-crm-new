@@ -80,7 +80,7 @@ export function SliderTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by image, URL, or type..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

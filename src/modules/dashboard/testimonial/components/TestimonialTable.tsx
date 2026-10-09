@@ -66,7 +66,7 @@ export function TestimonialTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search testimonials by client, page, or review..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

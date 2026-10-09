@@ -94,7 +94,7 @@ export function BlogTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search articles by title, category, or summary..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

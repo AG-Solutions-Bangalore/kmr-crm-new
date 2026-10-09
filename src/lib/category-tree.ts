@@ -57,6 +57,7 @@ export function slugifyPart(val: string): string {
   return val
     .toLowerCase()
     .trim()
+    .replace(/\//g, "-")
     .replace(/[^\w\s-]/g, "")
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
@@ -65,7 +66,7 @@ export function slugifyPart(val: string): string {
 /**
  * Builds the category slug:
  * - Root category: e.g. "Coconut" -> "coconut"
- * - Sub-category: e.g. Parent "Coconut" + Sub "Coconut Oil" -> "coconut/coconut-oil"
+ * - Sub-category: e.g. Parent "Coconut" + Sub "Coconut Oil" -> "coconut-coconut-oil"
  */
 export function buildCategorySlug(
   name: string,
@@ -75,12 +76,13 @@ export function buildCategorySlug(
   const selfSlug = slugifyPart(name);
   if (!isSub || !parent) return selfSlug;
 
-  const parentSlug =
+  const parentSlug = slugifyPart(
     (parent.categories_slug ? parent.categories_slug.trim() : "") ||
-    slugifyPart(parent.categories_name || "");
+      (parent.categories_name || ""),
+  );
 
   if (parentSlug && selfSlug) {
-    return `${parentSlug}/${selfSlug}`;
+    return `${parentSlug}-${selfSlug}`;
   }
   return selfSlug;
 }

@@ -219,7 +219,7 @@ export function VendorMarketCardGrid({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={`Search ${type === "spots" ? "spot quotes" : type === "live" ? "live rates" : "standard rates"}...`}
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

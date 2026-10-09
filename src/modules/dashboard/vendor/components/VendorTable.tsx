@@ -83,7 +83,7 @@ export function VendorTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by vendor name, mobile, or city..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

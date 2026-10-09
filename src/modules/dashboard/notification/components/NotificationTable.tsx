@@ -94,7 +94,7 @@ export function NotificationTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by heading or message content..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>
