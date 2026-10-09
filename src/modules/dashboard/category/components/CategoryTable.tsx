@@ -113,7 +113,7 @@ export function CategoryTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search categories by name..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

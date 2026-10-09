@@ -97,7 +97,7 @@ export function NewsTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search news by headline, details, or category..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

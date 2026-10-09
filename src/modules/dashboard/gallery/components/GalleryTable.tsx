@@ -119,7 +119,7 @@ export function GalleryTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search gallery images by name..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

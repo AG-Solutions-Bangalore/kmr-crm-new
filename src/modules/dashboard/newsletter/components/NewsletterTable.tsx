@@ -79,7 +79,7 @@ export function NewsletterTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search subscribers by email..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

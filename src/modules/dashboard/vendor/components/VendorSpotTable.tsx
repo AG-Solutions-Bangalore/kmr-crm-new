@@ -67,7 +67,7 @@ export function VendorSpotTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search spot quotes by title, vendor, or details..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

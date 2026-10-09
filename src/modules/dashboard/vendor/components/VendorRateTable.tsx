@@ -85,7 +85,7 @@ export function VendorRateTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={`Search ${type === "live" ? "live" : "standard"} rates by product or size...`}
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

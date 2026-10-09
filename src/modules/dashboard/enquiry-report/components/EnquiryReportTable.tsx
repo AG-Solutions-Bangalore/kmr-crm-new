@@ -61,7 +61,7 @@ export function EnquiryReportTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by name, mobile, email, or service..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

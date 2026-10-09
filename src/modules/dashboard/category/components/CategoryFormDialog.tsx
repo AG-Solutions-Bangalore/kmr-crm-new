@@ -49,10 +49,14 @@ function CategoryFormContent({
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
 
-  const [name, setName] = useState(category?.categories_name || "");
+  const [name, setName] = useState(
+    (category?.categories_name || "").replace(/\//g, "-"),
+  );
   // Slug is fully auto-generated and never hand-edited: live from the name
   // when creating, frozen to the saved value when editing.
-  const [slug, setSlug] = useState(category?.categories_slug || "");
+  const [slug, setSlug] = useState(
+    (category?.categories_slug || "").replace(/\//g, "-"),
+  );
   const [parentId, setParentId] = useState(
     category?.parent_id ? String(category.parent_id) : "",
   );
@@ -110,7 +114,8 @@ function CategoryFormContent({
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!name.trim()) {
+    const sanitizedName = name.replace(/\//g, "-").trim();
+    if (!sanitizedName) {
       setErrorMessage(
         isSub ? "Sub-category name is required." : "Category name is required.",
       );
@@ -124,28 +129,31 @@ function CategoryFormContent({
 
     try {
       // Automatically format slug based on parent and sub-category names
-      const finalSlug = isEditing
-        ? (slug.trim() || buildCategorySlug(name, isSub, selectedParent))
-        : buildCategorySlug(name, isSub, selectedParent);
+      const finalSlug = (
+        isEditing
+          ? (slug.trim() || buildCategorySlug(sanitizedName, isSub, selectedParent))
+          : buildCategorySlug(sanitizedName, isSub, selectedParent)
+      ).replace(/\//g, "-");
       const finalParentId = isSub ? parentId : "0";
+      const cleanSortOrder = sortOrder.replace(/\//g, "-").trim() || "1";
       if (isEditing && category) {
         await updateMutation.mutateAsync({
           id: category.id,
           payload: {
-            categories_name: name.trim(),
+            categories_name: sanitizedName,
             categories_slug: finalSlug,
             parent_id: finalParentId,
-            categories_sort_order: sortOrder,
+            categories_sort_order: cleanSortOrder,
             categories_status: status,
             categories_image: imageFile ?? undefined,
           },
         });
       } else {
         await createMutation.mutateAsync({
-          categories_name: name.trim(),
+          categories_name: sanitizedName,
           categories_slug: finalSlug,
           parent_id: finalParentId,
-          categories_sort_order: sortOrder,
+          categories_sort_order: cleanSortOrder,
           categories_status: "Active",
           categories_image: imageFile ?? undefined,
         });
@@ -213,7 +221,7 @@ function CategoryFormContent({
             <Input
               id="cat-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.replace(/\//g, "-"))}
               placeholder={
                 isSub
                   ? "e.g. 1st Grade Refined Rice Bran Oil, Copra"

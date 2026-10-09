@@ -150,7 +150,7 @@ export function MemberTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search members by name, mobile, or email..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>

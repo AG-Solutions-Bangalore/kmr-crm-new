@@ -75,25 +75,6 @@ export function SliderCardGrid({
   });
   const searchRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
-      const t = e.target as HTMLElement | null;
-      if (
-        !t ||
-        t.tagName === "INPUT" ||
-        t.tagName === "TEXTAREA" ||
-        t.isContentEditable ||
-        document.querySelector('[role="dialog"]')
-      ) {
-        return;
-      }
-      e.preventDefault();
-      searchRef.current?.focus();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   // Search is server-side (?search=); sort the loaded page latest-first.
   const visible = sortByRecency(sliders, order);
@@ -138,13 +119,10 @@ export function SliderCardGrid({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               onKeyDown={handleSearchKey}
-              placeholder="Search banners by type, category, or URL... ( / )"
-              className="pl-8 pr-9"
+              placeholder="Search..."
+              className="pl-8"
               aria-label="Search slider banners"
             />
-            <kbd className="pointer-events-none absolute right-2.5 top-2 hidden h-5 items-center rounded border border-border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground sm:inline-flex">
-              /
-            </kbd>
           </div>
           <div className="flex items-center gap-2 sm:ml-auto">
             <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">

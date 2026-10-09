@@ -70,10 +70,10 @@ export function QuickCreateCategoryDialog({
     (defaultParentId && defaultParentId !== "0" ? "sub" : "category");
   const [tab, setTab] = useState<QuickTab>(defaultTab);
 
-  const [name, setName] = useState(initialName);
+  const [name, setName] = useState(initialName.replace(/\//g, "-"));
   const [parentId, setParentId] = useState(defaultParentId);
   const selectedParent = parentCategories.find((c) => String(c.id) === String(parentId));
-  // Slug is fully auto-generated: main-slug/sub-slug for subcategories
+  // Slug is fully auto-generated: main-slug-sub-slug for subcategories
   const slug = buildCategorySlug(name, tab === "sub", selectedParent);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -85,7 +85,7 @@ export function QuickCreateCategoryDialog({
   // Sync initial state when dialog opens
   useEffect(() => {
     if (open) {
-      const trimmed = initialName.trim();
+      const trimmed = initialName.replace(/\//g, "-").trim();
       setName(trimmed);
       const startTab: QuickTab =
         initialTab ??
@@ -149,7 +149,7 @@ export function QuickCreateCategoryDialog({
   };
 
   const handleNameChange = (val: string) => {
-    setName(val);
+    setName(val.replace(/\//g, "-"));
   };
 
   const resolveNewId = async (res: unknown, finalSlug: string, finalName: string): Promise<string | null> => {
@@ -175,7 +175,8 @@ export function QuickCreateCategoryDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    if (!name.trim()) {
+    const sanitizedName = name.replace(/\//g, "-").trim();
+    if (!sanitizedName) {
       setErrorMessage("Category name is required.");
       return;
     }
@@ -184,18 +185,18 @@ export function QuickCreateCategoryDialog({
       setErrorMessage("Please select a parent category for the sub-category.");
       return;
     }
-    const finalSlug = buildCategorySlug(name, tab === "sub", selectedParent);
+    const finalSlug = buildCategorySlug(sanitizedName, tab === "sub", selectedParent).replace(/\//g, "-");
     setSaving(true);
     try {
       const res = await createMutation.mutateAsync({
-        categories_name: name.trim(),
+        categories_name: sanitizedName,
         categories_slug: finalSlug,
         parent_id: finalParentId || "0",
         categories_sort_order: "1",
         categories_status: "Active",
         ...(imageFile ? { categories_image: imageFile } : {}),
       });
-      const id = await resolveNewId(res, finalSlug, name.trim());
+      const id = await resolveNewId(res, finalSlug, sanitizedName);
       reset();
       onOpenChange(false);
       if (id) onCreated(id);

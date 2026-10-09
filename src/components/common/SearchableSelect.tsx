@@ -213,7 +213,7 @@ export function SearchableSelect({
           setQuery("");
         }
       } else if (showCreateOption && onCreateNew) {
-        const q = query.trim();
+        const q = query.replace(/\//g, "-").trim();
         setOpen(false);
         setQuery("");
         onCreateNew(q);
@@ -279,8 +279,8 @@ export function SearchableSelect({
             <input
               ref={searchRef}
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Type to search..."
+              onChange={(e) => setQuery(e.target.value.replace(/\//g, "-"))}
+              placeholder="Search..."
               className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-[var(--placeholder,#9ca3af)]"
             />
           </div>
@@ -330,7 +330,7 @@ export function SearchableSelect({
                   type="button"
                   onMouseEnter={() => setHighlightedIndex(filtered.length)}
                   onClick={() => {
-                    const q = query.trim();
+                    const q = query.replace(/\//g, "-").trim();
                     setOpen(false);
                     setQuery("");
                     onCreateNew?.(q);
@@ -344,7 +344,7 @@ export function SearchableSelect({
                 >
                   <Plus className="size-4 shrink-0" />
                   <span className="min-w-0 truncate">
-                    {createLabel ? createLabel(query.trim()) : `Create "${query.trim()}"`}
+                    {createLabel ? createLabel(query.replace(/\//g, "-").trim()) : `Create "${query.replace(/\//g, "-").trim()}"`}
                   </span>
                 </button>
               </li>

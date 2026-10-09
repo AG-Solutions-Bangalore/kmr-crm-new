@@ -89,7 +89,7 @@ export function FaqTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search FAQs by page or status..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>
