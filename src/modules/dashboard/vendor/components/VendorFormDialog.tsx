@@ -78,7 +78,7 @@ function TradeMultiSelect({
         onClick={() => setOpen((o) => !o)}
         className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       >
-        <span className={selectedLabels.length > 0 ? "" : "text-muted-foreground"}>
+        <span className={selectedLabels.length > 0 ? "" : "text-[var(--placeholder,#9ca3af)]"}>
           {selectedLabels.length > 0 ? selectedLabels.join(", ") : "Select trade types"}
         </span>
         <ChevronDown className="size-4 shrink-0 opacity-50" />
@@ -116,7 +116,7 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
   const [mobile, setMobile] = useState(vendor?.vendor_mobile || "");
   const [email, setEmail] = useState(vendor?.vendor_email || "");
   const [city, setCity] = useState(vendor?.vendor_city || "");
-  const [trade, setTrade] = useState(vendor?.vendor_trade || "");
+  const [trade, setTrade] = useState(vendor?.vendor_trade || "1, 2, 3");
   const [address, setAddress] = useState(vendor?.vendor_address || "");
   const [status, setStatus] = useState<VendorStatus>(
     (vendor?.vendor_status as VendorStatus) || "Active",
@@ -182,7 +182,7 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
           vendor_mobile: mobile.trim(),
           vendor_email: email.trim(),
           vendor_city: city.trim(),
-          vendor_trade: trade.trim(),
+          vendor_trade: "1, 2, 3",
           vendor_address: address.trim(),
           vendor_status: "Active",
           vendor_image: imageFile ?? undefined,
@@ -263,13 +263,13 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
           </div>
         </div>
 
-        <div className={isEditing ? "grid grid-cols-2 gap-3" : "grid gap-3"}>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="v-trade">Trade</Label>
-            <TradeMultiSelect value={trade} onChange={setTrade} />
-          </div>
+        {isEditing && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="v-trade">Trade</Label>
+              <TradeMultiSelect value={trade} onChange={setTrade} />
+            </div>
 
-          {isEditing && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="v-status">Status</Label>
               <select
@@ -282,8 +282,8 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="v-address">Address</Label>
@@ -364,7 +364,7 @@ function VendorFormContent({ vendor, onClose }: InnerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update Vendor" : "Create Vendor"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </DialogFooter>
     </form>

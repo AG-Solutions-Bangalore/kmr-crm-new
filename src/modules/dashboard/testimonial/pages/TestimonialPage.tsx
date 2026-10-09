@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Plus, Quote, RefreshCw, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Quote, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -80,11 +80,6 @@ export function TestimonialPage() {
               className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>Add Testimonial</span>
           </Button>
         </div>
       </div>
@@ -170,6 +165,8 @@ export function TestimonialPage() {
         onSearchChange={setSearchInput}
         onPageChange={setPage}
         onEdit={handleOpenEdit}
+        onAdd={handleOpenCreate}
+        addLabel="Add Testimonial"
       />
 
       {/* Add / Edit Dialog */}

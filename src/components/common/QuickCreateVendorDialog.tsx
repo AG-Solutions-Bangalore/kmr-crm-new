@@ -38,7 +38,7 @@ export function QuickCreateVendorDialog({
   open,
   onOpenChange,
   initialName = "",
-  defaultTrade,
+  defaultTrade: _defaultTrade,
   onCreated,
 }: QuickCreateVendorDialogProps) {
   const createMutation = useCreateVendor();
@@ -108,7 +108,7 @@ export function QuickCreateVendorDialog({
         vendor_mobile: mobile.trim(),
         vendor_email: "",
         vendor_city: city.trim(),
-        vendor_trade: defaultTrade || "",
+        vendor_trade: "1, 2, 3",
         vendor_address: "",
         vendor_status: "Active",
       });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Edit2, Power, Search, Users } from "lucide-react";
+import { Edit2, Plus, Power, Search, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -24,6 +24,8 @@ interface MemberTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (member: MemberItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function MemberTable({
@@ -38,6 +40,8 @@ export function MemberTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: MemberTableProps) {
   const updateStatusMutation = useUpdateMemberStatus();
   const updateValidityMutation = useUpdateMemberValidity();
@@ -150,6 +154,12 @@ export function MemberTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Add Member"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Bulk actions */}

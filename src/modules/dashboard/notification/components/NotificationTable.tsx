@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Calendar, Edit2, Power, Search } from "lucide-react";
+import { Bell, Calendar, Edit2, Plus, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -50,6 +50,8 @@ interface NotificationTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (notification: NotificationItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function NotificationTable({
@@ -64,6 +66,8 @@ export function NotificationTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: NotificationTableProps) {
   const updateStatusMutation = useUpdateNotificationStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -94,6 +98,12 @@ export function NotificationTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Send Alert"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}

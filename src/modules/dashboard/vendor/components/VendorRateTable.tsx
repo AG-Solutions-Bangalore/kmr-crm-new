@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, Edit2, IndianRupee, Power, Search } from "lucide-react";
+import { AlertCircle, Edit2, IndianRupee, Plus, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -23,6 +23,8 @@ interface VendorRateTableProps {
   onEdit?: (item: VendorRateProduct) => void;
   errorMessage?: string | null;
   onRetry?: () => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function VendorRateTable({
@@ -41,6 +43,8 @@ export function VendorRateTable({
   onEdit,
   errorMessage,
   onRetry,
+  onAdd,
+  addLabel,
 }: VendorRateTableProps) {
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
@@ -85,6 +89,12 @@ export function VendorRateTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || (type === "live" ? "Add Live" : "Add Rate")}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}

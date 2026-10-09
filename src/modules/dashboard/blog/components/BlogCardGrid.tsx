@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownWideNarrow, FileText, Search } from "lucide-react";
+import { ArrowDownWideNarrow, FileText, Plus, Search } from "lucide-react";
+import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
@@ -30,6 +31,8 @@ interface BlogCardGridProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (blog: BlogItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 const SORT_OPTIONS: Array<{ value: LatestFirstOrder; label: string }> = [
@@ -59,6 +62,8 @@ export function BlogCardGrid({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: BlogCardGridProps) {
   const updateStatusMutation = useUpdateBlogStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -197,6 +202,12 @@ export function BlogCardGrid({
                 </button>
               ))}
             </div>
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || "Create Article"}</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

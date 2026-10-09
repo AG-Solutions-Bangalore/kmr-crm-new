@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Images, Plus, RefreshCw, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Images, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -103,11 +103,6 @@ export function GalleryPage() {
             />
             <span>Refresh</span>
           </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>Upload Image</span>
-          </Button>
         </div>
       </div>
 
@@ -206,6 +201,8 @@ export function GalleryPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Upload Image"
         />
       ) : (
         <GalleryTable
@@ -220,6 +217,8 @@ export function GalleryPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Upload Image"
         />
       )}
 

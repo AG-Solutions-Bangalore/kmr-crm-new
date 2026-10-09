@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, HelpCircle, Power, Search, Trash2 } from "lucide-react";
+import { Edit2, HelpCircle, Plus, Power, Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -30,6 +30,8 @@ interface FaqTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (item: FaqItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function FaqTable({
@@ -44,6 +46,8 @@ export function FaqTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: FaqTableProps) {
   const updateStatusMutation = useUpdateFaqStatus();
   const deleteMutation = useDeleteFaq();
@@ -89,6 +93,12 @@ export function FaqTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Create FAQ Group"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table - strictly renders what the API returns: id, faq_for, faq_status */}

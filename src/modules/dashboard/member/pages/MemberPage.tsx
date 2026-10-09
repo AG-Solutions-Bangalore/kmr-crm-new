@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AlertCircle, CheckCircle2, Plus, RefreshCw, Users, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, RefreshCw, Users, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -118,11 +118,6 @@ export function MemberPage() {
               className={`size-3.5 ${activeFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>{tab === "trail" ? "Add Trail User" : "Add Member"}</span>
           </Button>
         </div>
       </div>
@@ -258,6 +253,8 @@ export function MemberPage() {
         onSearchChange={tab === "all" ? setSearchInput : setTrailSearchInput}
         onPageChange={tab === "all" ? setPage : setTrailPage}
         onEdit={handleOpenEdit}
+        onAdd={handleOpenCreate}
+        addLabel={tab === "trail" ? "Add Trail User" : "Add Member"}
       />
 
       {/* Add / Edit Dialog */}

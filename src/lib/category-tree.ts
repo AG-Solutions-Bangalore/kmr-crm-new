@@ -49,3 +49,39 @@ export function getSubCategories(
       String(c.id) !== String(categoryId),
   );
 }
+
+/**
+ * Normalizes a category or sub-category name into a URL-friendly slug part.
+ */
+export function slugifyPart(val: string): string {
+  return val
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Builds the category slug:
+ * - Root category: e.g. "Coconut" -> "coconut"
+ * - Sub-category: e.g. Parent "Coconut" + Sub "Coconut Oil" -> "coconut/coconut-oil"
+ */
+export function buildCategorySlug(
+  name: string,
+  isSub: boolean,
+  parent?: { categories_name?: string; categories_slug?: string | null },
+): string {
+  const selfSlug = slugifyPart(name);
+  if (!isSub || !parent) return selfSlug;
+
+  const parentSlug =
+    (parent.categories_slug ? parent.categories_slug.trim() : "") ||
+    slugifyPart(parent.categories_name || "");
+
+  if (parentSlug && selfSlug) {
+    return `${parentSlug}/${selfSlug}`;
+  }
+  return selfSlug;
+}
+

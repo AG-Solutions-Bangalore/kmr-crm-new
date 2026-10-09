@@ -55,7 +55,9 @@ function VendorSpotEditContent({
   const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
 
-  const [categoryId, setCategoryId] = useState(String(spot.category_id));
+  const [categoryId, setCategoryId] = useState(
+    spot?.category_id ? String(spot.category_id) : "",
+  );
   const [subCategoryId, setSubCategoryId] = useState(
     spot?.sub_category_id ? String(spot.sub_category_id) : "",
   );
@@ -283,7 +285,7 @@ function VendorSpotEditContent({
             Cancel
           </Button>
           <Button type="submit" disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? "Saving..." : "Update Spot Quote"}
+            {updateMutation.isPending ? "Saving..." : "Save"}
           </Button>
         </div>
       </div>
@@ -327,15 +329,12 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [focusedKey, setFocusedKey] = useState<number | null>(null);
 
-  // Default to first spot vendor once loaded.
   useEffect(() => {
-    if (filteredVendors.length === 0) return;
-    setVendorId((prev) => {
-      if (prev && filteredVendors.some((v) => String(v.id) === String(prev)))
-        return prev;
-      return String(filteredVendors[0].id);
-    });
-  }, [filteredVendors]);
+    if (!vendorId) return;
+    if (!filteredVendors.some((v) => String(v.id) === String(vendorId))) {
+      setVendorId("");
+    }
+  }, [filteredVendors, vendorId]);
 
   // Strict linking: no category -> no sub-categories.
   const subsFor = (catId: string) => getSubCategories(categories, catId);
@@ -399,9 +398,12 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setErrorMessage(null);
 
-    const vId =
-      vendorId ||
-      (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "1");
+    if (!vendorId) {
+      setErrorMessage("Please select a vendor.");
+      return;
+    }
+
+    const vId = vendorId;
 
     for (let i = 0; i < rows.length; i++) {
       if (!rows[i].heading.trim()) {
@@ -465,7 +467,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
           <Label htmlFor="sp-vendor">Select Vendor (applies to all rows)</Label>
           <VendorSelectWithCreate
             id="sp-vendor"
-            value={vendorId || (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "")}
+            value={vendorId}
             onChange={setVendorId}
             defaultTrade="3"
             options={
@@ -478,7 +480,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
             }
             placeholder={
               filteredVendors.length > 0
-                ? "Select spot vendor — or + to create one"
+                ? "Select Spot Rate Vendor — or + to create one"
                 : "No spot vendors available — click + to create"
             }
             required
@@ -650,11 +652,7 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
             Cancel
           </Button>
           <Button type="submit" disabled={createMutation.isPending}>
-            {createMutation.isPending
-              ? "Saving..."
-              : rows.length > 1
-                ? `Create ${rows.length} Spot Quotes`
-                : "Spot Rate"}
+            {createMutation.isPending ? "Saving..." : "Save"}
           </Button>
         </div>
       </div>

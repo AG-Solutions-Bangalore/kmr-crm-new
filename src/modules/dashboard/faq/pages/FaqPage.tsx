@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle2, HelpCircle, Plus, RefreshCw, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, HelpCircle, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -79,11 +79,6 @@ export function FaqPage() {
               className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>Create FAQ Group</span>
           </Button>
         </div>
       </div>
@@ -183,6 +178,8 @@ export function FaqPage() {
         onSearchChange={setSearchInput}
         onPageChange={setPage}
         onEdit={handleOpenEdit}
+        onAdd={handleOpenCreate}
+        addLabel="Create FAQ Group"
       />
     </div>
   );

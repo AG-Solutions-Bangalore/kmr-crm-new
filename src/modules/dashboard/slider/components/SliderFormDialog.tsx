@@ -38,8 +38,8 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
   const createMutation = useCreateSlider();
   const updateMutation = useUpdateSlider();
 
-  const [sliderType, setSliderType] = useState<SliderType>(
-    (slider?.slider_type as SliderType) || "Category",
+  const [sliderType, setSliderType] = useState<SliderType | "">(
+    (slider?.slider_type as SliderType) || (isEditing ? "Category" : ""),
   );
   const { data: activeCategories = [], isLoading: categoriesLoading } =
     useActiveCategories();
@@ -52,15 +52,8 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
   }, [activeCategories, allCategories]);
 
   const [categoryId, setCategoryId] = useState(
-    String(slider?.category_id ?? ""),
+    slider?.category_id ? String(slider.category_id) : "",
   );
-
-  // Default to first real root category
-  useEffect(() => {
-    if (!categoryId && parentCategories.length > 0) {
-      setCategoryId(String(parentCategories[0].id));
-    }
-  }, [parentCategories, categoryId]);
 
   const categoryOptions = useMemo(() => {
     const list = parentCategories.map((c) => ({
@@ -114,6 +107,10 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
 
     if (!isEditing && !imageFile) {
       setErrorMessage("Please select a banner image file.");
+      return;
+    }
+    if (!sliderType) {
+      setErrorMessage("Please select a slider type.");
       return;
     }
     if (sliderType === "Category" && !categoryId) {
@@ -196,6 +193,7 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
               onChange={(e) => setSliderType(e.target.value as SliderType)}
               className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
+              <option value="">Select Slider Type...</option>
               <option value="Category">Category Banner</option>
               <option value="Home">Home Screen Hero</option>
             </select>
@@ -385,10 +383,8 @@ function SliderFormContent({ slider, onClose }: InnerFormProps) {
                 <Loader2 className="size-4 animate-spin mr-1.5" />
                 <span>Saving...</span>
               </>
-            ) : isEditing ? (
-              "Update Banner"
             ) : (
-              "Upload Banner"
+              "Save"
             )}
           </Button>
         </div>

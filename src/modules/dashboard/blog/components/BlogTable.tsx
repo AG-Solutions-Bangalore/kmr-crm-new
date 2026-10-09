@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, FileText, Power, Search, Star } from "lucide-react";
+import { Edit2, FileText, Plus, Power, Search, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -50,6 +50,8 @@ interface BlogTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (blog: BlogItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function BlogTable({
@@ -64,6 +66,8 @@ export function BlogTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: BlogTableProps) {
   const updateStatusMutation = useUpdateBlogStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -94,6 +98,12 @@ export function BlogTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Create Article"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}

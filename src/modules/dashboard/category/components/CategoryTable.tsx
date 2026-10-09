@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Edit2, FolderTree, Power, Search } from "lucide-react";
+import { Edit2, FolderTree, Plus, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -49,6 +49,8 @@ interface CategoryTableProps {
   onPageChange: (page: number) => void;
   onEdit: (category: Category) => void;
   showParentColumn?: boolean;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 function pageWindow(current: number, total: number): number[] {
@@ -72,6 +74,8 @@ export function CategoryTable({
   onPageChange,
   onEdit,
   showParentColumn = true,
+  onAdd,
+  addLabel,
 }: CategoryTableProps) {
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -113,6 +117,12 @@ export function CategoryTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Add Category"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table Container */}

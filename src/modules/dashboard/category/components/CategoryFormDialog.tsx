@@ -20,7 +20,7 @@ import {
   useCreateCategory,
   useUpdateCategory,
 } from "../hook/useCategory.ts";
-import { isRootCategory } from "@/lib/category-tree.ts";
+import { buildCategorySlug, isRootCategory } from "@/lib/category-tree.ts";
 import type { Category, CategoryStatus } from "../types/category.types.ts";
 
 interface CategoryFormDialogProps {
@@ -81,21 +81,13 @@ function CategoryFormContent({
       label: c.categories_name,
     }));
 
-  const slugifyName = (val: string) =>
-    val
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+  const selectedParent = allCategories.find((c) => String(c.id) === String(parentId));
 
-  const handleNameChange = (val: string) => {
-    setName(val);
-    // Slug is auto-generated only — always derived from the name on create.
+  useEffect(() => {
     if (!isEditing) {
-      setSlug(slugifyName(val));
+      setSlug(buildCategorySlug(name, isSub, selectedParent));
     }
-  };
+  }, [name, isSub, selectedParent, isEditing]);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -131,8 +123,10 @@ function CategoryFormContent({
     }
 
     try {
-      // A hand-typed slug is always respected; a blank one falls back to the name.
-      const finalSlug = slug.trim() || slugifyName(name);
+      // Automatically format slug based on parent and sub-category names
+      const finalSlug = isEditing
+        ? (slug.trim() || buildCategorySlug(name, isSub, selectedParent))
+        : buildCategorySlug(name, isSub, selectedParent);
       const finalParentId = isSub ? parentId : "0";
       if (isEditing && category) {
         await updateMutation.mutateAsync({
@@ -211,23 +205,28 @@ function CategoryFormContent({
           </div>
         )}
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cat-name">
-            {isSub ? "Sub Category Name" : "Category Name"}{" "}
-            <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="cat-name"
-            value={name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            placeholder={
-              isSub
-                ? "e.g. 1st Grade Refined Rice Bran Oil, Copra"
-                : "e.g. Edible Oil, Rice, Pulses"
-            }
-            required
-          />
-        </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cat-name">
+              {isSub ? "Sub Category Name" : "Category Name"}{" "}
+              <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="cat-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={
+                isSub
+                  ? "e.g. 1st Grade Refined Rice Bran Oil, Copra"
+                  : "e.g. Edible Oil, Rice, Pulses"
+              }
+              required
+            />
+            {slug && (
+              <p className="text-xs text-muted-foreground">
+                Slug: <span className="font-mono text-[11px] font-medium text-foreground">{slug}</span>
+              </p>
+            )}
+          </div>
 
         {isEditing && (
           <div className="grid grid-cols-2 gap-3">
@@ -338,15 +337,7 @@ function CategoryFormContent({
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending
-            ? "Saving..."
-            : isEditing
-              ? isSub
-                ? "Update Sub Category"
-                : "Update Category"
-              : isSub
-                ? "Create Sub Category"
-                : "Create Category"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </DialogFooter>
     </form>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -35,7 +35,7 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   const { data: pageOptions = [] } = usePageTwoOptions();
 
   const [faqFor, setFaqFor] = useState(
-    normalizePageSlug(faq?.faq_for || pageOptions[0]?.page_two_url || "home"),
+    faq?.faq_for ? normalizePageSlug(faq.faq_for) : "",
   );
   const [status, setStatus] = useState<FaqStatus>(
     (faq?.faq_status as FaqStatus) || "Active",
@@ -77,16 +77,6 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
     return list;
   }, [pageSlugs, faqFor]);
 
-  // Page options load after mount — default a new record to the first page.
-  useEffect(() => {
-    if (
-      !isEditing &&
-      pageSlugs.length > 0 &&
-      !pageSlugs.some((o) => o.value === faqFor)
-    ) {
-      setFaqFor(pageSlugs[0].value);
-    }
-  }, [pageSlugs, isEditing, faqFor]);
 
   const isPending =
     createMutation.isPending ||
@@ -137,6 +127,11 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+
+    if (!faqFor.trim()) {
+      setErrorMessage("Please select a page placement.");
+      return;
+    }
 
     const hasEmpty = subs.some((s) => !s.faq_que.trim() || !s.faq_ans.trim());
     if (hasEmpty) {
@@ -416,10 +411,8 @@ function FaqFormContent({ faq, onClose }: InnerFormProps) {
               <Loader2 className="size-4 animate-spin" />
               <span>Saving...</span>
             </div>
-          ) : isEditing ? (
-            "Update FAQ"
           ) : (
-            "Create FAQ"
+            "Save"
           )}
         </Button>
       </div>

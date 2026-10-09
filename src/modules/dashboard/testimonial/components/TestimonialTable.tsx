@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, MessageSquare, Power, Search, Star } from "lucide-react";
+import { Edit2, MessageSquare, Plus, Power, Search, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -20,6 +20,8 @@ interface TestimonialTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (item: TestimonialItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function TestimonialTable({
@@ -34,6 +36,8 @@ export function TestimonialTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: TestimonialTableProps) {
   const updateStatusMutation = useUpdateTestimonialStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -66,6 +70,12 @@ export function TestimonialTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Add Testimonial"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}

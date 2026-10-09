@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownWideNarrow, FolderTree, Search } from "lucide-react";
+import { ArrowDownWideNarrow, FolderTree, Plus, Search } from "lucide-react";
+import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
@@ -29,6 +30,8 @@ interface CategoryCardGridProps {
   onPageChange: (page: number) => void;
   onEdit: (category: Category) => void;
   tabLabel: string;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 const SORT_OPTIONS: Array<{ value: LatestFirstOrder; label: string }> = [
@@ -60,6 +63,8 @@ export function CategoryCardGrid({
   onPageChange,
   onEdit,
   tabLabel,
+  onAdd,
+  addLabel,
 }: CategoryCardGridProps) {
   const updateStatusMutation = useUpdateCategoryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -186,6 +191,12 @@ export function CategoryCardGrid({
                 </button>
               ))}
             </div>
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || "Add Category"}</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

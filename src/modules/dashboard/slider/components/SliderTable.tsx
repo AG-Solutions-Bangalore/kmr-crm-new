@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, ExternalLink, Power, Search, SlidersHorizontal } from "lucide-react";
+import { Edit2, ExternalLink, Plus, Power, Search, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -36,6 +36,8 @@ interface SliderTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (slider: SliderItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function SliderTable({
@@ -50,6 +52,8 @@ export function SliderTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: SliderTableProps) {
   const updateStatusMutation = useUpdateSliderStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -80,6 +84,12 @@ export function SliderTable({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Upload Banner"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}

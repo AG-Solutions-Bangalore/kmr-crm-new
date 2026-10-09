@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownWideNarrow, Images, Search } from "lucide-react";
+import { ArrowDownWideNarrow, Images, Plus, Search } from "lucide-react";
+import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
@@ -30,6 +31,8 @@ interface GalleryCardGridProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (item: GalleryItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 const SORT_OPTIONS: Array<{ value: LatestFirstOrder; label: string }> = [
@@ -59,6 +62,8 @@ export function GalleryCardGrid({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: GalleryCardGridProps) {
   const updateStatusMutation = useUpdateGalleryStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -197,6 +202,12 @@ export function GalleryCardGrid({
                 </button>
               ))}
             </div>
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || "Upload Image"}</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

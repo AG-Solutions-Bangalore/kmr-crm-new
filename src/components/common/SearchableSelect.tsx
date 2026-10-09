@@ -233,7 +233,7 @@ export function SearchableSelect({
           "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          !selected && "text-muted-foreground",
+          !selected && "text-[var(--placeholder,#9ca3af)]",
           className,
         )}
       >
@@ -281,7 +281,7 @@ export function SearchableSelect({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Type to search..."
-              className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-[var(--placeholder,#9ca3af)]"
             />
           </div>
           <ul
