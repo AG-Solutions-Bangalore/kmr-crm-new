@@ -101,21 +101,25 @@ export function VendorRateTable({
             className="pl-8"
           />
         </div>
-        {onVendorFilterChange && onClearVendorFilter && (
-          <VendorNameFilter
-            id={`${type}-rates-vendor-filter`}
-            value={vendorFilter}
-            onChange={onVendorFilterChange}
-            onClear={onClearVendorFilter}
-            options={vendorOptions}
-            isLoading={vendorsLoading}
-          />
-        )}
-        {onAdd && (
-          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
-            <Plus className="size-4" />
-            <span>{addLabel || (type === "live" ? "Add Live" : "Add Rate")}</span>
-          </Button>
+        {(onVendorFilterChange || onAdd) && (
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:shrink-0">
+            {onVendorFilterChange && onClearVendorFilter && (
+              <VendorNameFilter
+                id={`${type}-rates-vendor-filter`}
+                value={vendorFilter}
+                onChange={onVendorFilterChange}
+                onClear={onClearVendorFilter}
+                options={vendorOptions}
+                isLoading={vendorsLoading}
+              />
+            )}
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || (type === "live" ? "Add Live" : "Add Rate")}</span>
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
