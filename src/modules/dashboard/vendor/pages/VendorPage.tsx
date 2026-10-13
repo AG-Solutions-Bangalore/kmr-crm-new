@@ -31,6 +31,7 @@ import { VendorSpotQuickEditDialog } from "../components/VendorSpotQuickEditDial
 import { VendorSpotFormDialog, type SpotPrefill } from "../components/VendorSpotFormDialog.tsx";
 import { VendorRateBulkEditView } from "../components/VendorRateBulkEditView.tsx";
 import { VendorNameFilter } from "../components/VendorNameFilter.tsx";
+import { filterVendorsByTrade } from "../lib/vendor-trade.ts";
 import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
 import { readViewMode, writeViewMode, type ListViewMode } from "@/lib/view-mode.ts";
 import {
@@ -213,7 +214,8 @@ export function VendorPage() {
   const { data: activeVendors = [], isLoading: loadingVendorOptions } =
     useActiveVendors();
 
-  const vendorOptions = useMemo(() => {
+  // Global map for vendor name lookups (e.g. in headers, badges, alerts).
+  const allVendorNameMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const v of activeVendors) {
       map.set(String(v.id), v.vendor_name);
@@ -225,13 +227,69 @@ export function VendorPage() {
         map.set(id, name || `Vendor #${id}`);
       }
     }
-    return [...map.entries()]
-      .map(([value, label]) => ({ value, label }))
-      .sort((a, b) => a.label.localeCompare(b.label));
+    return map;
   }, [activeVendors, spots, liveRates, standardRates]);
 
   const vendorNameOf = (id: string) =>
-    vendorOptions.find((o) => o.value === id)?.label ?? `#${id}`;
+    allVendorNameMap.get(id) ?? `#${id}`;
+
+  // Tab-specific vendor options:
+  // - Live: only vendors whose trade is "live" (plus any already in live items)
+  // - Rate: only vendors whose trade is "rate" (plus any already in standard rate items)
+  // - Spot: only vendors whose trade is "spot" (plus any already in spot items)
+  const liveVendorOptions = useMemo(() => {
+    const tradeVendors = filterVendorsByTrade(activeVendors, "live");
+    const map = new Map<string, string>();
+    for (const v of tradeVendors) {
+      map.set(String(v.id), v.vendor_name);
+    }
+    for (const it of liveRates) {
+      const id = String(it.vendor_id);
+      if (!map.has(id)) {
+        const name = (it.vendor_name || "").trim();
+        map.set(id, name || `Vendor #${id}`);
+      }
+    }
+    return [...map.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [activeVendors, liveRates]);
+
+  const rateVendorOptions = useMemo(() => {
+    const tradeVendors = filterVendorsByTrade(activeVendors, "rate");
+    const map = new Map<string, string>();
+    for (const v of tradeVendors) {
+      map.set(String(v.id), v.vendor_name);
+    }
+    for (const it of standardRates) {
+      const id = String(it.vendor_id);
+      if (!map.has(id)) {
+        const name = (it.vendor_name || "").trim();
+        map.set(id, name || `Vendor #${id}`);
+      }
+    }
+    return [...map.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [activeVendors, standardRates]);
+
+  const spotVendorOptions = useMemo(() => {
+    const tradeVendors = filterVendorsByTrade(activeVendors, "spot");
+    const map = new Map<string, string>();
+    for (const v of tradeVendors) {
+      map.set(String(v.id), v.vendor_name);
+    }
+    for (const it of spots) {
+      const id = String(it.vendor_id);
+      if (!map.has(id)) {
+        const name = (it.vendor_name || "").trim();
+        map.set(id, name || `Vendor #${id}`);
+      }
+    }
+    return [...map.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [activeVendors, spots]);
 
   // Exact client-side vendor filter (String(vendor_id) match) + client-side
   // pagination while a filter is active. Without a filter, server paging is
@@ -760,7 +818,7 @@ export function VendorPage() {
             vendorFilter={spotVendor}
             onVendorFilterChange={setSpotVendor}
             onClearVendorFilter={() => setSpotVendor("")}
-            vendorOptions={vendorOptions}
+            vendorOptions={spotVendorOptions}
             vendorsLoading={loadingVendorOptions}
             onAdd={handleOpenCreate}
             addLabel="Add Spot"
@@ -783,7 +841,7 @@ export function VendorPage() {
             vendorFilter={spotVendor}
             onVendorFilterChange={setSpotVendor}
             onClearVendorFilter={() => setSpotVendor("")}
-            vendorOptions={vendorOptions}
+            vendorOptions={spotVendorOptions}
             vendorsLoading={loadingVendorOptions}
             onAdd={handleOpenCreate}
             addLabel="Add Spot"
@@ -808,7 +866,7 @@ export function VendorPage() {
                   value={liveVendor}
                   onChange={setLiveVendor}
                   onClear={() => setLiveVendor("")}
-                  options={vendorOptions}
+                  options={liveVendorOptions}
                   isLoading={loadingVendorOptions}
                 />
                 <Button size="sm" onClick={handleOpenCreate} className="gap-2 shrink-0">
@@ -818,14 +876,15 @@ export function VendorPage() {
             </div>
             <p className="text-xs text-muted-foreground">
               Bulk edit mode for {vendorNameOf(liveVendor)} — update all prices
-              below and press Submit All. Clear the vendor filter to return to
-              cards/table.
+              below and press Submit All. Press Cancel or clear the vendor filter
+              to return to cards/table.
             </p>
             <VendorRateBulkEditView
               items={liveFiltered}
               type="live"
               vendorName={vendorNameOf(liveVendor)}
               isLoading={loadingLive || !liveReady}
+              onCancel={() => setLiveVendor("")}
             />
           </div>
         ) : marketView === "card" ? (
@@ -847,7 +906,7 @@ export function VendorPage() {
             vendorFilter={liveVendor}
             onVendorFilterChange={setLiveVendor}
             onClearVendorFilter={() => setLiveVendor("")}
-            vendorOptions={vendorOptions}
+            vendorOptions={liveVendorOptions}
             vendorsLoading={loadingVendorOptions}
             onAdd={handleOpenCreate}
             addLabel="Add Live"
@@ -873,7 +932,7 @@ export function VendorPage() {
             vendorFilter={liveVendor}
             onVendorFilterChange={setLiveVendor}
             onClearVendorFilter={() => setLiveVendor("")}
-            vendorOptions={vendorOptions}
+            vendorOptions={liveVendorOptions}
             vendorsLoading={loadingVendorOptions}
             onAdd={handleOpenCreate}
             addLabel="Add Live"
@@ -897,7 +956,7 @@ export function VendorPage() {
                 value={rateVendor}
                 onChange={setRateVendor}
                 onClear={() => setRateVendor("")}
-                options={vendorOptions}
+                options={rateVendorOptions}
                 isLoading={loadingVendorOptions}
               />
               <Button size="sm" onClick={handleOpenCreate} className="gap-2 shrink-0">
@@ -907,14 +966,15 @@ export function VendorPage() {
           </div>
           <p className="text-xs text-muted-foreground">
             Bulk edit mode for {vendorNameOf(rateVendor)} — update all prices
-            below and press Submit All. Clear the vendor filter to return to
-            cards/table.
+            below and press Submit All. Press Cancel or clear the vendor filter
+            to return to cards/table.
           </p>
           <VendorRateBulkEditView
             items={ratesFiltered}
             type="standard"
             vendorName={vendorNameOf(rateVendor)}
             isLoading={loadingRates || !ratesReady}
+            onCancel={() => setRateVendor("")}
           />
         </div>
       ) : marketView === "card" ? (
@@ -936,7 +996,7 @@ export function VendorPage() {
             vendorFilter={rateVendor}
             onVendorFilterChange={setRateVendor}
             onClearVendorFilter={() => setRateVendor("")}
-            vendorOptions={vendorOptions}
+            vendorOptions={rateVendorOptions}
             vendorsLoading={loadingVendorOptions}
             onAdd={handleOpenCreate}
             addLabel="Add Rate"
@@ -962,7 +1022,7 @@ export function VendorPage() {
           vendorFilter={rateVendor}
           onVendorFilterChange={setRateVendor}
           onClearVendorFilter={() => setRateVendor("")}
-          vendorOptions={vendorOptions}
+          vendorOptions={rateVendorOptions}
           vendorsLoading={loadingVendorOptions}
           onAdd={handleOpenCreate}
           addLabel="Add Rate"
