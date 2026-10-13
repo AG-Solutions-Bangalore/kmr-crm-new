@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit2, Plus, Power, Search, Sparkles } from "lucide-react";
+import { Edit2, Plus, Power, Search, Sparkles, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -22,6 +22,7 @@ interface VendorSpotTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (spot: VendorSpotItem) => void;
+  onQuickEdit?: (spot: VendorSpotItem) => void;
   vendorFilter?: string;
   onVendorFilterChange?: (value: string) => void;
   onClearVendorFilter?: () => void;
@@ -43,6 +44,7 @@ export function VendorSpotTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onQuickEdit,
   vendorFilter = "",
   onVendorFilterChange,
   onClearVendorFilter,
@@ -255,6 +257,18 @@ export function VendorSpotTable({
                             <Edit2 className="size-3.5" />
                             <span className="sr-only">Edit</span>
                           </Button>
+                          {onQuickEdit && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onQuickEdit(item)}
+                              className="size-8 p-0 text-amber-600 hover:text-amber-700 dark:text-amber-400"
+                              title="Quick update spot"
+                            >
+                              <Zap className="size-3.5" />
+                              <span className="sr-only">Quick update</span>
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>

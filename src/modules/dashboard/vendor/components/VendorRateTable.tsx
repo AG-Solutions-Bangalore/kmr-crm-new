@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, Edit2, IndianRupee, Plus, Power, Search } from "lucide-react";
+import { AlertCircle, Edit2, IndianRupee, Plus, Power, Search, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -23,6 +23,7 @@ interface VendorRateTableProps {
   onPageChange: (page: number) => void;
   onToggleStatus?: (item: VendorRateProduct) => Promise<void>;
   onEdit?: (item: VendorRateProduct) => void;
+  onQuickEdit?: (item: VendorRateProduct) => void;
   errorMessage?: string | null;
   onRetry?: () => void;
   vendorFilter?: string;
@@ -48,6 +49,7 @@ export function VendorRateTable({
   onPageChange,
   onToggleStatus,
   onEdit,
+  onQuickEdit,
   errorMessage,
   onRetry,
   vendorFilter = "",
@@ -258,6 +260,17 @@ export function VendorRateTable({
                                   isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
                                 }`}
                               />
+                            </Button>
+                          )}
+                          {onQuickEdit && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => onQuickEdit(item)}
+                              title="Quick edit price"
+                              className="size-8 text-amber-600 hover:text-amber-700 dark:text-amber-400"
+                            >
+                              <Zap className="size-3.5" />
                             </Button>
                           )}
                           {onEdit && (

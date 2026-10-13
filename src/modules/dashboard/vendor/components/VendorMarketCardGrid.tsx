@@ -8,6 +8,7 @@ import {
   Power,
   Search,
   Sparkles,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -35,6 +36,7 @@ interface VendorMarketCardGridProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (item: any) => void;
+  onQuickEdit?: (item: any) => void;
   onToggleStatus?: (item: any) => void;
   vendorFilter?: string;
   onVendorFilterChange?: (value: string) => void;
@@ -147,6 +149,7 @@ export function VendorMarketCardGrid({
   onSearchChange,
   onPageChange,
   onEdit,
+  onQuickEdit,
   onToggleStatus,
   vendorFilter = "",
   onVendorFilterChange,
@@ -412,6 +415,18 @@ export function VendorMarketCardGrid({
                     >
                       <Edit2 className="size-3.5" />
                     </Button>
+                    {onQuickEdit && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onQuickEdit(item)}
+                        title={isSpot ? "Quick update spot" : "Quick edit price"}
+                        className="size-7 p-0 text-amber-600 hover:text-amber-700 dark:text-amber-400"
+                      >
+                        <Zap className="size-3.5" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

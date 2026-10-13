@@ -6,10 +6,12 @@ import {
   IndianRupee,
   Radio,
   RefreshCw,
+  Search,
   Sparkles,
   Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
 import {
   Card,
   CardContent,
@@ -24,6 +26,10 @@ import { VendorTable } from "../components/VendorTable.tsx";
 import { VendorSpotTable } from "../components/VendorSpotTable.tsx";
 import { VendorRateTable } from "../components/VendorRateTable.tsx";
 import { VendorMarketCardGrid } from "../components/VendorMarketCardGrid.tsx";
+import { VendorRateQuickEditDialog } from "../components/VendorRateQuickEditDialog.tsx";
+import { VendorSpotQuickEditDialog } from "../components/VendorSpotQuickEditDialog.tsx";
+import { VendorRateBulkEditView } from "../components/VendorRateBulkEditView.tsx";
+import { VendorNameFilter } from "../components/VendorNameFilter.tsx";
 import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
 import { readViewMode, writeViewMode, type ListViewMode } from "@/lib/view-mode.ts";
 import {
@@ -328,6 +334,34 @@ export function VendorPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+
+  // Quick-edit states — inline modals for ~200 daily price updates.
+  // Rate dialog is shared between Live and Standard tabs via quickRateType.
+  const [quickRateItem, setQuickRateItem] =
+    useState<VendorRateProduct | null>(null);
+  const [quickRateType, setQuickRateType] = useState<"live" | "standard">(
+    "live",
+  );
+  const [quickSpotItem, setQuickSpotItem] = useState<VendorSpotItem | null>(
+    null,
+  );
+
+  const handleQuickRateEdit = (
+    item: VendorRateProduct,
+    type: "live" | "standard",
+  ) => {
+    setQuickRateItem(item);
+    setQuickRateType(type);
+  };
+
+  const handleQuickSpotEdit = (spot: VendorSpotItem) => {
+    setQuickSpotItem(spot);
+  };
+
+  // Bulk-edit mode: when a vendor is selected on Live / Standard tabs,
+  // replace the card/table grid with the 3-column bulk list view.
+  const liveBulkActive = activeTab === "live" && Boolean(liveVendor);
+  const ratesBulkActive = activeTab === "rates" && Boolean(rateVendor);
 
   const liveStatusMutation = useUpdateVendorLiveStatus();
   const rateStatusMutation = useUpdateVendorRateStatus();
@@ -656,7 +690,7 @@ export function VendorPage() {
       )}
 
       {/* View Switcher for Market Tabs (Spots, Live, Rates) */}
-      {activeTab !== "vendors" && (
+      {activeTab !== "vendors" && !(liveBulkActive || ratesBulkActive) && (
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
             {activeTab === "spots"
@@ -702,6 +736,7 @@ export function VendorPage() {
             onPageChange={setSpotPage}
             onToggleStatus={handleToggleSpotStatus}
             onEdit={handleOpenSpotEdit}
+            onQuickEdit={handleQuickSpotEdit}
             vendorFilter={spotVendor}
             onVendorFilterChange={setSpotVendor}
             onClearVendorFilter={() => setSpotVendor("")}
@@ -723,6 +758,7 @@ export function VendorPage() {
             onSearchChange={setSpotSearchInput}
             onPageChange={setSpotPage}
             onEdit={handleOpenSpotEdit}
+            onQuickEdit={handleQuickSpotEdit}
             vendorFilter={spotVendor}
             onVendorFilterChange={setSpotVendor}
             onClearVendorFilter={() => setSpotVendor("")}
@@ -733,7 +769,45 @@ export function VendorPage() {
         />
         )
       ) : activeTab === "live" ? (
-        marketView === "card" ? (
+        liveBulkActive ? (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative w-full max-w-sm">
+                <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                <Input
+                  value={liveSearchInput}
+                  onChange={(e) => setLiveSearchInput(e.target.value)}
+                  placeholder="Search products..."
+                  className="pl-8"
+                />
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:shrink-0">
+                <VendorNameFilter
+                  id="live-bulk-vendor-filter"
+                  value={liveVendor}
+                  onChange={setLiveVendor}
+                  onClear={() => setLiveVendor("")}
+                  options={vendorOptions}
+                  isLoading={loadingVendorOptions}
+                />
+                <Button size="sm" onClick={handleOpenCreate} className="gap-2 shrink-0">
+                  <span>Add Live</span>
+                </Button>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Bulk edit mode for {vendorNameOf(liveVendor)} — update all prices
+              below and press Submit All. Clear the vendor filter to return to
+              cards/table.
+            </p>
+            <VendorRateBulkEditView
+              items={liveFiltered}
+              type="live"
+              vendorName={vendorNameOf(liveVendor)}
+              isLoading={loadingLive || !liveReady}
+            />
+          </div>
+        ) : marketView === "card" ? (
           <VendorMarketCardGrid
             type="live"
             items={liveView.pageItems}
@@ -748,6 +822,7 @@ export function VendorPage() {
             onPageChange={setLivePage}
             onToggleStatus={handleToggleLiveStatus}
             onEdit={(item) => handleOpenRateEdit(item, "live")}
+            onQuickEdit={(item) => handleQuickRateEdit(item, "live")}
             vendorFilter={liveVendor}
             onVendorFilterChange={setLiveVendor}
             onClearVendorFilter={() => setLiveVendor("")}
@@ -771,6 +846,7 @@ export function VendorPage() {
             onPageChange={setLivePage}
             onToggleStatus={handleToggleLiveStatus}
             onEdit={(item) => handleOpenRateEdit(item, "live")}
+            onQuickEdit={(item) => handleQuickRateEdit(item, "live")}
             errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
             onRetry={() => void refetchLive()}
             vendorFilter={liveVendor}
@@ -782,6 +858,44 @@ export function VendorPage() {
             addLabel="Add Live"
           />
         )
+      ) : ratesBulkActive ? (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+              <Input
+                value={rateSearchInput}
+                onChange={(e) => setRateSearchInput(e.target.value)}
+                placeholder="Search products..."
+                className="pl-8"
+              />
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:shrink-0">
+              <VendorNameFilter
+                id="rates-bulk-vendor-filter"
+                value={rateVendor}
+                onChange={setRateVendor}
+                onClear={() => setRateVendor("")}
+                options={vendorOptions}
+                isLoading={loadingVendorOptions}
+              />
+              <Button size="sm" onClick={handleOpenCreate} className="gap-2 shrink-0">
+                <span>Add Rate</span>
+              </Button>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Bulk edit mode for {vendorNameOf(rateVendor)} — update all prices
+            below and press Submit All. Clear the vendor filter to return to
+            cards/table.
+          </p>
+          <VendorRateBulkEditView
+            items={ratesFiltered}
+            type="standard"
+            vendorName={vendorNameOf(rateVendor)}
+            isLoading={loadingRates || !ratesReady}
+          />
+        </div>
       ) : marketView === "card" ? (
         <VendorMarketCardGrid
           type="rates"
@@ -797,6 +911,7 @@ export function VendorPage() {
           onPageChange={setRatePage}
           onToggleStatus={handleToggleRateStatus}
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
+          onQuickEdit={(item) => handleQuickRateEdit(item, "standard")}
             vendorFilter={rateVendor}
             onVendorFilterChange={setRateVendor}
             onClearVendorFilter={() => setRateVendor("")}
@@ -820,6 +935,7 @@ export function VendorPage() {
           onPageChange={setRatePage}
           onToggleStatus={handleToggleRateStatus}
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
+          onQuickEdit={(item) => handleQuickRateEdit(item, "standard")}
           errorMessage={errorRates ? getApiErrorMessage(errorRates) : null}
           onRetry={() => void refetchRates()}
           vendorFilter={rateVendor}
@@ -837,6 +953,25 @@ export function VendorPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         vendor={selectedVendor}
+      />
+
+      {/* Quick-edit price modal (Live + Standard rates) */}
+      <VendorRateQuickEditDialog
+        open={quickRateItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setQuickRateItem(null);
+        }}
+        item={quickRateItem}
+        type={quickRateType}
+      />
+
+      {/* Quick-update spot modal */}
+      <VendorSpotQuickEditDialog
+        open={quickSpotItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setQuickSpotItem(null);
+        }}
+        item={quickSpotItem}
       />
     </div>
   );
