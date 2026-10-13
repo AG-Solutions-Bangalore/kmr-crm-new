@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Loader2, Save } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Save, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button.tsx";
@@ -37,6 +37,7 @@ interface VendorRateBulkEditViewProps {
   type: "live" | "standard";
   vendorName: string;
   isLoading: boolean;
+  onCancel?: () => void;
 }
 
 interface RowState {
@@ -58,6 +59,7 @@ export function VendorRateBulkEditView({
   type,
   vendorName,
   isLoading,
+  onCancel,
 }: VendorRateBulkEditViewProps) {
   const queryClient = useQueryClient();
   const [rows, setRows] = useState<Record<number, RowState>>({});
@@ -194,23 +196,39 @@ export function VendorRateBulkEditView({
             {isSaving ? ` • Saving ${savedCount}/${changedRows.length}...` : ""}
           </span>
         </p>
-        <Button
-          size="sm"
-          onClick={() => void handleSubmitAll()}
-          disabled={changedRows.length === 0 || invalidRows.length > 0 || isSaving}
-          className="gap-2 shrink-0"
-        >
-          {isSaving ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Save className="size-4" />
+        <div className="flex items-center gap-2 shrink-0">
+          {onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onCancel}
+              disabled={isSaving}
+              title="Cancel bulk edit and return to list"
+              className="gap-1.5"
+            >
+              <X className="size-4" />
+              <span>Cancel</span>
+            </Button>
           )}
-          <span>
-            {isSaving
-              ? `Saving ${savedCount}/${changedRows.length}...`
-              : `Submit All (${changedRows.length})`}
-          </span>
-        </Button>
+          <Button
+            size="sm"
+            onClick={() => void handleSubmitAll()}
+            disabled={changedRows.length === 0 || invalidRows.length > 0 || isSaving}
+            className="gap-2 shrink-0"
+          >
+            {isSaving ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
+            <span>
+              {isSaving
+                ? `Saving ${savedCount}/${changedRows.length}...`
+                : `Submit All (${changedRows.length})`}
+            </span>
+          </Button>
+        </div>
       </div>
 
       {invalidRows.length > 0 && (
@@ -349,28 +367,43 @@ export function VendorRateBulkEditView({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">
           Press <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Enter</kbd> to move to next price, then submit.
         </p>
-        <Button
-          onClick={() => void handleSubmitAll()}
-          disabled={changedRows.length === 0 || invalidRows.length > 0 || isSaving}
-          className="gap-2"
-        >
-          {isSaving ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Save className="size-4" />
+        <div className="flex items-center gap-2 shrink-0">
+          {onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSaving}
+              title="Cancel bulk edit and return to list"
+              className="gap-1.5"
+            >
+              <X className="size-4" />
+              <span>Cancel</span>
+            </Button>
           )}
-          <span>
-            {isSaving
-              ? `Saving ${savedCount}/${changedRows.length}...`
-              : changedRows.length > 0
-                ? `Submit All (${changedRows.length})`
-                : "Submit All"}
-          </span>
-        </Button>
+          <Button
+            onClick={() => void handleSubmitAll()}
+            disabled={changedRows.length === 0 || invalidRows.length > 0 || isSaving}
+            className="gap-2"
+          >
+            {isSaving ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
+            <span>
+              {isSaving
+                ? `Saving ${savedCount}/${changedRows.length}...`
+                : changedRows.length > 0
+                  ? `Submit All (${changedRows.length})`
+                  : "Submit All"}
+            </span>
+          </Button>
+        </div>
       </div>
     </div>
   );

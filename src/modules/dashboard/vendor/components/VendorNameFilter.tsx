@@ -14,6 +14,7 @@ interface VendorNameFilterProps {
   options: SearchableSelectOption[];
   isLoading?: boolean;
   className?: string;
+  placeholder?: string;
 }
 
 /**
@@ -30,6 +31,7 @@ export function VendorNameFilter({
   options,
   isLoading = false,
   className,
+  placeholder,
 }: VendorNameFilterProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
@@ -39,7 +41,7 @@ export function VendorNameFilter({
           value={value}
           onChange={onChange}
           options={options}
-          placeholder={isLoading ? "Loading vendors..." : "All Vendors"}
+          placeholder={isLoading ? "Loading vendors..." : (placeholder || "All Vendors")}
           disabled={isLoading}
           clearable={false}
           className="bg-background"
