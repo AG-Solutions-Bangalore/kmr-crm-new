@@ -16,6 +16,8 @@ import { CardEmptyState } from "@/components/common/CardStates.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
 import { resolveAssetImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { cn } from "@/lib/utils.ts";
+import type { SearchableSelectOption } from "@/components/common/SearchableSelect.tsx";
+import { VendorNameFilter } from "./VendorNameFilter.tsx";
 import type { VendorRateProduct, VendorSpotItem } from "../types/vendor.types.ts";
 
 export type MarketItemType = "rates" | "live" | "spots";
@@ -34,6 +36,11 @@ interface VendorMarketCardGridProps {
   onPageChange: (page: number) => void;
   onEdit: (item: any) => void;
   onToggleStatus?: (item: any) => void;
+  vendorFilter?: string;
+  onVendorFilterChange?: (value: string) => void;
+  onClearVendorFilter?: () => void;
+  vendorOptions?: SearchableSelectOption[];
+  vendorsLoading?: boolean;
   onAdd?: () => void;
   addLabel?: string;
 }
@@ -141,6 +148,11 @@ export function VendorMarketCardGrid({
   onPageChange,
   onEdit,
   onToggleStatus,
+  vendorFilter = "",
+  onVendorFilterChange,
+  onClearVendorFilter,
+  vendorOptions = [],
+  vendorsLoading = false,
   onAdd,
   addLabel,
 }: VendorMarketCardGridProps) {
@@ -212,7 +224,7 @@ export function VendorMarketCardGrid({
         })}
       </div>
 
-      {/* Search Input */}
+      {/* Search Input + Vendor Filter */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -223,11 +235,25 @@ export function VendorMarketCardGrid({
             className="pl-8"
           />
         </div>
-        {onAdd && (
-          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
-            <Plus className="size-4" />
-            <span>{addLabel || (type === "spots" ? "Add Spot" : type === "live" ? "Add Live" : "Add Rate")}</span>
-          </Button>
+        {(onVendorFilterChange || onAdd) && (
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:shrink-0">
+            {onVendorFilterChange && onClearVendorFilter && (
+              <VendorNameFilter
+                id={`${type}-vendor-filter`}
+                value={vendorFilter}
+                onChange={onVendorFilterChange}
+                onClear={onClearVendorFilter}
+                options={vendorOptions}
+                isLoading={vendorsLoading}
+              />
+            )}
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || (type === "spots" ? "Add Spot" : type === "live" ? "Add Live" : "Add Rate")}</span>
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
@@ -246,8 +272,8 @@ export function VendorMarketCardGrid({
           icon={type === "spots" ? Sparkles : IndianRupee}
           title="No items found"
           hint={
-            search || selectedCategory !== "All"
-              ? "Try adjusting your search criteria or category filter."
+            search || selectedCategory !== "All" || vendorFilter
+              ? "Try adjusting your search, category, or vendor filter."
               : "No rates published yet."
           }
         />
