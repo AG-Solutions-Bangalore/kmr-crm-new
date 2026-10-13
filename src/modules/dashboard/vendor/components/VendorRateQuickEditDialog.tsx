@@ -67,7 +67,7 @@ export function VendorRateQuickEditDialog({
       return;
     }
     if (trimmed === currentRate.trim()) {
-      setErrorMessage("New rate is the same as the current rate.");
+      onOpenChange(false);
       return;
     }
 

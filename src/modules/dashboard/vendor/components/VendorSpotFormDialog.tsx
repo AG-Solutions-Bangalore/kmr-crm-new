@@ -31,6 +31,16 @@ interface VendorSpotFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   spot?: VendorSpotItem | null;
+  /** Prefill for "Add New for this vendor": vendor/category/sub filled,
+   *  heading + details left empty. */
+  prefill?: SpotPrefill | null;
+}
+
+export interface SpotPrefill {
+  vendorId: string;
+  vendorName?: string;
+  categoryId: string;
+  subCategoryId?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -305,7 +315,13 @@ interface SpotRow {
   details: string;
 }
 
-function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
+function VendorSpotCreateContent({
+  onClose,
+  prefill,
+}: {
+  onClose: () => void;
+  prefill?: SpotPrefill | null;
+}) {
   const createMutation = useCreateVendorSpot();
   const { data: activeVendors = [] } = useActiveVendors();
   const { data: activeCategories = [], isLoading: activeCatsLoading } =
@@ -321,20 +337,52 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     [activeVendors],
   );
 
+  // Vendor options always include the prefill vendor (it may not carry the
+  // spot trade flag, but the quote being copied proves it takes spots).
+  const vendorOptions = useMemo(() => {
+    const list = [...filteredVendors];
+    if (
+      prefill?.vendorId &&
+      !list.some((v) => String(v.id) === String(prefill.vendorId))
+    ) {
+      list.unshift({
+        id: Number(prefill.vendorId) || 0,
+        vendor_name:
+          prefill.vendorName || `Vendor #${prefill.vendorId}`,
+        vendor_mobile: "",
+        vendor_email: "",
+        vendor_city: "",
+        vendor_trade: "3",
+        vendor_address: "",
+      });
+    }
+    return list;
+  }, [filteredVendors, prefill]);
+
   const keyRef = useRef(1);
-  const [vendorId, setVendorId] = useState<string>("");
+  const [vendorId, setVendorId] = useState<string>(prefill?.vendorId ?? "");
   const [rows, setRows] = useState<SpotRow[]>([
-    { key: 0, categoryId: "", subCategoryId: "", heading: "", details: "" },
+    {
+      key: 0,
+      categoryId: prefill?.categoryId ?? "",
+      subCategoryId: prefill?.subCategoryId ?? "",
+      heading: "",
+      details: "",
+    },
   ]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [focusedKey, setFocusedKey] = useState<number | null>(null);
 
   useEffect(() => {
     if (!vendorId) return;
+    // Never wipe an explicitly prefilled vendor.
+    if (prefill?.vendorId && String(vendorId) === String(prefill.vendorId)) {
+      return;
+    }
     if (!filteredVendors.some((v) => String(v.id) === String(vendorId))) {
       setVendorId("");
     }
-  }, [filteredVendors, vendorId]);
+  }, [filteredVendors, vendorId, prefill?.vendorId]);
 
   // Strict linking: no category -> no sub-categories.
   const subsFor = (catId: string) => getSubCategories(categories, catId);
@@ -449,10 +497,12 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
     >
       <div className="flex flex-col space-y-1.5 text-center sm:text-left">
         <h2 className="text-lg font-semibold leading-none tracking-tight">
-          Spot Rate
+          {prefill ? `New Spot — ${prefill.vendorName || `Vendor #${prefill.vendorId}`}` : "Spot Rate"}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Publish one or more spot market quotes for a vendor in a single save.
+          {prefill
+            ? "Vendor & category pre-filled from the previous quote — just type the new heading & details."
+            : "Publish one or more spot market quotes for a vendor in a single save."}
         </p>
       </div>
 
@@ -471,15 +521,15 @@ function VendorSpotCreateContent({ onClose }: { onClose: () => void }) {
             onChange={setVendorId}
             defaultTrade="3"
             options={
-              filteredVendors.length > 0
-                ? filteredVendors.map((v) => ({
+              vendorOptions.length > 0
+                ? vendorOptions.map((v) => ({
                     value: String(v.id),
                     label: `${v.vendor_name} (${v.vendor_city || "No City"})`,
                   }))
                 : []
             }
             placeholder={
-              filteredVendors.length > 0
+              vendorOptions.length > 0
                 ? "Select Spot Rate Vendor — or + to create one"
                 : "No spot vendors available — click + to create"
             }
@@ -664,6 +714,7 @@ export function VendorSpotFormDialog({
   open,
   onOpenChange,
   spot,
+  prefill,
 }: VendorSpotFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -674,6 +725,7 @@ export function VendorSpotFormDialog({
           <VendorSpotFormContainer
             spotId={spot?.id}
             initialSpot={spot}
+            prefill={prefill}
             onClose={() => onOpenChange(false)}
           />
         )}
@@ -685,10 +737,12 @@ export function VendorSpotFormDialog({
 export function VendorSpotFormContainer({
   spotId,
   initialSpot,
+  prefill,
   onClose,
 }: {
   spotId?: number;
   initialSpot?: VendorSpotItem | null;
+  prefill?: SpotPrefill | null;
   onClose: () => void;
 }) {
   // GET /vendor-spot/:id — fetch fresh details for edit.
@@ -705,7 +759,13 @@ export function VendorSpotFormContainer({
 
   const effectiveSpot = detailedSpot || initialSpot;
   if (!effectiveSpot) {
-    return <VendorSpotCreateContent key="new-spot" onClose={onClose} />;
+    return (
+      <VendorSpotCreateContent
+        key={`new-spot-${prefill?.vendorId ?? "blank"}-${prefill?.categoryId ?? ""}`}
+        prefill={prefill}
+        onClose={onClose}
+      />
+    );
   }
   return (
     <VendorSpotEditContent

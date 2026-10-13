@@ -252,7 +252,7 @@ export function VendorSpotQuickEditDialog({
               className="h-10 gap-2 px-5 font-semibold"
             >
               {isSaving && <Loader2 className="size-4 animate-spin" />}
-              <span>{isSaving ? "Updating..." : "Update Spot"}</span>
+              <span>{isSaving ? "Submitting..." : "Submit Spot"}</span>
               {!isSaving && <ArrowRight className="size-4" />}
             </Button>
           </div>

@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
   Copy,
   IndianRupee,
   Loader2,
-  Pencil,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -13,7 +11,6 @@ import { Button } from "@/components/ui/button.tsx";
 import { Dialog, DialogContent } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import { PATHS } from "@/constants/paths.ts";
 import { getApiErrorMessage } from "@/lib/axios.ts";
 import {
   CategorySelectWithCreate,
@@ -28,9 +25,7 @@ import {
   useUpdateVendorLive,
   useUpdateVendorRate,
   useVendorLive,
-  useVendorLives,
   useVendorRate,
-  useVendorRates,
 } from "../hook/useVendor.ts";
 import {
   useActiveCategories,
@@ -74,124 +69,6 @@ const blankRow = (key: number): RateRow => ({
 /*         vendor_product_size, vendor_product_rate,                     */
 /*         vendor_product_status }.                                       */
 /* ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------ */
-/* Siblings — other products from the same vendor. Edit is per-record  */
-/* (PUT /vendor-rate/:id), so products added via "+ Add Product" become */
-/* separate rows. This section lists them inline so nothing looks lost. */
-/* ------------------------------------------------------------------ */
-
-function SiblingRateList({
-  vendorId,
-  currentId,
-}: {
-  vendorId: number | string;
-  currentId: number | string;
-}) {
-  const navigate = useNavigate();
-  const { data, isLoading } = useVendorRates(1, 50, "");
-  const siblings = (data?.items ?? []).filter(
-    (s) => String(s.vendor_id) === String(vendorId) && String(s.id) !== String(currentId),
-  );
-
-  return (
-    <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Other products from this vendor ({siblings.length})
-        </span>
-        {isLoading && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
-      </div>
-      {siblings.length === 0 ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {isLoading ? "Loading..." : "No other products yet — use Add Product below."}
-        </p>
-      ) : (
-        <div className="mt-2 flex flex-col gap-1.5">
-          {siblings.map((s) => (
-            <div
-              key={s.id}
-              className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-card px-2.5 py-1.5 text-xs"
-            >
-              <span className="min-w-0 flex-1 truncate font-medium text-foreground">
-                {s.vendor_product}
-                <span className="ml-1.5 font-normal text-muted-foreground">
-                  {s.vendor_product_size || "Unit"} • ₹{s.vendor_product_rate}
-                </span>
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(PATHS.vendorRateEdit.replace(":id", String(s.id)))}
-                className="h-7 gap-1 px-2 text-xs"
-                title="Edit"
-              >
-                <Pencil className="size-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SiblingLiveList({
-  vendorId,
-  currentId,
-}: {
-  vendorId: number | string;
-  currentId: number | string;
-}) {
-  const navigate = useNavigate();
-  const { data, isLoading } = useVendorLives(1, 50, "");
-  const siblings = (data?.items ?? []).filter(
-    (s) => String(s.vendor_id) === String(vendorId) && String(s.id) !== String(currentId),
-  );
-
-  return (
-    <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Other products from this vendor ({siblings.length})
-        </span>
-        {isLoading && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
-      </div>
-      {siblings.length === 0 ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {isLoading ? "Loading..." : "No other products yet — use Add Product below."}
-        </p>
-      ) : (
-        <div className="mt-2 flex flex-col gap-1.5">
-          {siblings.map((s) => (
-            <div
-              key={s.id}
-              className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-card px-2.5 py-1.5 text-xs"
-            >
-              <span className="min-w-0 flex-1 truncate font-medium text-foreground">
-                {s.vendor_product}
-                <span className="ml-1.5 font-normal text-muted-foreground">
-                  {s.vendor_product_size || "Unit"} • ₹{s.vendor_product_rate}
-                </span>
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(PATHS.vendorLiveEdit.replace(":id", String(s.id)))}
-                className="h-7 gap-1 px-2 text-xs"
-                title="Edit"
-              >
-                <Pencil className="size-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function VendorRateEditContent({
   rate,
@@ -459,12 +336,6 @@ function VendorRateEditContent({
         </div>
       </div>
 
-      {/* Siblings — same vendor, separate records (see log [VendorRate:*:edit]). */}
-      {type === "live" ? (
-        <SiblingLiveList vendorId={rate.vendor_id} currentId={rate.id} />
-      ) : (
-        <SiblingRateList vendorId={rate.vendor_id} currentId={rate.id} />
-      )}
 
       <div className="mt-2 flex flex-row items-center justify-between">
         <span className="hidden text-xs text-muted-foreground sm:inline">

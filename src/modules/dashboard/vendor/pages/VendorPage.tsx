@@ -28,6 +28,7 @@ import { VendorRateTable } from "../components/VendorRateTable.tsx";
 import { VendorMarketCardGrid } from "../components/VendorMarketCardGrid.tsx";
 import { VendorRateQuickEditDialog } from "../components/VendorRateQuickEditDialog.tsx";
 import { VendorSpotQuickEditDialog } from "../components/VendorSpotQuickEditDialog.tsx";
+import { VendorSpotFormDialog, type SpotPrefill } from "../components/VendorSpotFormDialog.tsx";
 import { VendorRateBulkEditView } from "../components/VendorRateBulkEditView.tsx";
 import { VendorNameFilter } from "../components/VendorNameFilter.tsx";
 import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
@@ -345,6 +346,24 @@ export function VendorPage() {
   const [quickSpotItem, setQuickSpotItem] = useState<VendorSpotItem | null>(
     null,
   );
+  // "Add New for this vendor" — prefilled create dialog source row.
+  const [spotAddNewItem, setSpotAddNewItem] = useState<VendorSpotItem | null>(
+    null,
+  );
+
+  const spotAddNewPrefill: SpotPrefill | null = spotAddNewItem
+    ? {
+        vendorId: String(spotAddNewItem.vendor_id),
+        vendorName:
+          spotAddNewItem.vendor_name || `Vendor #${spotAddNewItem.vendor_id}`,
+        categoryId: String(spotAddNewItem.category_id),
+        ...(spotAddNewItem.sub_category_id !== undefined &&
+        spotAddNewItem.sub_category_id !== null &&
+        String(spotAddNewItem.sub_category_id) !== ""
+          ? { subCategoryId: String(spotAddNewItem.sub_category_id) }
+          : {}),
+      }
+    : null;
 
   const handleQuickRateEdit = (
     item: VendorRateProduct,
@@ -737,6 +756,7 @@ export function VendorPage() {
             onToggleStatus={handleToggleSpotStatus}
             onEdit={handleOpenSpotEdit}
             onQuickEdit={handleQuickSpotEdit}
+            onAddNew={setSpotAddNewItem}
             vendorFilter={spotVendor}
             onVendorFilterChange={setSpotVendor}
             onClearVendorFilter={() => setSpotVendor("")}
@@ -759,6 +779,7 @@ export function VendorPage() {
             onPageChange={setSpotPage}
             onEdit={handleOpenSpotEdit}
             onQuickEdit={handleQuickSpotEdit}
+            onAddNew={setSpotAddNewItem}
             vendorFilter={spotVendor}
             onVendorFilterChange={setSpotVendor}
             onClearVendorFilter={() => setSpotVendor("")}
@@ -972,6 +993,16 @@ export function VendorPage() {
           if (!open) setQuickSpotItem(null);
         }}
         item={quickSpotItem}
+      />
+
+      {/* Add-new-for-vendor spot dialog (vendor/category pre-filled,
+          heading + details empty) */}
+      <VendorSpotFormDialog
+        open={spotAddNewItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setSpotAddNewItem(null);
+        }}
+        prefill={spotAddNewPrefill}
       />
     </div>
   );

@@ -5,9 +5,32 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { getApiErrorMessage } from "@/lib/axios.ts";
+import { resolveDynamicImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import { updateVendorLive, updateVendorRate } from "../api/vendor.api.ts";
 import { vendorKeys } from "../hook/useVendor.ts";
 import type { VendorRateProduct } from "../types/vendor.types.ts";
+
+function VendorThumb({
+  filename,
+  name,
+}: {
+  filename?: string | null;
+  name?: string;
+}) {
+  const [error, setError] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const url = resolveDynamicImageUrl(filename, "vendor_images");
+  const src = error ? fallback : url;
+  return (
+    <img
+      src={src}
+      alt={name || "Product"}
+      loading="lazy"
+      className="size-8 shrink-0 rounded-lg border border-border/60 object-cover bg-muted/20"
+      onError={() => setError(true)}
+    />
+  );
+}
 
 interface VendorRateBulkEditViewProps {
   items: VendorRateProduct[];
@@ -251,6 +274,10 @@ export function VendorRateBulkEditView({
                         <span className="w-5 shrink-0 text-xs font-mono text-muted-foreground/60">
                           {index + 1}.
                         </span>
+                        <VendorThumb
+                          filename={item.vendor_image}
+                          name={item.vendor_product}
+                        />
                         <div className="min-w-0">
                           <p className="font-medium text-foreground">
                             {item.vendor_product}

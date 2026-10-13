@@ -37,6 +37,7 @@ interface VendorMarketCardGridProps {
   onPageChange: (page: number) => void;
   onEdit: (item: any) => void;
   onQuickEdit?: (item: any) => void;
+  onAddNew?: (item: any) => void;
   onToggleStatus?: (item: any) => void;
   vendorFilter?: string;
   onVendorFilterChange?: (value: string) => void;
@@ -150,6 +151,7 @@ export function VendorMarketCardGrid({
   onPageChange,
   onEdit,
   onQuickEdit,
+  onAddNew,
   onToggleStatus,
   vendorFilter = "",
   onVendorFilterChange,
@@ -312,12 +314,23 @@ export function VendorMarketCardGrid({
                   {/* Middle Content + Price Badge */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-1">
-                      <h3
-                        className="truncate text-xs font-bold uppercase tracking-wide text-foreground"
-                        title={vendorName}
-                      >
-                        {vendorName}
-                      </h3>
+                      {onVendorFilterChange ? (
+                        <button
+                          type="button"
+                          onClick={() => onVendorFilterChange(String(item.vendor_id))}
+                          className="truncate text-left text-xs font-bold uppercase tracking-wide text-foreground hover:text-primary hover:underline transition-colors cursor-pointer"
+                          title={`Open ${vendorName} products in list view`}
+                        >
+                          {vendorName}
+                        </button>
+                      ) : (
+                        <h3
+                          className="truncate text-xs font-bold uppercase tracking-wide text-foreground"
+                          title={vendorName}
+                        >
+                          {vendorName}
+                        </h3>
+                      )}
 
                       {/* Right Badge: Rate */}
                       {rateItem && (
@@ -405,26 +418,40 @@ export function VendorMarketCardGrid({
                       </Button>
                     )}
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(item)}
-                      title="Edit"
-                      className="size-7 p-0"
-                    >
-                      <Edit2 className="size-3.5" />
-                    </Button>
+                    {onEdit && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(item)}
+                        title="Edit"
+                        className="size-7 p-0"
+                      >
+                        <Edit2 className="size-3.5" />
+                      </Button>
+                    )}
                     {onQuickEdit && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onQuickEdit(item)}
+                        title={isSpot ? "Quick update spot" : "Quick edit rate"}
+                        className="size-7 p-0 text-amber-600 hover:text-amber-700 hover:border-amber-400 dark:text-amber-400"
+                      >
+                        <Zap className="size-3.5" />
+                      </Button>
+                    )}
+                    {onAddNew && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => onQuickEdit(item)}
-                        title={isSpot ? "Quick update spot" : "Quick edit price"}
-                        className="size-7 p-0 text-amber-600 hover:text-amber-700 dark:text-amber-400"
+                        onClick={() => onAddNew(item)}
+                        title="Add new quote for this vendor"
+                        className="size-7 p-0 text-sky-600 hover:text-sky-700 dark:text-sky-400"
                       >
-                        <Zap className="size-3.5" />
+                        <Plus className="size-4" />
                       </Button>
                     )}
                   </div>

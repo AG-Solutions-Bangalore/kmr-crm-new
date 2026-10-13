@@ -5,9 +5,32 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
+import { resolveDynamicImageUrl, useApiNoImageUrl } from "@/lib/image.ts";
 import type { SearchableSelectOption } from "@/components/common/SearchableSelect.tsx";
 import { VendorNameFilter } from "./VendorNameFilter.tsx";
 import type { VendorRateProduct } from "../types/vendor.types.ts";
+
+function VendorThumb({
+  filename,
+  name,
+}: {
+  filename?: string | null;
+  name?: string;
+}) {
+  const [error, setError] = useState(false);
+  const fallback = useApiNoImageUrl();
+  const url = resolveDynamicImageUrl(filename, "vendor_images");
+  const src = error ? fallback : url;
+  return (
+    <img
+      src={src}
+      alt={name || "Vendor"}
+      loading="lazy"
+      className="size-10 shrink-0 rounded-lg border border-border/60 object-cover bg-muted/20"
+      onError={() => setError(true)}
+    />
+  );
+}
 
 interface VendorRateTableProps {
   rates: VendorRateProduct[];
@@ -132,6 +155,7 @@ export function VendorRateTable({
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Sl/No</th>
+                <th className="px-4 py-3">Image</th>
                 <th className="px-4 py-3">Vendor / Category / Sub</th>
                 <th className="px-4 py-3">Product Name</th>
                 <th className="px-4 py-3">Size / Unit</th>
@@ -144,7 +168,7 @@ export function VendorRateTable({
             <tbody className="divide-y divide-border/40">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span>Loading {type === "live" ? "live" : "standard"} rates...</span>
@@ -153,7 +177,7 @@ export function VendorRateTable({
                 </tr>
               ) : rates.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <IndianRupee className="size-8 text-muted-foreground/40" />
                       <p className="font-medium text-foreground">
@@ -194,11 +218,28 @@ export function VendorRateTable({
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         {slNo}
                       </td>
+                      <td className="px-4 py-3">
+                        <VendorThumb
+                          filename={item.vendor_image}
+                          name={item.vendor_name || item.vendor_product}
+                        />
+                      </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-foreground">
-                            {item.vendor_name || `Vendor #${item.vendor_id}`}
-                          </span>
+                          {onVendorFilterChange ? (
+                            <button
+                              type="button"
+                              onClick={() => onVendorFilterChange(String(item.vendor_id))}
+                              className="text-left font-medium text-foreground hover:text-primary hover:underline transition-colors cursor-pointer"
+                              title={`Open ${item.vendor_name || `Vendor #${item.vendor_id}`} in list view`}
+                            >
+                              {item.vendor_name || `Vendor #${item.vendor_id}`}
+                            </button>
+                          ) : (
+                            <span className="font-medium text-foreground">
+                              {item.vendor_name || `Vendor #${item.vendor_id}`}
+                            </span>
+                          )}
                           <span className="text-xs font-medium text-foreground">
                             {item.categories_name || `Cat #${item.category_id}`}
                           </span>
@@ -264,11 +305,11 @@ export function VendorRateTable({
                           )}
                           {onQuickEdit && (
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="icon"
                               onClick={() => onQuickEdit(item)}
-                              title="Quick edit price"
-                              className="size-8 text-amber-600 hover:text-amber-700 dark:text-amber-400"
+                              title="Quick edit rate"
+                              className="size-8 text-amber-600 hover:text-amber-700 hover:border-amber-400 dark:text-amber-400"
                             >
                               <Zap className="size-3.5" />
                             </Button>
