@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
@@ -28,6 +28,14 @@ import { VendorMarketCardGrid } from "../components/VendorMarketCardGrid.tsx";
 import { ListViewToggle } from "@/components/common/ListViewToggle.tsx";
 import { readViewMode, writeViewMode, type ListViewMode } from "@/lib/view-mode.ts";
 import {
+  LIVE_VENDOR_FILTER_KEY,
+  RATE_VENDOR_FILTER_KEY,
+  SPOT_VENDOR_FILTER_KEY,
+  readVendorFilter,
+  writeVendorFilter,
+} from "@/lib/vendor-filter.ts";
+import {
+  useActiveVendors,
   useVendorsPage,
   useVendorSpots,
   useVendorLives,
@@ -43,6 +51,10 @@ import type {
 } from "../types/vendor.types.ts";
 
 const PAGE_SIZE = 12;
+// Backend has no vendor_id filter param (verified against live API), so when
+// a vendor filter is active we fetch the whole list once and filter by
+// vendor_id client-side. 3000 covers the largest list (spots ~2370).
+const FILTER_FETCH_SIZE = 3000;
 const MARKET_VIEW_STORAGE_KEY = "kmr-vendor-market-view";
 type VendorTabKey = "vendors" | "spots" | "live" | "rates";
 
@@ -79,6 +91,35 @@ export function VendorPage() {
   const [ratePage, setRatePage] = useState(1);
   const [rateSearchInput, setRateSearchInput] = useState("");
   const rateSearch = useDebouncedValue(rateSearchInput.trim(), 400);
+
+  // Vendor-name filters — one per market list. State lives here (not in the
+  // list components) and is persisted to localStorage, so refetches, status
+  // toggles, view switches and tab changes never reset it. Only the Clear
+  // button clears it.
+  const [spotVendor, setSpotVendor] = useState(() =>
+    readVendorFilter(SPOT_VENDOR_FILTER_KEY),
+  );
+  const [liveVendor, setLiveVendor] = useState(() =>
+    readVendorFilter(LIVE_VENDOR_FILTER_KEY),
+  );
+  const [rateVendor, setRateVendor] = useState(() =>
+    readVendorFilter(RATE_VENDOR_FILTER_KEY),
+  );
+
+  useEffect(() => {
+    writeVendorFilter(SPOT_VENDOR_FILTER_KEY, spotVendor);
+    setSpotPage(1);
+  }, [spotVendor]);
+
+  useEffect(() => {
+    writeVendorFilter(LIVE_VENDOR_FILTER_KEY, liveVendor);
+    setLivePage(1);
+  }, [liveVendor]);
+
+  useEffect(() => {
+    writeVendorFilter(RATE_VENDOR_FILTER_KEY, rateVendor);
+    setRatePage(1);
+  }, [rateVendor]);
 
   useEffect(() => {
     setPage(1);
@@ -118,9 +159,13 @@ export function VendorPage() {
     isLoading: loadingSpots,
     refetch: refetchSpots,
     isFetching: fetchingSpots,
-  } = useVendorSpots(spotPage, PAGE_SIZE, spotSearch);
+  } = useVendorSpots(
+    spotVendor ? 1 : spotPage,
+    spotVendor ? FILTER_FETCH_SIZE : PAGE_SIZE,
+    spotSearch,
+  );
 
-  const spots = spotsData?.items ?? [];
+  const spots = useMemo(() => spotsData?.items ?? [], [spotsData]);
   const spotsTotal = spotsData?.total ?? 0;
   const spotsTotalPages = spotsData?.lastPage ?? 1;
 
@@ -130,9 +175,13 @@ export function VendorPage() {
     error: errorLive,
     refetch: refetchLive,
     isFetching: fetchingLive,
-  } = useVendorLives(livePage, PAGE_SIZE, liveSearch);
+  } = useVendorLives(
+    liveVendor ? 1 : livePage,
+    liveVendor ? FILTER_FETCH_SIZE : PAGE_SIZE,
+    liveSearch,
+  );
 
-  const liveRates = livesData?.items ?? [];
+  const liveRates = useMemo(() => livesData?.items ?? [], [livesData]);
   const liveTotal = livesData?.total ?? 0;
   const liveTotalPages = livesData?.lastPage ?? 1;
 
@@ -142,30 +191,141 @@ export function VendorPage() {
     error: errorRates,
     refetch: refetchRates,
     isFetching: fetchingRates,
-  } = useVendorRates(ratePage, PAGE_SIZE, rateSearch);
+  } = useVendorRates(
+    rateVendor ? 1 : ratePage,
+    rateVendor ? FILTER_FETCH_SIZE : PAGE_SIZE,
+    rateSearch,
+  );
 
-  const standardRates = ratesData?.items ?? [];
+  const standardRates = useMemo(() => ratesData?.items ?? [], [ratesData]);
   const ratesTotal = ratesData?.total ?? 0;
   const ratesTotalPages = ratesData?.lastPage ?? 1;
 
+  // Vendor dropdown options — full active-vendor list, plus any vendor seen
+  // in the loaded market items (so the list never misses a vendor present
+  // in live/spot/standard rates).
+  const { data: activeVendors = [], isLoading: loadingVendorOptions } =
+    useActiveVendors();
+
+  const vendorOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const v of activeVendors) {
+      map.set(String(v.id), v.vendor_name);
+    }
+    for (const it of [...spots, ...liveRates, ...standardRates]) {
+      const id = String(it.vendor_id);
+      if (!map.has(id)) {
+        const name = (it.vendor_name || "").trim();
+        map.set(id, name || `Vendor #${id}`);
+      }
+    }
+    return [...map.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [activeVendors, spots, liveRates, standardRates]);
+
+  const vendorNameOf = (id: string) =>
+    vendorOptions.find((o) => o.value === id)?.label ?? `#${id}`;
+
+  // Exact client-side vendor filter (String(vendor_id) match) + client-side
+  // pagination while a filter is active. Without a filter, server paging is
+  // used untouched.
+  const paginateFiltered = <T,>(items: T[], page: number) => {
+    const total = items.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    return {
+      pageItems: items.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+      total,
+      totalPages,
+      safePage,
+    };
+  };
+
+  const spotsFiltered = useMemo(
+    () =>
+      spotVendor
+        ? spots.filter((s) => String(s.vendor_id) === spotVendor)
+        : spots,
+    [spots, spotVendor],
+  );
+  const liveFiltered = useMemo(
+    () =>
+      liveVendor
+        ? liveRates.filter((r) => String(r.vendor_id) === liveVendor)
+        : liveRates,
+    [liveRates, liveVendor],
+  );
+  const ratesFiltered = useMemo(
+    () =>
+      rateVendor
+        ? standardRates.filter((r) => String(r.vendor_id) === rateVendor)
+        : standardRates,
+    [standardRates, rateVendor],
+  );
+
+  // While a filter is active the query holds the FULL list (up to
+  // FILTER_FETCH_SIZE items, kept via keepPreviousData during transitions).
+  // The unfiltered branch must never render that whole array — cap it to one
+  // page so clearing the filter is instant (at most 12 stale rows, which is
+  // page 1 anyway since clearing resets to page 1), then the fresh
+  // per_page=12 fetch swaps in.
+  const spotsView = spotVendor
+    ? paginateFiltered(spotsFiltered, spotPage)
+    : {
+        pageItems: spots.slice(0, PAGE_SIZE),
+        total: spotsTotal,
+        totalPages: spotsTotalPages,
+        safePage: spotPage,
+      };
+  const liveView = liveVendor
+    ? paginateFiltered(liveFiltered, livePage)
+    : {
+        pageItems: liveRates.slice(0, PAGE_SIZE),
+        total: liveTotal,
+        totalPages: liveTotalPages,
+        safePage: livePage,
+      };
+  const ratesView = rateVendor
+    ? paginateFiltered(ratesFiltered, ratePage)
+    : {
+        pageItems: standardRates.slice(0, PAGE_SIZE),
+        total: ratesTotal,
+        totalPages: ratesTotalPages,
+        safePage: ratePage,
+      };
+
+  // Full-list fetch still in flight right after selecting a vendor (stale
+  // 12-item page held via keepPreviousData): show the loading skeleton
+  // instead of a flash of "no items found". Plain background refetches
+  // (status toggles, Refresh) keep showing the list — the filter is
+  // never touched by them.
+  const spotsReady = !spotVendor || spots.length >= spotsTotal;
+  const liveReady = !liveVendor || liveRates.length >= liveTotal;
+  const ratesReady = !rateVendor || standardRates.length >= ratesTotal;
+
   // Clamp pages if totals shrink (e.g. deleted last item on last page).
+  // NOTE: clamp against the *view* totals, not the raw server totals — while
+  // a vendor filter is active the server page holds the whole list
+  // (last_page = 1), so clamping against it would snap every page change
+  // back to page 1 and break pagination.
   useEffect(() => {
-    if (spotsTotalPages > 0 && spotPage > spotsTotalPages) {
-      setSpotPage(spotsTotalPages);
+    if (spotsView.totalPages > 0 && spotPage > spotsView.totalPages) {
+      setSpotPage(spotsView.totalPages);
     }
-  }, [spotPage, spotsTotalPages]);
+  }, [spotPage, spotsView.totalPages]);
 
   useEffect(() => {
-    if (liveTotalPages > 0 && livePage > liveTotalPages) {
-      setLivePage(liveTotalPages);
+    if (liveView.totalPages > 0 && livePage > liveView.totalPages) {
+      setLivePage(liveView.totalPages);
     }
-  }, [livePage, liveTotalPages]);
+  }, [livePage, liveView.totalPages]);
 
   useEffect(() => {
-    if (ratesTotalPages > 0 && ratePage > ratesTotalPages) {
-      setRatePage(ratesTotalPages);
+    if (ratesView.totalPages > 0 && ratePage > ratesView.totalPages) {
+      setRatePage(ratesView.totalPages);
     }
-  }, [ratePage, ratesTotalPages]);
+  }, [ratePage, ratesView.totalPages]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
@@ -506,10 +666,10 @@ export function VendorPage() {
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
             {activeTab === "spots"
-              ? `${spotsTotal} spot quotes • ${marketView === "card" ? "4-per-row card view" : "Table view"}`
+              ? `${spotsView.total} spot quotes${spotVendor ? ` • filtered by ${vendorNameOf(spotVendor)}` : ""} • ${marketView === "card" ? "4-per-row card view" : "Table view"}`
               : activeTab === "live"
-                ? `${liveTotal} live rates • ${marketView === "card" ? "4-per-row card view" : "Table view"}`
-                : `${ratesTotal} standard rates • ${marketView === "card" ? "4-per-row card view" : "Table view"}`}
+                ? `${liveView.total} live rates${liveVendor ? ` • filtered by ${vendorNameOf(liveVendor)}` : ""} • ${marketView === "card" ? "4-per-row card view" : "Table view"}`
+                : `${ratesView.total} standard rates${rateVendor ? ` • filtered by ${vendorNameOf(rateVendor)}` : ""} • ${marketView === "card" ? "4-per-row card view" : "Table view"}`}
           </p>
           <ListViewToggle mode={marketView} onChange={handleMarketViewChange} />
         </div>
@@ -534,60 +694,75 @@ export function VendorPage() {
         marketView === "card" ? (
           <VendorMarketCardGrid
             type="spots"
-            items={spots}
-            isLoading={loadingSpots}
+            items={spotsView.pageItems}
+            isLoading={loadingSpots || !spotsReady}
             isFetching={fetchingSpots}
-            page={spotPage}
-            totalPages={spotsTotalPages}
-            total={spotsTotal}
+            page={spotsView.safePage}
+            totalPages={spotsView.totalPages}
+            total={spotsView.total}
             perPage={PAGE_SIZE}
             search={spotSearchInput}
             onSearchChange={setSpotSearchInput}
             onPageChange={setSpotPage}
             onToggleStatus={handleToggleSpotStatus}
             onEdit={handleOpenSpotEdit}
+            vendorFilter={spotVendor}
+            onVendorFilterChange={setSpotVendor}
+            onClearVendorFilter={() => setSpotVendor("")}
+            vendorOptions={vendorOptions}
+            vendorsLoading={loadingVendorOptions}
           />
         ) : (
           <VendorSpotTable
-            spots={spots}
-            isLoading={loadingSpots}
+            spots={spotsView.pageItems}
+            isLoading={loadingSpots || !spotsReady}
             isFetching={fetchingSpots}
-            page={spotPage}
-            totalPages={spotsTotalPages}
-            total={spotsTotal}
+            page={spotsView.safePage}
+            totalPages={spotsView.totalPages}
+            total={spotsView.total}
             perPage={PAGE_SIZE}
             search={spotSearchInput}
             onSearchChange={setSpotSearchInput}
             onPageChange={setSpotPage}
             onEdit={handleOpenSpotEdit}
+            vendorFilter={spotVendor}
+            onVendorFilterChange={setSpotVendor}
+            onClearVendorFilter={() => setSpotVendor("")}
+            vendorOptions={vendorOptions}
+            vendorsLoading={loadingVendorOptions}
           />
         )
       ) : activeTab === "live" ? (
         marketView === "card" ? (
           <VendorMarketCardGrid
             type="live"
-            items={liveRates}
-            isLoading={loadingLive}
+            items={liveView.pageItems}
+            isLoading={loadingLive || !liveReady}
             isFetching={fetchingLive}
-            page={livePage}
-            totalPages={liveTotalPages}
-            total={liveTotal}
+            page={liveView.safePage}
+            totalPages={liveView.totalPages}
+            total={liveView.total}
             perPage={PAGE_SIZE}
             search={liveSearchInput}
             onSearchChange={setLiveSearchInput}
             onPageChange={setLivePage}
             onToggleStatus={handleToggleLiveStatus}
             onEdit={(item) => handleOpenRateEdit(item, "live")}
+            vendorFilter={liveVendor}
+            onVendorFilterChange={setLiveVendor}
+            onClearVendorFilter={() => setLiveVendor("")}
+            vendorOptions={vendorOptions}
+            vendorsLoading={loadingVendorOptions}
           />
         ) : (
           <VendorRateTable
-            rates={liveRates}
-            isLoading={loadingLive}
+            rates={liveView.pageItems}
+            isLoading={loadingLive || !liveReady}
             isFetching={fetchingLive}
             type="live"
-            page={livePage}
-            totalPages={liveTotalPages}
-            total={liveTotal}
+            page={liveView.safePage}
+            totalPages={liveView.totalPages}
+            total={liveView.total}
             perPage={PAGE_SIZE}
             search={liveSearchInput}
             onSearchChange={setLiveSearchInput}
@@ -596,33 +771,43 @@ export function VendorPage() {
             onEdit={(item) => handleOpenRateEdit(item, "live")}
             errorMessage={errorLive ? getApiErrorMessage(errorLive) : null}
             onRetry={() => void refetchLive()}
+            vendorFilter={liveVendor}
+            onVendorFilterChange={setLiveVendor}
+            onClearVendorFilter={() => setLiveVendor("")}
+            vendorOptions={vendorOptions}
+            vendorsLoading={loadingVendorOptions}
           />
         )
       ) : marketView === "card" ? (
         <VendorMarketCardGrid
           type="rates"
-          items={standardRates}
-          isLoading={loadingRates}
+          items={ratesView.pageItems}
+          isLoading={loadingRates || !ratesReady}
           isFetching={fetchingRates}
-          page={ratePage}
-          totalPages={ratesTotalPages}
-          total={ratesTotal}
+          page={ratesView.safePage}
+          totalPages={ratesView.totalPages}
+          total={ratesView.total}
           perPage={PAGE_SIZE}
           search={rateSearchInput}
           onSearchChange={setRateSearchInput}
           onPageChange={setRatePage}
           onToggleStatus={handleToggleRateStatus}
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
+          vendorFilter={rateVendor}
+          onVendorFilterChange={setRateVendor}
+          onClearVendorFilter={() => setRateVendor("")}
+          vendorOptions={vendorOptions}
+          vendorsLoading={loadingVendorOptions}
         />
       ) : (
         <VendorRateTable
-          rates={standardRates}
-          isLoading={loadingRates}
+          rates={ratesView.pageItems}
+          isLoading={loadingRates || !ratesReady}
           isFetching={fetchingRates}
           type="standard"
-          page={ratePage}
-          totalPages={ratesTotalPages}
-          total={ratesTotal}
+          page={ratesView.safePage}
+          totalPages={ratesView.totalPages}
+          total={ratesView.total}
           perPage={PAGE_SIZE}
           search={rateSearchInput}
           onSearchChange={setRateSearchInput}
@@ -631,6 +816,11 @@ export function VendorPage() {
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
           errorMessage={errorRates ? getApiErrorMessage(errorRates) : null}
           onRetry={() => void refetchRates()}
+          vendorFilter={rateVendor}
+          onVendorFilterChange={setRateVendor}
+          onClearVendorFilter={() => setRateVendor("")}
+          vendorOptions={vendorOptions}
+          vendorsLoading={loadingVendorOptions}
         />
       )}
 

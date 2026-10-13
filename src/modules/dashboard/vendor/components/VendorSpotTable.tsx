@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
 import { useUpdateVendorSpotStatus } from "../hook/useVendor.ts";
+import type { SearchableSelectOption } from "@/components/common/SearchableSelect.tsx";
+import { VendorNameFilter } from "./VendorNameFilter.tsx";
 import type { VendorSpotItem } from "../types/vendor.types.ts";
 
 interface VendorSpotTableProps {
@@ -20,6 +22,11 @@ interface VendorSpotTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (spot: VendorSpotItem) => void;
+  vendorFilter?: string;
+  onVendorFilterChange?: (value: string) => void;
+  onClearVendorFilter?: () => void;
+  vendorOptions?: SearchableSelectOption[];
+  vendorsLoading?: boolean;
 }
 
 export function VendorSpotTable({
@@ -34,6 +41,11 @@ export function VendorSpotTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  vendorFilter = "",
+  onVendorFilterChange,
+  onClearVendorFilter,
+  vendorOptions = [],
+  vendorsLoading = false,
 }: VendorSpotTableProps) {
   const updateStatusMutation = useUpdateVendorSpotStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -56,7 +68,7 @@ export function VendorSpotTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Search Bar */}
+      {/* Search Bar + Vendor Filter */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -67,6 +79,16 @@ export function VendorSpotTable({
             className="pl-8"
           />
         </div>
+        {onVendorFilterChange && onClearVendorFilter && (
+          <VendorNameFilter
+            id="spots-vendor-filter"
+            value={vendorFilter}
+            onChange={onVendorFilterChange}
+            onClear={onClearVendorFilter}
+            options={vendorOptions}
+            isLoading={vendorsLoading}
+          />
+        )}
       </div>
 
       {/* Table */}
@@ -107,8 +129,8 @@ export function VendorSpotTable({
                       <Sparkles className="size-8 opacity-40 text-sky-500" />
                       <p className="font-medium">No spot quotes found</p>
                       <p className="text-xs">
-                        {search
-                          ? "Try adjusting your search criteria"
+                        {search || vendorFilter
+                          ? "Try adjusting your search criteria or vendor filter"
                           : "Spot Rates using the button above."}
                       </p>
                     </div>

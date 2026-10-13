@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import { formatDateDMY } from "@/lib/date.ts";
+import type { SearchableSelectOption } from "@/components/common/SearchableSelect.tsx";
+import { VendorNameFilter } from "./VendorNameFilter.tsx";
 import type { VendorRateProduct } from "../types/vendor.types.ts";
 
 interface VendorRateTableProps {
@@ -23,6 +25,11 @@ interface VendorRateTableProps {
   onEdit?: (item: VendorRateProduct) => void;
   errorMessage?: string | null;
   onRetry?: () => void;
+  vendorFilter?: string;
+  onVendorFilterChange?: (value: string) => void;
+  onClearVendorFilter?: () => void;
+  vendorOptions?: SearchableSelectOption[];
+  vendorsLoading?: boolean;
 }
 
 export function VendorRateTable({
@@ -41,6 +48,11 @@ export function VendorRateTable({
   onEdit,
   errorMessage,
   onRetry,
+  vendorFilter = "",
+  onVendorFilterChange,
+  onClearVendorFilter,
+  vendorOptions = [],
+  vendorsLoading = false,
 }: VendorRateTableProps) {
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
@@ -74,7 +86,7 @@ export function VendorRateTable({
         </div>
       )}
 
-      {/* Search Bar */}
+      {/* Search Bar + Vendor Filter */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -85,6 +97,16 @@ export function VendorRateTable({
             className="pl-8"
           />
         </div>
+        {onVendorFilterChange && onClearVendorFilter && (
+          <VendorNameFilter
+            id={`${type}-rates-vendor-filter`}
+            value={vendorFilter}
+            onChange={onVendorFilterChange}
+            onClear={onClearVendorFilter}
+            options={vendorOptions}
+            isLoading={vendorsLoading}
+          />
+        )}
       </div>
 
       {/* Table */}
@@ -122,9 +144,11 @@ export function VendorRateTable({
                         No {type === "live" ? "live" : "standard"} rates found
                       </p>
                       <p className="text-xs">
-                        {total === 0
-                          ? `No rates have been created yet. Click "+ Add ${type === "live" ? "Live" : "Standard"} Rate" to add one.`
-                          : "Try adjusting your search filter."}
+                        {vendorFilter
+                          ? "No rates for this vendor — try another vendor or Clear the filter."
+                          : total === 0
+                            ? `No rates have been created yet. Click "+ Add ${type === "live" ? "Live" : "Standard"} Rate" to add one.`
+                            : "Try adjusting your search filter."}
                       </p>
                     </div>
                   </td>
