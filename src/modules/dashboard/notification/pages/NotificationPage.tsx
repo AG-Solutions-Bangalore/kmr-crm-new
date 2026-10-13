@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, Bell, CheckCircle2, Plus, RefreshCw } from "lucide-react";
+import { AlertCircle, Bell, CheckCircle2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -82,11 +82,6 @@ export function NotificationPage() {
               className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>Send Alert</span>
           </Button>
         </div>
       </div>
@@ -172,6 +167,8 @@ export function NotificationPage() {
         onSearchChange={setSearchInput}
         onPageChange={setPage}
         onEdit={handleOpenEdit}
+        onAdd={handleOpenCreate}
+        addLabel="Send Alert"
       />
 
       {/* Add / Edit Dialog */}

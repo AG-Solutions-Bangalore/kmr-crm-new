@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle2, FileText, Plus, RefreshCw, Star } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileText, RefreshCw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -95,11 +95,6 @@ export function BlogPage() {
               className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>Create Article</span>
           </Button>
         </div>
       </div>
@@ -199,6 +194,8 @@ export function BlogPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Create Article"
         />
       ) : (
         <BlogTable
@@ -213,6 +210,8 @@ export function BlogPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Create Article"
         />
       )}
     </div>

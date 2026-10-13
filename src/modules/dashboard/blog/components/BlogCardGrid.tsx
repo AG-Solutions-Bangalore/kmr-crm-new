@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDownWideNarrow, FileText, Search } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowDownWideNarrow, FileText, Plus, Search } from "lucide-react";
+import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
@@ -30,6 +31,8 @@ interface BlogCardGridProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (blog: BlogItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 const SORT_OPTIONS: Array<{ value: LatestFirstOrder; label: string }> = [
@@ -59,6 +62,8 @@ export function BlogCardGrid({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: BlogCardGridProps) {
   const updateStatusMutation = useUpdateBlogStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -72,25 +77,6 @@ export function BlogCardGrid({
   });
   const searchRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
-      const t = e.target as HTMLElement | null;
-      if (
-        !t ||
-        t.tagName === "INPUT" ||
-        t.tagName === "TEXTAREA" ||
-        t.isContentEditable ||
-        document.querySelector('[role="dialog"]')
-      ) {
-        return;
-      }
-      e.preventDefault();
-      searchRef.current?.focus();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   // Search is server-side (?search=); sort the loaded page latest-first.
   const visible = sortByRecency(blogs, order, ["blog_updated_date", "blog_created_date"]);
@@ -149,13 +135,10 @@ export function BlogCardGrid({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               onKeyDown={handleSearchKey}
-              placeholder="Search articles by title, category, or summary... ( / )"
-              className="pl-8 pr-9"
+              placeholder="Search..."
+              className="pl-8"
               aria-label="Search blog articles"
             />
-            <kbd className="pointer-events-none absolute right-2.5 top-2 hidden h-5 items-center rounded border border-border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground sm:inline-flex">
-              /
-            </kbd>
           </div>
           <div className="flex items-center gap-2 sm:ml-auto">
             <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -197,6 +180,12 @@ export function BlogCardGrid({
                 </button>
               ))}
             </div>
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || "Create Article"}</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

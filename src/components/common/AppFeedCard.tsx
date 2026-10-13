@@ -75,7 +75,7 @@ export interface AppFeedCardProps {
  * chip row, app-like clamped title/snippet, meta footer, 1-click actions.
  *
  * Modules with photos pass `cover.imageUrl`; imageless modules pass a
- * monogram (icon/initial + accent) and get the identical chrome.
+ * monogram (/initial + accent) and get the identical chrome.
  * Truncation mirrors the mobile app so bad content is caught pre-publish.
  */
 export function AppFeedCard({
@@ -187,8 +187,8 @@ export function AppFeedCard({
           style={
             cover.accent
               ? {
-                  background: `radial-gradient(circle at 30% 20%, ${cover.accent}2e, transparent 65%)`,
-                }
+                background: `radial-gradient(circle at 30% 20%, ${cover.accent}2e, transparent 65%)`,
+              }
               : undefined
           }
         >

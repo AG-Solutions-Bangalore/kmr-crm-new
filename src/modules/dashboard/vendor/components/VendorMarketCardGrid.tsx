@@ -4,6 +4,7 @@ import {
   Clock,
   Edit2,
   IndianRupee,
+  Plus,
   Power,
   Search,
   Sparkles,
@@ -40,6 +41,8 @@ interface VendorMarketCardGridProps {
   onClearVendorFilter?: () => void;
   vendorOptions?: SearchableSelectOption[];
   vendorsLoading?: boolean;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 function formatCardDate(item: VendorRateProduct | VendorSpotItem): {
@@ -150,6 +153,8 @@ export function VendorMarketCardGrid({
   onClearVendorFilter,
   vendorOptions = [],
   vendorsLoading = false,
+  onAdd,
+  addLabel,
 }: VendorMarketCardGridProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -226,7 +231,7 @@ export function VendorMarketCardGrid({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={`Search ${type === "spots" ? "spot quotes" : type === "live" ? "live rates" : "standard rates"}...`}
+            placeholder="Search..."
             className="pl-8"
           />
         </div>
@@ -239,6 +244,12 @@ export function VendorMarketCardGrid({
             options={vendorOptions}
             isLoading={vendorsLoading}
           />
+        )}
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || (type === "spots" ? "Add Spot" : type === "live" ? "Add Live" : "Add Rate")}</span>
+          </Button>
         )}
       </div>
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Edit2, Newspaper, Power, Search } from "lucide-react";
+import { Calendar, Edit2, Newspaper, Plus, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -51,6 +51,8 @@ interface NewsTableProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (article: NewsItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function NewsTable({
@@ -65,6 +67,8 @@ export function NewsTable({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: NewsTableProps) {
   const updateStatusMutation = useUpdateNewsStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -93,10 +97,16 @@ export function NewsTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search news by headline, details, or category..."
+            placeholder="Search..."
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || "Publish News"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Table */}

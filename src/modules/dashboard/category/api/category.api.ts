@@ -132,11 +132,14 @@ export async function fetchCategoryById(id: number | string): Promise<Category> 
 
 /** POST /category — Create new category. Image is optional. */
 export async function createCategory(payload: CategoryMutationPayload): Promise<unknown> {
+  const safeName = (payload.categories_name ?? "").replace(/\//g, "-");
+  const safeSlug = (payload.categories_slug ?? "").replace(/\//g, "-");
+  const safeSort = String(payload.categories_sort_order ?? "1").replace(/\//g, "-");
   const formData = toFormData({
     parent_id: payload.parent_id ?? "0",
-    categories_sort_order: payload.categories_sort_order ?? "1",
-    categories_name: payload.categories_name,
-    categories_slug: payload.categories_slug ?? "",
+    categories_sort_order: safeSort,
+    categories_name: safeName,
+    categories_slug: safeSlug,
     ...(payload.categories_image instanceof File
       ? { categories_image: payload.categories_image }
       : {}),
@@ -153,12 +156,15 @@ export async function updateCategory(
   id: number | string,
   payload: CategoryMutationPayload,
 ): Promise<unknown> {
+  const safeName = (payload.categories_name ?? "").replace(/\//g, "-");
+  const safeSlug = (payload.categories_slug ?? "").replace(/\//g, "-");
+  const safeSort = String(payload.categories_sort_order ?? "1").replace(/\//g, "-");
   const formData = toFormData({
     _method: "PUT",
     parent_id: payload.parent_id ?? "0",
-    categories_sort_order: payload.categories_sort_order ?? "1",
-    categories_name: payload.categories_name,
-    categories_slug: payload.categories_slug ?? "",
+    categories_sort_order: safeSort,
+    categories_name: safeName,
+    categories_slug: safeSlug,
     ...(payload.categories_image instanceof File
       ? { categories_image: payload.categories_image }
       : {}),

@@ -208,7 +208,7 @@ function ClientFormContent({ client, onClose }: InnerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update Client" : "Add Client"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </DialogFooter>
     </form>

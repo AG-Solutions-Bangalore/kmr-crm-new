@@ -4,7 +4,6 @@ import {
   AlertCircle,
   CheckCircle2,
   IndianRupee,
-  Plus,
   Radio,
   RefreshCw,
   Sparkles,
@@ -413,19 +412,19 @@ export function VendorPage() {
           title: "Spot Quotes",
           description:
             "Real-time vendor spot market quotes and delivery terms.",
-          buttonLabel: "Spot Rate",
+          buttonLabel: "Add Spot",
         };
       case "live":
         return {
           title: "Live Commodity Rates",
           description: "Real-time live prices with one-click broadcast toggle.",
-          buttonLabel: "Add Live Rate",
+          buttonLabel: "Add Live",
         };
       case "rates":
         return {
           title: "Standard Commodity Rates",
           description: "Master commodity price book and rate cards.",
-          buttonLabel: "Add Standard Rate",
+          buttonLabel: "Add Rate",
         };
       default:
         return {
@@ -463,11 +462,6 @@ export function VendorPage() {
               className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
             <span>Refresh</span>
-          </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>{headerInfo.buttonLabel}</span>
           </Button>
         </div>
       </div>
@@ -689,6 +683,8 @@ export function VendorPage() {
           onSearchChange={setSearchInput}
           onPageChange={setPage}
           onEdit={handleOpenEdit}
+          onAdd={handleOpenCreate}
+          addLabel="Add Vendor"
         />
       ) : activeTab === "spots" ? (
         marketView === "card" ? (
@@ -711,6 +707,8 @@ export function VendorPage() {
             onClearVendorFilter={() => setSpotVendor("")}
             vendorOptions={vendorOptions}
             vendorsLoading={loadingVendorOptions}
+            onAdd={handleOpenCreate}
+            addLabel="Add Spot"
           />
         ) : (
           <VendorSpotTable
@@ -730,7 +728,9 @@ export function VendorPage() {
             onClearVendorFilter={() => setSpotVendor("")}
             vendorOptions={vendorOptions}
             vendorsLoading={loadingVendorOptions}
-          />
+            onAdd={handleOpenCreate}
+            addLabel="Add Spot"
+        />
         )
       ) : activeTab === "live" ? (
         marketView === "card" ? (
@@ -753,6 +753,8 @@ export function VendorPage() {
             onClearVendorFilter={() => setLiveVendor("")}
             vendorOptions={vendorOptions}
             vendorsLoading={loadingVendorOptions}
+            onAdd={handleOpenCreate}
+            addLabel="Add Live"
           />
         ) : (
           <VendorRateTable
@@ -776,6 +778,8 @@ export function VendorPage() {
             onClearVendorFilter={() => setLiveVendor("")}
             vendorOptions={vendorOptions}
             vendorsLoading={loadingVendorOptions}
+            onAdd={handleOpenCreate}
+            addLabel="Add Live"
           />
         )
       ) : marketView === "card" ? (
@@ -793,11 +797,13 @@ export function VendorPage() {
           onPageChange={setRatePage}
           onToggleStatus={handleToggleRateStatus}
           onEdit={(item) => handleOpenRateEdit(item, "standard")}
-          vendorFilter={rateVendor}
-          onVendorFilterChange={setRateVendor}
-          onClearVendorFilter={() => setRateVendor("")}
-          vendorOptions={vendorOptions}
-          vendorsLoading={loadingVendorOptions}
+            vendorFilter={rateVendor}
+            onVendorFilterChange={setRateVendor}
+            onClearVendorFilter={() => setRateVendor("")}
+            vendorOptions={vendorOptions}
+            vendorsLoading={loadingVendorOptions}
+            onAdd={handleOpenCreate}
+            addLabel="Add Rate"
         />
       ) : (
         <VendorRateTable
@@ -821,6 +827,8 @@ export function VendorPage() {
           onClearVendorFilter={() => setRateVendor("")}
           vendorOptions={vendorOptions}
           vendorsLoading={loadingVendorOptions}
+          onAdd={handleOpenCreate}
+          addLabel="Add Rate"
         />
       )}
 

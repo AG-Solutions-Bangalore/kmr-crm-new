@@ -16,6 +16,7 @@ import { getApiErrorMessage } from "@/lib/axios.ts";
 import { extractCreatedId } from "@/lib/created-id.ts";
 import { PATHS } from "@/constants/paths.ts";
 import {
+  buildCategorySlug,
   getParentCategories,
   mergeCategories,
 } from "@/lib/category-tree.ts";
@@ -42,14 +43,7 @@ interface QuickCreateCategoryDialogProps {
 
 type QuickTab = "category" | "sub";
 
-function slugifyName(val: string): string {
-  return val
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+
 
 /**
  * Create the missing category WITHOUT leaving the current form.
@@ -76,22 +70,22 @@ export function QuickCreateCategoryDialog({
     (defaultParentId && defaultParentId !== "0" ? "sub" : "category");
   const [tab, setTab] = useState<QuickTab>(defaultTab);
 
-  const [name, setName] = useState(initialName);
-  // Slug is fully auto-generated from the name — never hand-edited.
-  const slug = slugifyName(name);
+  const [name, setName] = useState(initialName.replace(/\//g, "-"));
   const [parentId, setParentId] = useState(defaultParentId);
+  const selectedParent = parentCategories.find((c) => String(c.id) === String(parentId));
+  // Slug is fully auto-generated: main-slug-sub-slug for subcategories
+  const slug = buildCategorySlug(name, tab === "sub", selectedParent);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  const firstParentId = parentCategories[0]?.id ? String(parentCategories[0].id) : "";
 
   // Sync initial state when dialog opens
   useEffect(() => {
     if (open) {
-      const trimmed = initialName.trim();
+      const trimmed = initialName.replace(/\//g, "-").trim();
       setName(trimmed);
       const startTab: QuickTab =
         initialTab ??
@@ -99,7 +93,7 @@ export function QuickCreateCategoryDialog({
       setTab(startTab);
       setParentId(
         startTab === "sub"
-          ? (defaultParentId && defaultParentId !== "0" ? defaultParentId : firstParentId)
+          ? (defaultParentId && defaultParentId !== "0" ? defaultParentId : "")
           : "0",
       );
       setImageFile(null);
@@ -149,13 +143,13 @@ export function QuickCreateCategoryDialog({
         ) {
           return defaultParentId;
         }
-        return firstParentId;
+        return defaultParentId && defaultParentId !== "0" ? defaultParentId : "";
       });
     }
   };
 
   const handleNameChange = (val: string) => {
-    setName(val);
+    setName(val.replace(/\//g, "-"));
   };
 
   const resolveNewId = async (res: unknown, finalSlug: string, finalName: string): Promise<string | null> => {
@@ -181,7 +175,8 @@ export function QuickCreateCategoryDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    if (!name.trim()) {
+    const sanitizedName = name.replace(/\//g, "-").trim();
+    if (!sanitizedName) {
       setErrorMessage("Category name is required.");
       return;
     }
@@ -190,18 +185,18 @@ export function QuickCreateCategoryDialog({
       setErrorMessage("Please select a parent category for the sub-category.");
       return;
     }
-    const finalSlug = slug.trim() || slugifyName(name);
+    const finalSlug = buildCategorySlug(sanitizedName, tab === "sub", selectedParent).replace(/\//g, "-");
     setSaving(true);
     try {
       const res = await createMutation.mutateAsync({
-        categories_name: name.trim(),
+        categories_name: sanitizedName,
         categories_slug: finalSlug,
         parent_id: finalParentId || "0",
         categories_sort_order: "1",
         categories_status: "Active",
         ...(imageFile ? { categories_image: imageFile } : {}),
       });
-      const id = await resolveNewId(res, finalSlug, name.trim());
+      const id = await resolveNewId(res, finalSlug, sanitizedName);
       reset();
       onOpenChange(false);
       if (id) onCreated(id);
@@ -291,6 +286,11 @@ export function QuickCreateCategoryDialog({
                 placeholder={tab === "category" ? "e.g. Mustard Oil" : "e.g. Filtered Mustard Oil"}
                 required
               />
+              {slug && (
+                <p className="text-xs text-muted-foreground">
+                  Slug: <span className="font-mono text-[11px] font-medium text-foreground">{slug}</span>
+                </p>
+              )}
             </div>
 
             {tab === "sub" && (
@@ -399,10 +399,10 @@ export function QuickCreateCategoryDialog({
                 <Button type="submit" disabled={saving || createMutation.isPending}>
                   {saving || createMutation.isPending ? (
                     <>
-                      <Loader2 className="size-3.5 animate-spin" /> Creating...
+                      <Loader2 className="size-3.5 animate-spin" /> Saving...
                     </>
                   ) : (
-                    "Create & Select"
+                    "Save"
                   )}
                 </Button>
               </div>

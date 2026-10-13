@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDownWideNarrow, Search, SlidersHorizontal } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowDownWideNarrow, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { TablePagination } from "@/components/ui/table-pagination.tsx";
 import {
@@ -28,6 +29,8 @@ interface SliderCardGridProps {
   onSearchChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onEdit: (slider: SliderItem) => void;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 const SORT_OPTIONS: Array<{ value: LatestFirstOrder; label: string }> = [
@@ -57,6 +60,8 @@ export function SliderCardGrid({
   onSearchChange,
   onPageChange,
   onEdit,
+  onAdd,
+  addLabel,
 }: SliderCardGridProps) {
   const updateStatusMutation = useUpdateSliderStatus();
   const [togglingId, setTogglingId] = useState<number | null>(null);
@@ -70,25 +75,6 @@ export function SliderCardGrid({
   });
   const searchRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
-      const t = e.target as HTMLElement | null;
-      if (
-        !t ||
-        t.tagName === "INPUT" ||
-        t.tagName === "TEXTAREA" ||
-        t.isContentEditable ||
-        document.querySelector('[role="dialog"]')
-      ) {
-        return;
-      }
-      e.preventDefault();
-      searchRef.current?.focus();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   // Search is server-side (?search=); sort the loaded page latest-first.
   const visible = sortByRecency(sliders, order);
@@ -133,13 +119,10 @@ export function SliderCardGrid({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               onKeyDown={handleSearchKey}
-              placeholder="Search banners by type, category, or URL... ( / )"
-              className="pl-8 pr-9"
+              placeholder="Search..."
+              className="pl-8"
               aria-label="Search slider banners"
             />
-            <kbd className="pointer-events-none absolute right-2.5 top-2 hidden h-5 items-center rounded border border-border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground sm:inline-flex">
-              /
-            </kbd>
           </div>
           <div className="flex items-center gap-2 sm:ml-auto">
             <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -181,6 +164,12 @@ export function SliderCardGrid({
                 </button>
               ))}
             </div>
+            {onAdd && (
+              <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+                <Plus className="size-4" />
+                <span>{addLabel || "Upload Banner"}</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

@@ -215,7 +215,9 @@ function VendorRateEditContent({
   const parentCategories = getParentCategories(categories);
   const catsLoading = activeCatsLoading || allCatsLoading;
 
-  const [categoryId, setCategoryId] = useState(String(rate.category_id ?? "1"));
+  const [categoryId, setCategoryId] = useState(
+    rate.category_id ? String(rate.category_id) : "",
+  );
   const [subCategoryId, setSubCategoryId] = useState(
     rate.sub_category_id ? String(rate.sub_category_id) : "",
   );
@@ -488,7 +490,7 @@ function VendorRateEditContent({
             {isSaving && (
               <Loader2 className="size-4 animate-spin" />
             )}
-            <span>Update Rate</span>
+            <span>{isSaving ? "Saving..." : "Save"}</span>
           </Button>
         </div>
       </div>
@@ -535,14 +537,11 @@ function VendorRateCreateContent({
   const [focusedKey, setFocusedKey] = useState<number | null>(null);
 
   useEffect(() => {
-    if (filteredVendors.length === 0) return;
-    setVendorId((prev) => {
-      if (prev && filteredVendors.some((v) => String(v.id) === String(prev))) {
-        return prev;
-      }
-      return String(filteredVendors[0].id);
-    });
-  }, [filteredVendors]);
+    if (!vendorId) return;
+    if (!filteredVendors.some((v) => String(v.id) === String(vendorId))) {
+      setVendorId("");
+    }
+  }, [filteredVendors, vendorId]);
 
   const isSubmitting =
     createLiveMutation.isPending || createRateMutation.isPending;
@@ -602,9 +601,12 @@ function VendorRateCreateContent({
     e.preventDefault();
     setErrorMessage(null);
 
-    const vId =
-      vendorId ||
-      (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "1");
+    if (!vendorId) {
+      setErrorMessage("Please select a vendor.");
+      return;
+    }
+
+    const vId = vendorId;
 
     console.log(`[VendorRate:${type}:create] submit rows=${rows.length}`, {
       type,
@@ -697,7 +699,7 @@ function VendorRateCreateContent({
         <Label htmlFor="vendor_select">Vendor (applies to all rows)</Label>
         <VendorSelectWithCreate
           id="vendor_select"
-          value={vendorId || (filteredVendors[0]?.id ? String(filteredVendors[0].id) : "")}
+          value={vendorId}
           onChange={setVendorId}
           defaultTrade={defaultTradeId}
           options={
@@ -710,7 +712,7 @@ function VendorRateCreateContent({
           }
           placeholder={
             filteredVendors.length > 0
-              ? `Select ${type === "live" ? "live" : "rate"} vendor — or + to create`
+              ? `Select ${type === "live" ? "Live Rate" : "Standard Rate"} Vendor — or + to create`
               : `No ${type === "live" ? "live" : "rate"} vendors available — click + to create`
           }
           required
@@ -915,9 +917,7 @@ function VendorRateCreateContent({
           </Button>
           <Button type="submit" disabled={isSubmitting} className="gap-2">
             {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-            <span>
-              Save {rows.length > 1 ? `${rows.length} Rates` : "Rate"}
-            </span>
+            <span>{isSubmitting ? "Saving..." : "Save"}</span>
           </Button>
         </div>
       </div>

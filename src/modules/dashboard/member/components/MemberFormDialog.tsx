@@ -270,7 +270,7 @@ function MemberFormContent({ member, onClose }: InnerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update Member" : "Add Member"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </div>
     </form>

@@ -30,7 +30,7 @@ export function CategorySelectWithCreate({
   const [pendingName, setPendingName] = useState("");
 
   const handleCreateNew = (typedName: string) => {
-    setPendingName(typedName);
+    setPendingName(typedName.replace(/\//g, "-"));
     setQuickOpen(true);
   };
 
@@ -87,7 +87,7 @@ export function SubCategorySelectWithCreate({
   const [pendingName, setPendingName] = useState("");
 
   const handleCreateNew = (typedName: string) => {
-    setPendingName(typedName);
+    setPendingName(typedName.replace(/\//g, "-"));
     setQuickOpen(true);
   };
 

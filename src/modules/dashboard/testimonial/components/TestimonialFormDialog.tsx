@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -39,9 +39,7 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
   const { data: pageOptions = [] } = usePageOneOptions();
 
   const [testimonialFor, setTestimonialFor] = useState(
-    normalizePageSlug(
-      testimonial?.testimonial_for || pageOptions[0]?.page_url || "home",
-    ),
+    testimonial?.testimonial_for ? normalizePageSlug(testimonial.testimonial_for) : "",
   );
   const [clientName, setClientName] = useState(
     testimonial?.testimonial_client_name || "",
@@ -66,16 +64,6 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
     [pageOptions],
   );
 
-  // Page options load after mount — default a new record to the first page.
-  useEffect(() => {
-    if (
-      !isEditing &&
-      pageSlugs.length > 0 &&
-      !pageSlugs.some((o) => o.value === testimonialFor)
-    ) {
-      setTestimonialFor(pageSlugs[0].value);
-    }
-  }, [pageSlugs, isEditing, testimonialFor]);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -83,6 +71,10 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
     e.preventDefault();
     setErrorMessage(null);
 
+    if (!testimonialFor) {
+      setErrorMessage("Please select a page placement.");
+      return;
+    }
     if (!clientName.trim()) {
       setErrorMessage("Please enter client / author name.");
       return;
@@ -148,6 +140,7 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
               onChange={(e) => setTestimonialFor(e.target.value)}
               className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
+              <option value="">Select page placement...</option>
               {pageSlugs.length > 0 ? (
                 pageSlugs.map((p) => (
                   <option key={p.value} value={p.value}>
@@ -238,7 +231,7 @@ function TestimonialFormContent({ testimonial, onClose }: InnerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving..." : isEditing ? "Update Review" : "Add Testimonial"}
+          {isPending ? "Saving..." : "Save"}
         </Button>
       </DialogFooter>
     </form>

@@ -50,13 +50,9 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
     return merged.filter(isRootCategory);
   }, [activeCategories, allCategories]);
 
-  const [categoryId, setCategoryId] = useState(String(news?.category_id ?? ""));
-
-  useEffect(() => {
-    if (!categoryId && parentCategories.length > 0) {
-      setCategoryId(String(parentCategories[0].id));
-    }
-  }, [parentCategories, categoryId]);
+  const [categoryId, setCategoryId] = useState(
+    news?.category_id ? String(news.category_id) : "",
+  );
 
   const categoryOptions = useMemo(() => {
     const list = parentCategories.map((c) => ({
@@ -373,11 +369,7 @@ function NewsFormContent({ news, onClose }: InnerFormProps) {
             Cancel
           </Button>
           <Button type="submit" disabled={isPending}>
-            {isPending
-              ? "Saving..."
-              : isEditing
-                ? "Update Article"
-                : "Publish Article"}
+            {isPending ? "Saving..." : "Save"}
           </Button>
         </div>
       </DialogFooter>

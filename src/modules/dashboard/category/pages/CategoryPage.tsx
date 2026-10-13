@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AlertCircle, FolderTree, GitBranch, Plus, RefreshCw } from "lucide-react";
+import { AlertCircle, FolderTree, GitBranch, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -111,11 +111,6 @@ export function CategoryPage() {
             />
             <span>Refresh</span>
           </Button>
-
-          <Button size="sm" onClick={handleOpenCreate} className="gap-2">
-            <Plus className="size-4" />
-            <span>{tab === "sub" ? "Add Sub Category" : "Add Category"}</span>
-          </Button>
         </div>
       </div>
 
@@ -211,6 +206,8 @@ export function CategoryPage() {
           onPageChange={setPage}
           onEdit={handleOpenEdit}
           tabLabel={tab === "parent" ? "category" : "sub-category"}
+          onAdd={handleOpenCreate}
+          addLabel={tab === "sub" ? "Add Sub Category" : "Add Category"}
         />
       ) : (
         <CategoryTable
@@ -226,6 +223,8 @@ export function CategoryPage() {
           onPageChange={setPage}
           onEdit={handleOpenEdit}
           showParentColumn={tab === "sub"}
+          onAdd={handleOpenCreate}
+          addLabel={tab === "sub" ? "Add Sub Category" : "Add Category"}
         />
       )}
 

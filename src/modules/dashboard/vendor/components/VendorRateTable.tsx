@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, Edit2, IndianRupee, Power, Search } from "lucide-react";
+import { AlertCircle, Edit2, IndianRupee, Plus, Power, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -30,6 +30,8 @@ interface VendorRateTableProps {
   onClearVendorFilter?: () => void;
   vendorOptions?: SearchableSelectOption[];
   vendorsLoading?: boolean;
+  onAdd?: () => void;
+  addLabel?: string;
 }
 
 export function VendorRateTable({
@@ -53,6 +55,8 @@ export function VendorRateTable({
   onClearVendorFilter,
   vendorOptions = [],
   vendorsLoading = false,
+  onAdd,
+  addLabel,
 }: VendorRateTableProps) {
   const [togglingId, setTogglingId] = useState<number | null>(null);
 
@@ -93,7 +97,7 @@ export function VendorRateTable({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={`Search ${type === "live" ? "live" : "standard"} rates by product or size...`}
+            placeholder="Search..."
             className="pl-8"
           />
         </div>
@@ -106,6 +110,12 @@ export function VendorRateTable({
             options={vendorOptions}
             isLoading={vendorsLoading}
           />
+        )}
+        {onAdd && (
+          <Button size="sm" onClick={onAdd} className="gap-2 shrink-0">
+            <Plus className="size-4" />
+            <span>{addLabel || (type === "live" ? "Add Live" : "Add Rate")}</span>
+          </Button>
         )}
       </div>
 
