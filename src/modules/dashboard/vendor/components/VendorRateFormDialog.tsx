@@ -595,29 +595,6 @@ function VendorRateCreateContent({
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Products ({rows.length})
           </span>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddSize}
-              className="h-7 gap-1.5 text-xs"
-              title="Add size row keeping category, sub-category & product name"
-            >
-              <Plus className="size-3" />
-              <span>Add Size</span>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddRow}
-              className="h-7 gap-1.5 text-xs"
-            >
-              <Plus className="size-3" />
-              <span>Add Product</span>
-            </Button>
-          </div>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -777,7 +754,26 @@ function VendorRateCreateContent({
           </kbd>{" "}
           to save all rows
         </span>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddSize}
+            className="gap-1.5"
+            title="Add size row keeping category, sub-category & product name"
+          >
+            <Plus className="size-4" />
+            <span>Add Size</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddRow}
+            className="gap-1.5"
+          >
+            <Plus className="size-4" />
+            <span>Add Product</span>
+          </Button>
           <Button
             type="button"
             variant="outline"

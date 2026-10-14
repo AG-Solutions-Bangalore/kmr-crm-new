@@ -323,7 +323,9 @@ export function VendorPage() {
   const ratesFiltered = useMemo(
     () =>
       rateVendor
-        ? standardRates.filter((r) => String(r.vendor_id) === rateVendor)
+        ? [...standardRates]
+            .filter((r) => String(r.vendor_id) === rateVendor)
+            .sort((a, b) => Number(a.id) - Number(b.id))
         : standardRates,
     [standardRates, rateVendor],
   );

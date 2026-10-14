@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Loader2, Save, X } from "lucide-react";
+import { AlertCircle, ArrowDown, ArrowUp, CheckCircle2, Loader2, Save, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button.tsx";
@@ -80,14 +80,26 @@ export function VendorRateBulkEditView({
     setFailedIds([]);
   }, [items]);
 
+  const [idSortOrder, setIdSortOrder] = useState<"asc" | "desc">("asc");
+
+  // In rate tab (type === "standard"), sort products by ID (both ascending & descending supported)
+  const displayItems = useMemo(() => {
+    if (type !== "standard") return items;
+    return [...items].sort((a, b) => {
+      const idA = Number(a.id) || 0;
+      const idB = Number(b.id) || 0;
+      return idSortOrder === "asc" ? idA - idB : idB - idA;
+    });
+  }, [items, type, idSortOrder]);
+
   const changedRows = useMemo(
     () =>
-      items.filter((it) => {
+      displayItems.filter((it) => {
         const row = rows[it.id];
         if (!row) return false;
         return row.price.trim() !== String(it.vendor_product_rate ?? "").trim();
       }),
-    [items, rows],
+    [displayItems, rows],
   );
 
   const invalidRows = useMemo(
@@ -256,13 +268,28 @@ export function VendorRateBulkEditView({
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border/60 bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Product Name</th>
+                <th
+                  className={`px-4 py-3 ${type === "standard" ? "cursor-pointer select-none hover:text-foreground transition-colors group" : ""}`}
+                  onClick={type === "standard" ? () => setIdSortOrder((prev) => (prev === "asc" ? "desc" : "asc")) : undefined}
+                  title={type === "standard" ? `Sort order: ${idSortOrder === "asc" ? "Ascending" : "Descending"}. Click to toggle.` : undefined}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Product Name</span>
+                    {type === "standard" && (
+                      idSortOrder === "asc" ? (
+                        <ArrowUp className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      ) : (
+                        <ArrowDown className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      )
+                    )}
+                  </div>
+                </th>
                 <th className="w-36 px-4 py-3">Size</th>
                 <th className="w-48 px-4 py-3">Price (₹)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
-              {items.map((item, index) => {
+              {displayItems.map((item, index) => {
                 const row = rows[item.id];
                 const original = String(item.vendor_product_rate ?? "").trim();
                 const isChanged = row && row.price.trim() !== original;
