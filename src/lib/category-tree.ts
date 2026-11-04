@@ -1,14 +1,8 @@
 import type { Category } from "@/modules/dashboard/category/types/category.types.ts";
 
-/** A category with no parent — selectable as a Category (not a sub). */
+/** A category with no parent — selectable as a Category (parent_id is null/undefined). */
 export function isRootCategory(c: { parent_id?: number | string | null }): boolean {
-  return (
-    c.parent_id === null ||
-    c.parent_id === undefined ||
-    c.parent_id === "" ||
-    c.parent_id === "0" ||
-    c.parent_id === 0
-  );
+  return c.parent_id === null || c.parent_id === undefined;
 }
 
 /**
@@ -23,15 +17,12 @@ export function mergeCategories<T extends { id: number | string }>(active: T[], 
 }
 
 /**
- * Categories selectable as a Category: roots + anything that has children.
- * Falls back to the full list when nothing qualifies.
+ * Categories selectable as a Category: root categories only (parent_id null/0).
+ * Sub-categories never belong here — they are shown in the sub-category
+ * dropdown filtered by the selected category.
  */
 export function getParentCategories(categories: Category[]): Category[] {
-  const parentIdSet = new Set(categories.map((c) => String(c.parent_id ?? "")));
-  const list = categories.filter(
-    (c) => isRootCategory(c) || parentIdSet.has(String(c.id)),
-  );
-  return list.length > 0 ? list : categories;
+  return categories.filter(isRootCategory);
 }
 
 /**

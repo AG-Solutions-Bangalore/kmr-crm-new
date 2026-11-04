@@ -17,12 +17,10 @@ import {
 } from "../hook/useVendor.ts";
 import {
   useActiveCategories,
-  useCategories,
 } from "../../category/hook/useCategory.ts";
 import {
   getParentCategories,
   getSubCategories,
-  mergeCategories,
 } from "@/lib/category-tree.ts";
 import { filterVendorsByTrade } from "../lib/vendor-trade.ts";
 import type { VendorSpotItem } from "../types/vendor.types.ts";
@@ -59,11 +57,9 @@ function VendorSpotEditContent({
   const updateMutation = useUpdateVendorSpot();
   const { data: activeCategories = [], isLoading: activeCatsLoading } =
     useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } =
-    useCategories();
-  const categories = mergeCategories(activeCategories, allCategories);
+  const categories = activeCategories;
   const parentCategories = getParentCategories(categories);
-  const catsLoading = activeCatsLoading || allCatsLoading;
+  const catsLoading = activeCatsLoading;
 
   const [categoryId, setCategoryId] = useState(
     spot?.category_id ? String(spot.category_id) : "",
@@ -80,24 +76,31 @@ function VendorSpotEditContent({
   // selected category. Nothing is shown until a category is picked.
   const directChildren = getSubCategories(categories, categoryId);
   const hasDirectChildren = directChildren.length > 0;
-  const subOptionsBase = directChildren;
 
-  // Reset sub-category when the category changes and the current value is
-  // not one of its direct children.
   useEffect(() => {
+    if (catsLoading) return;
+    console.log("[VendorSpot:edit] Category options (parent_id is null):", parentCategories);
+    if (categoryId) {
+      console.log(`[VendorSpot:edit] Sub-category options for categoryId=${categoryId}:`, directChildren);
+    }
+  }, [catsLoading, categoryId, parentCategories, directChildren]);
+
+  // Drop a sub-category that does not belong to the selected category as
+  // soon as category data is available (also covers edit prefill data).
+  useEffect(() => {
+    if (catsLoading) return;
+    if (!categoryId) {
+      if (subCategoryId) setSubCategoryId("");
+      return;
+    }
     if (
       subCategoryId &&
-      categoryId &&
-      hasDirectChildren &&
       !directChildren.some((c) => String(c.id) === String(subCategoryId))
     ) {
       setSubCategoryId("");
     }
-    if (!categoryId && subCategoryId) {
-      setSubCategoryId("");
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId]);
+  }, [categoryId, catsLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,6 +182,7 @@ function VendorSpotEditContent({
               value={categoryId}
               onChange={(val) => {
                 setCategoryId(val);
+                setSubCategoryId("");
               }}
               options={parentCategories.map((c) => ({
                 value: String(c.id),
@@ -203,23 +207,10 @@ function VendorSpotEditContent({
               value={subCategoryId}
               onChange={setSubCategoryId}
               clearable
-              options={[
-                ...(subCategoryId &&
-                !subOptionsBase.some(
-                  (c) => String(c.id) === String(subCategoryId),
-                )
-                  ? [
-                      {
-                        value: subCategoryId,
-                        label: `Current: ${spot?.sub_categories_name || `#${subCategoryId}`}`,
-                      },
-                    ]
-                  : []),
-                ...subOptionsBase.map((c) => ({
-                  value: String(c.id),
-                  label: c.categories_name,
-                })),
-              ]}
+              options={directChildren.map((c) => ({
+                value: String(c.id),
+                label: c.categories_name,
+              }))}
               placeholder={
                 !categoryId
                   ? "Select category first"
@@ -326,11 +317,9 @@ function VendorSpotCreateContent({
   const { data: activeVendors = [] } = useActiveVendors();
   const { data: activeCategories = [], isLoading: activeCatsLoading } =
     useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } =
-    useCategories();
-  const categories = mergeCategories(activeCategories, allCategories);
+  const categories = activeCategories;
   const parentCategories = getParentCategories(categories);
-  const catsLoading = activeCatsLoading || allCatsLoading;
+  const catsLoading = activeCatsLoading;
 
   const filteredVendors = useMemo(
     () => filterVendorsByTrade(activeVendors, "spot"),
@@ -386,6 +375,16 @@ function VendorSpotCreateContent({
 
   // Strict linking: no category -> no sub-categories.
   const subsFor = (catId: string) => getSubCategories(categories, catId);
+
+  useEffect(() => {
+    if (catsLoading) return;
+    console.log("[VendorSpot:create] Category options (parent_id is null):", parentCategories);
+    rows.forEach((r, idx) => {
+      if (r.categoryId) {
+        console.log(`[VendorSpot:create] Quote #${idx + 1} Sub-category options for categoryId=${r.categoryId}:`, subsFor(r.categoryId));
+      }
+    });
+  }, [catsLoading, parentCategories, rows]);
 
   const updateRow = (
     key: number,
