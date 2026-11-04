@@ -29,12 +29,10 @@ import {
 } from "../hook/useVendor.ts";
 import {
   useActiveCategories,
-  useCategories,
 } from "../../category/hook/useCategory.ts";
 import {
   getParentCategories,
   getSubCategories,
-  mergeCategories,
 } from "@/lib/category-tree.ts";
 import type { VendorRateProduct } from "../types/vendor.types.ts";
 
@@ -86,11 +84,9 @@ function VendorRateEditContent({
 
   const { data: activeCategories = [], isLoading: activeCatsLoading } =
     useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } =
-    useCategories();
-  const categories = mergeCategories(activeCategories, allCategories);
+  const categories = activeCategories;
   const parentCategories = getParentCategories(categories);
-  const catsLoading = activeCatsLoading || allCatsLoading;
+  const catsLoading = activeCatsLoading;
 
   const [categoryId, setCategoryId] = useState(
     rate.category_id ? String(rate.category_id) : "",
@@ -112,24 +108,31 @@ function VendorRateEditContent({
   // selected category. Nothing is shown until a category is picked.
   const directChildren = getSubCategories(categories, categoryId);
   const hasDirectChildren = directChildren.length > 0;
-  const subOptionsBase = directChildren;
 
-  // Reset sub-category when the category changes and the current value is
-  // not one of its direct children.
   useEffect(() => {
+    if (catsLoading) return;
+    console.log(`[VendorRate:${type}:edit] Category options (parent_id is null):`, parentCategories);
+    if (categoryId) {
+      console.log(`[VendorRate:${type}:edit] Sub-category options for categoryId=${categoryId}:`, directChildren);
+    }
+  }, [type, catsLoading, categoryId, parentCategories, directChildren]);
+
+  // Drop a sub-category that does not belong to the selected category as
+  // soon as category data is available (also covers edit prefill data).
+  useEffect(() => {
+    if (catsLoading) return;
+    if (!categoryId) {
+      if (subCategoryId) setSubCategoryId("");
+      return;
+    }
     if (
       subCategoryId &&
-      categoryId &&
-      hasDirectChildren &&
       !directChildren.some((c) => String(c.id) === String(subCategoryId))
     ) {
       setSubCategoryId("");
     }
-    if (!categoryId && subCategoryId) {
-      setSubCategoryId("");
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId]);
+  }, [categoryId, catsLoading]);
 
   const isSaving = updateMutation.isPending;
 
@@ -269,6 +272,7 @@ function VendorRateEditContent({
               value={categoryId}
               onChange={(val) => {
                 setCategoryId(val);
+                setSubCategoryId("");
               }}
               options={parentCategories.map((c) => ({
                 value: String(c.id),
@@ -291,23 +295,10 @@ function VendorRateEditContent({
               value={subCategoryId}
               onChange={setSubCategoryId}
               clearable
-              options={[
-                ...(subCategoryId &&
-                !subOptionsBase.some(
-                  (c) => String(c.id) === String(subCategoryId),
-                )
-                  ? [
-                      {
-                        value: subCategoryId,
-                        label: `Current: ${rate.sub_categories_name || `#${subCategoryId}`}`,
-                      },
-                    ]
-                  : []),
-                ...subOptionsBase.map((c) => ({
-                  value: String(c.id),
-                  label: c.categories_name,
-                })),
-              ]}
+              options={directChildren.map((c) => ({
+                value: String(c.id),
+                label: c.categories_name,
+              }))}
               placeholder={
                 !categoryId
                   ? "Select category first"
@@ -383,11 +374,9 @@ function VendorRateCreateContent({
   const { data: vendors = [] } = useActiveVendors();
   const { data: activeCategories = [], isLoading: activeCatsLoading } =
     useActiveCategories();
-  const { data: allCategories = [], isLoading: allCatsLoading } =
-    useCategories();
-  const categories = mergeCategories(activeCategories, allCategories);
+  const categories = activeCategories;
   const parentCategories = getParentCategories(categories);
-  const catsLoading = activeCatsLoading || allCatsLoading;
+  const catsLoading = activeCatsLoading;
   const createLiveMutation = useCreateVendorLive();
   const createRateMutation = useCreateVendorRate();
 
@@ -406,6 +395,16 @@ function VendorRateCreateContent({
   const keyRef = useRef(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [focusedKey, setFocusedKey] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (catsLoading) return;
+    console.log(`[VendorRate:${type}:create] Category options (parent_id is null):`, parentCategories);
+    rows.forEach((r, idx) => {
+      if (r.categoryId) {
+        console.log(`[VendorRate:${type}:create] Row #${idx + 1} Sub-category options for categoryId=${r.categoryId}:`, subsFor(r.categoryId));
+      }
+    });
+  }, [type, catsLoading, parentCategories, rows]);
 
   useEffect(() => {
     if (!vendorId) return;
